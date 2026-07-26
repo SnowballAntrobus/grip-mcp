@@ -24,16 +24,17 @@ language throughout — the conversation is the control surface.
 }
 ```
 
-- [ ] Restart Claude Desktop; confirm the `grip` server shows 23 tools.
+- [ ] Restart Claude Desktop; confirm the `grip` server shows 26 tools.
       (First launch resolves `mcp` + `resvg-py`; give it a moment.)
-- [ ] Renders and libraries will land under `~/music_projects/` —
-      keep a Finder window on it.
+- [ ] Renders and libraries land under `~/grip_sessions/` (set
+      MUSIC_PROJECT_ROOT to share a root with cdp-mcp) — keep a Finder
+      window on it.
 
 ## 1. Project + the create gate (§6.2)
 
 - [ ] Say: *"set up a grip project called gm-em-song"* → it should be
       **created** (and Claude should say created, not opened).
-- [ ] Check disk: `~/music_projects/gm-em-song` should **not exist yet**
+- [ ] Check disk: `~/grip_sessions/gm-em-song` should **not exist yet**
       (creation defers to first write; a confirmed switch litters nothing).
 - [ ] New conversation. Say: *"open my grip project gm-em-sog"* (typo).
       → Expect a refusal that suggests `gm-em-song`, **not** a silently
@@ -44,18 +45,20 @@ language throughout — the conversation is the control surface.
 ## 2. Capture — one call in the common case (§6.1)
 
 - [ ] Say: *"add my Gm shape, x x 8 7 8 x, fingers x x 2 1 3 x — call
-      it Gm"* → one tool call; stored; **chosen = Gm/Bb**; a chart
-      appears (renders/ on disk).
+      it Gm"* → one tool call; stored; **chosen = Gm/Bb**; NO chart
+      unless you ask (renders are on request now).
 - [ ] **Watch the presentation**: the literal top reading is `Bb6` —
       Claude should lead with *your* name ("your Gm", "Gm/Bb") and
       offer Bb6 as the literal reading, not the other way round. This
       is the core §6.3 behavior; if it parrots "that's a Bb6," the
       descriptions failed at their job.
-- [ ] Verify the pitch echo: Bb3 D4 G4, low→high. Open the PNG: X X on
-      the outer strings, dots at 8-7-8, "7fr" numeral.
-- [ ] Bulk capture: *"add the rest of the song without rendering each:
-      gm-o = 3 1 x x x x, pass = 5 x x 3 x x, b5 = x 2 4 x x x"* →
-      three stores, no per-grip renders (the render=false idiom).
+- [ ] Verify the pitch echo: Bb3 D4 G4, low→high. Then *"show it to
+      me"* → one PNG (no SVG litter): X X on the outer strings, dots
+      at 8-7-8 with finger digits inside them, labels Bb3 D4 G4 with
+      octaves, "7fr" numeral.
+- [ ] Bulk capture: *"add the rest of the song: gm-o = 3 1 x x x x,
+      pass = 5 x x 3 x x, b5 = x 2 4 x x x"* → three stores, zero
+      renders (opt-in now); then one strip when you ask for it.
 - [ ] Deliberate mistake: *"add test1, x x 8 7 8"* (5 values) → error
       naming both lengths (5 vs 6), nothing stored.
 - [ ] Reversed-array trap: *"add test2: x 8 7 8 x x — wait, is that
@@ -161,6 +164,29 @@ language throughout — the conversation is the control surface.
       file it like one).
 - [ ] Whatever felt missing: does it want Phase 3 (analysis: Roman
       numerals, voice-leading) or something the roadmap doesn't have?
+
+## 11. Round 2 — feedback features
+
+- [ ] *"note in the journal: the pass grip wants to resolve down"* →
+      stored; new conversation + resume → the note surfaces without
+      asking.
+- [ ] *"what have we done so far?"* → history: every stored change,
+      newest first, no reads in the log.
+- [ ] Song structure: *"verse is gm-o pass gm-1; chorus is b5 q; the
+      song is verse, chorus, verse"* → full-song stores as
+      ["@verse", "@chorus", "@verse"]; edit the verse once → render the
+      song → the change is everywhere; deleting the verse refuses while
+      the song references it.
+- [ ] Working title: *"add this one as 'the spooky one' — not sure what
+      it is yet"* → label set, chosen unset, listed as unnamed; journal
+      context; later *"the spooky one is my Bsus4"* settles it.
+- [ ] Ornament: *"open E5 but I hammer the A string onto 2"* → stored
+      with the ornament; render shows the slur to a hollow dot with H;
+      identity stays the plain strings (annotation-only, by design —
+      identify the landed shape separately if you want its reading).
+- [ ] Thumb: capture a thumb-over shape (finger 0) → renders as T in
+      the dot; ask for voicings with thumb allowed → suggestions feed
+      back into add_grip unchanged.
 
 ---
 Found something? The fix lands in one of exactly three places: the

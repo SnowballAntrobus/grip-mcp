@@ -232,16 +232,16 @@ def test_service_envelope_and_truncation(svc):
 def test_service_render_strip(svc):
     r = svc.find_voicings("Gm", render=True)
     files = r["render"]["files"]
-    assert Path(files["svg"]).exists() and Path(files["png"]).exists()
-    assert Path(files["svg"]).name.startswith("adhoc__")
+    assert set(files) == {"png"}
+    assert Path(files["png"]).exists()
+    assert Path(files["png"]).name.startswith("adhoc__")
 
 
 def test_render_neck_key_overlay(svc):
     r = svc.render_neck(overlay_key="e-minor")
     assert Path(r["files"]["png"]).exists()
-    svg = Path(r["files"]["svg"]).read_text()
-    assert "<text" not in svg
-    assert Path(r["files"]["svg"]).name.startswith("neck__")
+    assert set(r["files"]) == {"png"}
+    assert Path(r["files"]["png"]).name.startswith("neck__")
 
 
 def test_render_neck_pitch_set_and_exactly_one_of(svc):

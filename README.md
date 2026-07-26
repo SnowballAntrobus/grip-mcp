@@ -61,9 +61,15 @@ Claude Desktop / any MCP client config:
 }
 ```
 
-`MUSIC_PROJECT_ROOT` defaults to `~/music_projects/`; each project keeps
-its grips in `<project>/grip/library.json` (human-editable,
-git-friendly) with renders beside it.
+`MUSIC_PROJECT_ROOT` defaults to `~/grip_sessions/`; point it at a
+shared root (e.g. `~/music_projects`) to keep the cross-tool bus with
+cdp-mcp. Each project keeps its grips in `<project>/grip/library.json`
+(human-editable, git-friendly) with PNG renders, an observation journal
+(`journal.jsonl`), and a mutation history (`history.jsonl`) beside it.
+Renders are on request only; finger digits draw inside the dots (T =
+thumb) with octave-bearing note labels beneath. Sequences compose into
+song structures via `@section` references; grips can carry
+hammer-on/pull-off ornaments.
 
 ## Development
 

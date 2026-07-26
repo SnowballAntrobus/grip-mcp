@@ -16,6 +16,7 @@ EXPECTED_TOOLS = {
     "define_tuning", "remove_tuning",
     "set_instrument_tuning", "retune_plan",  # Phase 2b
     "find_voicings", "render_neck",          # Phase 2a
+    "journal", "list_journal", "history",    # feedback round 1
 }
 
 
@@ -36,8 +37,7 @@ def test_server_instructions_keywords():
     assert "tiebreak" in s and "unique" in s
     assert "name->shape" in s.lower() or "name->shape" in s  # the bridge
     assert "VERIFY" in s                        # verified, never asserted
-    assert "render=false" in s                  # bulk-capture idiom
-    assert "strip" in s
+    assert "render" in s and "strip" in s       # renders on request
     assert "created or opened" in s             # created-vs-opened confirm
     assert "PARTIAL success" in s               # capture atomicity
     assert "never a re-send" in s
@@ -49,7 +49,8 @@ def test_tool_description_keywords():
     assert "close-match" in d["set_project"]
     assert "LOW to HIGH" in d["add_grip"]
     assert "chosen_miss" in d["add_grip"] and "set_reading" in d["add_grip"]
-    assert "render=false" in d["add_grip"]
+    assert "working title" in d["add_grip"]
+    assert "ornaments" in d["add_grip"]
     assert "most literal" in d["identify"] and "decided_at" in d["identify"]
     assert "three tiers" in d["set_reading"]
     assert "FULL" in d["set_reading"]

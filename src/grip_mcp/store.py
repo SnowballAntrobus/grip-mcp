@@ -60,8 +60,11 @@ def validate_slug(slug: str, kind: str) -> str:
 
 
 def project_root() -> Path:
+    """Default root: ~/grip_sessions (user feedback, 2026-07-26).
+    MUSIC_PROJECT_ROOT still overrides — point it at a shared root
+    (e.g. ~/music_projects) to keep the §3 cross-tool bus with cdp-mcp."""
     return Path(
-        os.environ.get("MUSIC_PROJECT_ROOT", "~/music_projects")
+        os.environ.get("MUSIC_PROJECT_ROOT", "~/grip_sessions")
     ).expanduser()
 
 
@@ -230,6 +233,8 @@ class Store:
         self.library_path = self.grip_dir / "library.json"
         self.derived_path = self.grip_dir / "derived.json"
         self.renders_dir = self.grip_dir / "renders"
+        self.journal_path = self.grip_dir / "journal.jsonl"
+        self.history_path = self.grip_dir / "history.jsonl"
         self._lib_hash: str | None = None  # hash at last load; None = absent
 
     # -- reads --------------------------------------------------------------
@@ -282,8 +287,11 @@ class Store:
             shutil.copy2(path, path.with_suffix(path.suffix + ".bak"))
         os.replace(tmp, path)
 
-    def save(self, lib: dict, derived: dict | None = None) -> None:
-        """Hash-guarded, atomic; first write bootstraps the namespace."""
+    def save(self, lib: dict, derived: dict | None = None,
+             op: dict | None = None) -> None:
+        """Hash-guarded, atomic; first write bootstraps the namespace.
+        `op` ({"tool": ..., "detail": ...}) appends to the mutation
+        history log — the project's own progress record."""
         _validate_library(lib)
         # Pre-write integrity: absent-file is expected-absent, not conflict.
         if self.library_path.exists():
@@ -312,6 +320,45 @@ class Store:
             derived if derived is not None else self.load_derived(),
         )
         self._lib_hash = _sha(self.library_path.read_bytes())
+        if op is not None:
+            self.append_jsonl(self.history_path, dict(op))
+
+    # -- append-only logs (journal + mutation history) ----------------------
+
+    def append_jsonl(self, path: Path, entry: dict) -> dict:
+        """Append one record (atomic rewrite; these logs are small and
+        append-only — last-writer-wins is acceptable here, unlike the
+        library)."""
+        import datetime as _dt
+        entry = {
+            "ts": _dt.datetime.now(_dt.timezone.utc)
+            .strftime("%Y-%m-%dT%H:%M:%SZ"),
+            **entry,
+        }
+        self.grip_dir.mkdir(parents=True, exist_ok=True)
+        existing = path.read_text(encoding="utf-8") if path.exists() else ""
+        line = json.dumps(entry, ensure_ascii=False) + "\n"
+        tmp = path.with_suffix(path.suffix + ".tmp")
+        tmp.write_text(existing + line, encoding="utf-8")
+        os.replace(tmp, path)
+        return entry
+
+    def read_jsonl(self, path: Path, limit: int | None = None,
+                   newest_first: bool = True) -> list[dict]:
+        if not path.exists():
+            return []
+        out = []
+        for line in path.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                out.append(json.loads(line))
+            except json.JSONDecodeError:
+                continue  # a corrupt line never blocks the rest
+        if newest_first:
+            out.reverse()
+        return out[:limit] if limit else out
 
     # -- derived cache ------------------------------------------------------
 
@@ -379,3 +426,39 @@ def list_projects(root: Path) -> dict:
 def close_matches(name: str, existing: list[str], n: int = 3) -> list[str]:
     import difflib
     return difflib.get_close_matches(name, existing, n=n, cutoff=0.5)
+
+
+# ---------------------------------------------------------------------------
+# Sequence structure (song sections; nesting via "@name" items)
+# ---------------------------------------------------------------------------
+
+def flatten_sequence(lib: dict, name: str, _stack: tuple = ()) -> list[str]:
+    """Resolve a sequence to its grip ids, expanding "@other" references
+    recursively with cycle detection. Song structures compose without
+    duplication: edit the section once, every containing structure sees
+    it."""
+    if name in _stack:
+        raise StoreError(
+            "sequence_cycle",
+            f"sequence {name!r} contains itself: "
+            f"{' -> '.join(_stack + (name,))}",
+        )
+    if name not in lib["sequences"]:
+        raise StoreError(
+            "unknown_sequence",
+            f"sequence {name!r} not found; known: "
+            f"{sorted(lib['sequences'])}",
+        )
+    out: list[str] = []
+    for item in lib["sequences"][name]:
+        if item.startswith("@"):
+            out.extend(flatten_sequence(lib, item[1:], _stack + (name,)))
+        else:
+            out.append(item)
+    return out
+
+
+def sequence_references(lib: dict, name: str) -> list[str]:
+    """Sequences whose items reference @name directly."""
+    ref = "@" + name
+    return [s for s, items in lib["sequences"].items() if ref in items]

@@ -95,12 +95,16 @@ def test_add_grip_chosen_miss_is_partial_success(svc):
     assert svc.get_grip("q")["chosen"] is None
 
 
-def test_add_grip_render_by_default(svc):
-    r = svc.add_grip("gm-1", GM1, fingers=[None, None, 2, 1, 3, None])
+def test_add_grip_render_is_opt_in(svc):
+    quiet = svc.add_grip("gm-0", [3, 1, None, None, None, None])
+    assert quiet["stored"] is True and "render" not in quiet
+    r = svc.add_grip("gm-1", GM1, fingers=[None, None, 2, 1, 3, None],
+                     render=True)
     assert r["stored"] is True and r["warnings"] == []
     files = r["render"]["files"]
-    assert Path(files["svg"]).exists() and Path(files["png"]).exists()
-    assert Path(files["svg"]).name.startswith("gm-1__")
+    assert set(files) == {"png"}  # PNG only (feedback)
+    assert Path(files["png"]).exists()
+    assert Path(files["png"]).name.startswith("gm-1__")
 
 
 def test_add_grip_duplicate_refused(svc):
@@ -228,7 +232,7 @@ def test_remove_grip_refuses_while_referenced(svc):
     assert "'intro': 2" in r["error"]["detail"]      # every occurrence counts
     r = svc.remove_grip("a", force=True)
     assert r["stored"] is True
-    assert svc.list_sequences()["sequences"]["intro"] == ["b"]
+    assert svc.list_sequences()["sequences"]["intro"]["items"] == ["b"]
 
 
 def test_rename_grip_rewrites_sequences_atomically(svc):
@@ -236,7 +240,7 @@ def test_rename_grip_rewrites_sequences_atomically(svc):
     svc.set_sequence("intro", ["a", "a"])
     r = svc.rename_grip("a", "gm-first")
     assert r["sequence_occurrences_rewritten"] == 2
-    assert svc.list_sequences()["sequences"]["intro"] == \
+    assert svc.list_sequences()["sequences"]["intro"]["items"] == \
         ["gm-first", "gm-first"]
     assert svc.get_grip("gm-first")["id"] == "gm-first"
 
@@ -317,11 +321,12 @@ def test_render_sequence_strip_prefix_and_idempotent(svc):
     svc.add_grip("b", Q, render=False)
     svc.set_sequence("intro", ["a", "b"])
     r1 = svc.render(sequence="intro")
-    assert Path(r1["files"]["svg"]).name.startswith("intro__")
+    assert Path(r1["files"]["png"]).name.startswith("intro__")
+    assert set(r1["files"]) == {"png"}     # PNG only (feedback)
     r2 = svc.render(sequence="intro")
     assert r1["files"] == r2["files"]      # identical request, same files
     r3 = svc.render(ids=["a", "b"])
-    assert Path(r3["files"]["svg"]).name.startswith("strip__")
+    assert Path(r3["files"]["png"]).name.startswith("strip__")
 
 
 def test_render_labels_modes(svc):
@@ -329,8 +334,6 @@ def test_render_labels_modes(svc):
     notes = svc.render(ids=["gm-1"], labels="notes")
     intervals = svc.render(ids=["gm-1"], labels="intervals")
     assert notes["render_hash"] != intervals["render_hash"]
-    svg = Path(notes["files"]["svg"]).read_text()
-    assert "<text" not in svg              # glyph paths only
 
 
 def test_render_display_spelling_follows_chosen(svc):

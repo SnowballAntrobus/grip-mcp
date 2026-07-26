@@ -61,12 +61,13 @@ def test_03_capture_set_a(flow):
     strings, chosen = SET_A_GRIPS["gm-1"]
     r = svc.add_grip("gm-1", strings, fingers=[X, X, 2, 1, 3, X],
                      label="Gm first inversion", tags=["intro"],
-                     chosen=chosen)
+                     chosen=chosen, render=True)
     assert r["stored"] is True
     assert r["chosen"] == "Gm/Bb"
     assert r["top"] == "Bb6"
     assert r["resolved_pitches"] == ["E2", "A2", "D3", "G3", "B3", "E4"]
     assert Path(r["render"]["files"]["png"]).exists()
+    assert set(r["render"]["files"]) == {"png"}  # PNG only
     # Bulk capture: render=false per grip (§6.3 idiom):
     for gid, (strings, chosen) in SET_A_GRIPS.items():
         if gid == "gm-1":
@@ -85,7 +86,7 @@ def test_04_sequence_and_strip_render(flow):
     r = svc.set_sequence("intro", ["gm-o", "pass", "gm-1", "b5"])
     assert r["stored"] is True
     rr = svc.render(sequence="intro", title="intro")
-    assert Path(rr["files"]["svg"]).name.startswith("intro__")
+    assert Path(rr["files"]["png"]).name.startswith("intro__")
     assert Path(rr["files"]["png"]).exists()
     again = svc.render(sequence="intro", title="intro")
     assert again["files"] == rr["files"]   # idempotent overwrite
@@ -99,7 +100,7 @@ def test_05_identify_q_in_e_minor_with_render(flow):
     assert r["top"] == "F#q4"
     assert r["candidates"][1]["name"] == "Bsus4/F#"
     assert r["decided_at"] == "R1"
-    assert Path(r["render"]["files"]["svg"]).name.startswith("adhoc__")
+    assert Path(r["render"]["files"]["png"]).name.startswith("adhoc__")
     # Preview stores nothing:
     assert set(flow["svc"].list_grips()["grips"]) == set(SET_A_GRIPS)
 
@@ -152,6 +153,7 @@ def test_09_resume_speaks_the_vocabulary(flow):
     r = svc2.describe_workspace()
     assert r["grips"]["gm-1"]["chosen"] == "Gm/Bb"
     assert r["grips"]["gm-1"]["stale"] is False
+    assert r["grips"]["gm-1"]["named"] is True
     assert r["grips"]["q"]["chosen"] == "Bsus4/F#"
     assert r["sequences"]["intro"] == ["gm-o", "pass", "gm-1", "b5"]
     assert r["flags"] == []

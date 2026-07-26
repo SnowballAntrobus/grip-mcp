@@ -141,12 +141,11 @@ def test_retune_plan_capo_note(svc):
 def test_tuning_cards_render(svc):
     r = svc.retune_plan(to="dadgad", from_="standard", render=True)
     files = r["render"]["files"]
-    assert Path(files["svg"]).name.startswith("retune__")
+    assert set(files) == {"png"}
+    assert Path(files["png"]).name.startswith("retune__")
     assert Path(files["png"]).exists()
-    svg = Path(files["svg"]).read_text()
-    assert "<text" not in svg  # glyph paths, like everything else
 
 
 def test_declaration_card_render(svc):
     r = svc.set_instrument_tuning("dadgad", render=True)
-    assert Path(r["render"]["files"]["svg"]).name.startswith("dadgad__")
+    assert Path(r["render"]["files"]["png"]).name.startswith("dadgad__")

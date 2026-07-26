@@ -36,7 +36,7 @@ G7_CAPO = {
     ("strip_mixed", [GM1, DADGAD_OPEN, G7_CAPO],
      {"labels": "notes", "title": "intro strip", "columns": 3}),
     ("gm1_neck_dark", [GM1],
-     {"labels": "fingers", "orientation": "neck", "theme": "dark"}),
+     {"labels": "none", "orientation": "neck", "theme": "dark"}),
 ])
 def test_golden(name, grips, options):
     got = R.render_chart(grips, options)["svg"]
@@ -132,7 +132,7 @@ def test_barre_broken_by_muted_string():
 
 def test_barres_drawn_in_all_label_modes():
     g = {"frets": [5] * 6, "fingers": [1] * 6, "name": "A", "capo": 0}
-    for mode in ("notes", "intervals", "fingers", "none"):
+    for mode in ("notes", "intervals", "none"):
         svg = R.render_chart([g], {"labels": mode})["svg"]
         assert 'rx="8.50"' in svg  # the barre rounded rect
 
@@ -156,7 +156,7 @@ def test_text_as_glyph_paths_never_text_elements():
 def test_unknown_options_instructive():
     with pytest.raises(R.RenderError, match="dark"):
         R.render_chart([GM1], {"theme": "sepia"})
-    with pytest.raises(R.RenderError, match="fingers"):
+    with pytest.raises(R.RenderError, match="intervals"):
         R.render_chart([GM1], {"labels": "nope"})
     with pytest.raises(R.RenderError, match="neck"):
         R.render_chart([GM1], {"orientation": "sideways"})

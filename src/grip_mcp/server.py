@@ -48,9 +48,11 @@ def build_server(root=None) -> FastMCP:
                  tuning: str | None = None,
                  fingers: list[int | None] | None = None,
                  label: str | None = None, tags: list[str] | None = None,
-                 chosen: str | None = None, render: bool = True) -> dict:
+                 chosen: str | None = None,
+                 ornaments: list[dict] | None = None,
+                 render: bool = False) -> dict:
         return svc.add_grip(id, strings, tuning, fingers, label, tags,
-                            chosen, render)
+                            chosen, ornaments, render)
 
     @tool("get_grip")
     def get_grip(id: str) -> dict:
@@ -92,8 +94,20 @@ def build_server(root=None) -> FastMCP:
         return svc.list_sequences()
 
     @tool("remove_sequence")
-    def remove_sequence(name: str) -> dict:
-        return svc.remove_sequence(name)
+    def remove_sequence(name: str, force: bool = False) -> dict:
+        return svc.remove_sequence(name, force)
+
+    @tool("journal")
+    def journal(entry: str, tags: list[str] | None = None) -> dict:
+        return svc.journal(entry, tags)
+
+    @tool("list_journal")
+    def list_journal(limit: int = 10, tag: str | None = None) -> dict:
+        return svc.list_journal(limit, tag)
+
+    @tool("history")
+    def history(limit: int = 20) -> dict:
+        return svc.history(limit)
 
     @tool("render")
     def render(ids: list[str] | None = None, sequence: str | None = None,

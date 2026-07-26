@@ -101,7 +101,8 @@ class GripService:
             lib = st.load()
             ST.resolve_tuning(lib, default_tuning)  # must exist and resolve
             lib["default_tuning"] = default_tuning
-            st.save(lib)
+            st.save(lib, op={"tool": "update_project_defaults",
+                             "detail": {"default_tuning": default_tuning}})
         except ST.StoreError as e:
             return self._err(e.code, e.detail, mutating=True)
         return self._env({"default_tuning": default_tuning}, stored=True,
@@ -121,6 +122,9 @@ class GripService:
             "tunings": lib["tunings"],
             "flags": flags,
             "counts": {"grips": n, "sequences": len(lib["sequences"])},
+            # Recent observations resume with the workspace (feedback:
+            # a journal like cdp-mcp's).
+            "journal_recent": st.read_jsonl(st.journal_path, limit=3),
         }
         if n > INLINE_THRESHOLD:
             base["note"] = (
@@ -136,6 +140,9 @@ class GripService:
                 "label": grip.get("label"),
                 "tags": grip.get("tags", []),
                 "chosen": grip.get("chosen"),
+                # A label with no chosen is a WORKING title — the name is
+                # still being negotiated (feedback: formalized).
+                "named": grip.get("chosen") is not None,
             }
             if grip.get("chosen"):
                 try:
@@ -207,6 +214,46 @@ class GripService:
                 payload["render"] = rr
         return self._env(payload, warnings=warnings or None)
 
+    def _validate_ornaments(self, strings, ornaments):
+        """Hammer-on / pull-off annotations: [{string (1 = lowest), to,
+        type: hammer|pull}]. Annotation-only: ornament pitches do NOT
+        enter identification (the grip's identity is its strings array);
+        they render as a slur to a hollow target dot."""
+        if ornaments is None:
+            return
+        if not isinstance(ornaments, list):
+            raise TH.TheoryError("ornaments must be a list")
+        for o in ornaments:
+            if not isinstance(o, dict) or not {"string", "to", "type"} <= set(o):
+                raise TH.TheoryError(
+                    "each ornament needs {string, to, type} (string is "
+                    "1-based from the lowest)"
+                )
+            s, to, kind = o["string"], o["to"], o["type"]
+            if not (isinstance(s, int) and 1 <= s <= len(strings)):
+                raise TH.TheoryError(
+                    f"ornament string {s!r} out of range 1..{len(strings)}"
+                )
+            base = strings[s - 1]
+            if base is None:
+                raise TH.TheoryError(
+                    f"ornament on string {s}: the string is muted"
+                )
+            if not (isinstance(to, int) and to >= 0):
+                raise TH.TheoryError(f"ornament target fret {to!r} invalid")
+            if kind == "hammer" and not to > base:
+                raise TH.TheoryError(
+                    f"hammer-on on string {s} must land above fret {base}"
+                )
+            if kind == "pull" and not to < base:
+                raise TH.TheoryError(
+                    f"pull-off on string {s} must land below fret {base}"
+                )
+            if kind not in ("hammer", "pull"):
+                raise TH.TheoryError(
+                    f"ornament type {kind!r}; known: hammer, pull"
+                )
+
     def _validate_fingers(self, strings, fingers):
         if fingers is None:
             return
@@ -230,7 +277,8 @@ class GripService:
     def add_grip(self, id: str, strings: list, tuning: str | None = None,
                  fingers: list | None = None, label: str | None = None,
                  tags: list | None = None, chosen: str | None = None,
-                 render: bool = True) -> dict:
+                 ornaments: list | None = None,
+                 render: bool = False) -> dict:
         warnings: list[dict] = []
         try:
             st = self._store()
@@ -244,6 +292,7 @@ class GripService:
                 )
             tname, res = self._resolve_tuning_arg(lib, tuning)
             self._validate_fingers(strings, fingers)
+            self._validate_ornaments(strings, ornaments)
             r = TH.identify(strings, res["pitches"])  # validates lengths
         except (ST.StoreError, TH.TheoryError) as e:
             return self._err(getattr(e, "code", "bad_input"), str(e),
@@ -255,6 +304,8 @@ class GripService:
         }
         if fingers is not None:
             grip["fingers"] = list(fingers)
+        if ornaments:
+            grip["ornaments"] = list(ornaments)
         if label is not None:
             grip["label"] = label
         if tags:
@@ -280,7 +331,10 @@ class GripService:
         derived = st.load_derived()
         try:
             st.derive_grip(lib, derived, id)
-            st.save(lib, derived)
+            st.save(lib, derived,
+                    op={"tool": "add_grip",
+                        "detail": {"id": id, "chosen": grip.get("chosen"),
+                                   "tuning": tname}})
         except ST.StoreError as e:
             return self._err(e.code, e.detail, mutating=True)
         payload = {
@@ -353,6 +407,7 @@ class GripService:
         return self._env({
             "grips": {
                 gid: {"label": g.get("label"), "chosen": g.get("chosen"),
+                      "named": g.get("chosen") is not None,
                       "tags": g.get("tags", []), "tuning": g["tuning"]}
                 for gid, g in lib["grips"].items()
             }
@@ -391,6 +446,8 @@ class GripService:
             res = ST.resolve_tuning(lib, merged["tuning"])
             self._validate_fingers(merged["strings"],
                                    merged.get("fingers"))
+            self._validate_ornaments(merged["strings"],
+                                     merged.get("ornaments"))
             r = TH.identify(merged["strings"], res["pitches"])
             if "chosen" in patch and patch["chosen"] is not None:
                 cr = TH.resolve_chosen(patch["chosen"], r["candidates"])
@@ -417,7 +474,10 @@ class GripService:
                         if d["candidates"] else None,
                     },
                 })
-            st.save(lib, derived)
+            st.save(lib, derived,
+                    op={"tool": "update_grip",
+                        "detail": {"id": id,
+                                   "fields": sorted(patch)}})
         except (ST.StoreError, TH.TheoryError) as e:
             return self._err(getattr(e, "code", "bad_input"), str(e),
                              mutating=True)
@@ -447,7 +507,9 @@ class GripService:
             derived = st.load_derived()
             if id in derived["grips"]:
                 derived["grips"][new_id] = derived["grips"].pop(id)
-            st.save(lib, derived)
+            st.save(lib, derived,
+                    op={"tool": "rename_grip",
+                        "detail": {"was": id, "id": new_id}})
         except ST.StoreError as e:
             return self._err(e.code, e.detail, mutating=True)
         return self._env({"id": new_id, "was": id,
@@ -479,7 +541,8 @@ class GripService:
             del lib["grips"][id]
             derived = st.load_derived()
             derived["grips"].pop(id, None)
-            st.save(lib, derived)
+            st.save(lib, derived,
+                    op={"tool": "remove_grip", "detail": {"id": id}})
         except ST.StoreError as e:
             return self._err(e.code, e.detail, mutating=True)
         return self._env({"id": id, "removed_occurrences": refs},
@@ -512,7 +575,9 @@ class GripService:
             )
         lib["grips"][id]["chosen"] = result["name"]
         try:
-            st.save(lib, derived)
+            st.save(lib, derived,
+                    op={"tool": "set_reading",
+                        "detail": {"id": id, "chosen": result["name"]}})
         except ST.StoreError as e:
             return self._err(e.code, e.detail, mutating=True)
         return self._env(
@@ -638,7 +703,10 @@ class GripService:
                 lib["grips"][save_as] = new_grip
                 derived = st.load_derived()
                 st.derive_grip(lib, derived, save_as)
-                st.save(lib, derived)
+                st.save(lib, derived,
+                        op={"tool": "transpose",
+                            "detail": {"save_as": save_as, "from": id,
+                                       "semitones": semitones}})
                 payload["id"] = save_as
                 stored = True
             except ST.StoreError as e:
@@ -661,26 +729,46 @@ class GripService:
     # ------------------------------------------------------------ sequences
 
     def set_sequence(self, name: str, grips: list) -> dict:
+        """Items are grip ids or "@other-sequence" references — song
+        structures compose without duplication (song = ["@verse",
+        "@chorus", "@verse"]); edit the section once."""
         try:
             st = self._store()
             lib = st.load()
             ST.validate_slug(name, "sequence name")
-            missing = [g for g in grips if g not in lib["grips"]]
+            if not grips:
+                raise ST.StoreError("empty_sequence",
+                                    "a sequence needs at least one item")
+            missing = [
+                g for g in grips
+                if not g.startswith("@") and g not in lib["grips"]
+            ]
             if missing:
                 raise ST.StoreError(
                     "unknown_grip",
                     f"sequence references unknown grips {missing}; "
                     f"known: {sorted(lib['grips'])}",
                 )
-            if not grips:
-                raise ST.StoreError("empty_sequence",
-                                    "a sequence needs at least one grip id")
+            missing_seqs = [
+                g[1:] for g in grips
+                if g.startswith("@")
+                and g[1:] not in lib["sequences"] and g[1:] != name
+            ]
+            if missing_seqs:
+                raise ST.StoreError(
+                    "unknown_sequence",
+                    f"sequence references unknown sequences "
+                    f"{missing_seqs}; known: {sorted(lib['sequences'])}",
+                )
             lib["sequences"][name] = list(grips)
-            st.save(lib)
+            flat = ST.flatten_sequence(lib, name)  # cycle check
+            st.save(lib, op={"tool": "set_sequence",
+                             "detail": {"name": name,
+                                        "items": len(grips)}})
         except ST.StoreError as e:
             return self._err(e.code, e.detail, mutating=True)
-        return self._env({"name": name, "grips": list(grips)}, stored=True,
-                         warnings=[])
+        return self._env({"name": name, "grips": list(grips),
+                          "flattened": flat}, stored=True, warnings=[])
 
     def list_sequences(self) -> dict:
         try:
@@ -688,9 +776,17 @@ class GripService:
             lib = st.load()
         except ST.StoreError as e:
             return self._err(e.code, e.detail)
-        return self._env({"sequences": lib["sequences"]})
+        out = {}
+        for name, items in lib["sequences"].items():
+            entry = {"items": items}
+            try:
+                entry["flattened"] = ST.flatten_sequence(lib, name)
+            except ST.StoreError as e:
+                entry["flags"] = [{"code": e.code, "detail": e.detail}]
+            out[name] = entry
+        return self._env({"sequences": out})
 
-    def remove_sequence(self, name: str) -> dict:
+    def remove_sequence(self, name: str, force: bool = False) -> dict:
         try:
             st = self._store()
             lib = st.load()
@@ -700,11 +796,25 @@ class GripService:
                     f"sequence {name!r} not found; known: "
                     f"{sorted(lib['sequences'])}",
                 )
+            refs = ST.sequence_references(lib, name)
+            if refs and not force:
+                raise ST.StoreError(
+                    "sequence_referenced",
+                    f"sequence {name!r} is referenced (as @{name}) by "
+                    f"{refs}; pass force=true to remove it and its "
+                    "references",
+                )
+            for r in refs:
+                lib["sequences"][r] = [
+                    x for x in lib["sequences"][r] if x != "@" + name
+                ]
             del lib["sequences"][name]
-            st.save(lib)
+            st.save(lib, op={"tool": "remove_sequence",
+                             "detail": {"name": name}})
         except ST.StoreError as e:
             return self._err(e.code, e.detail, mutating=True)
-        return self._env({"name": name}, stored=True, warnings=[])
+        return self._env({"name": name, "dereferenced": refs},
+                         stored=True, warnings=[])
 
     # -------------------------------------------------------------- tunings
 
@@ -742,7 +852,8 @@ class GripService:
             )
             lib["tunings"][name] = entry
             resolved = ST.resolve_tuning(lib, name)  # cycles, parses, chains
-            st.save(lib)
+            st.save(lib, op={"tool": "define_tuning",
+                             "detail": {"name": name}})
         except (ST.StoreError, TH.TheoryError) as e:
             return self._err(getattr(e, "code", "bad_input"), str(e),
                              mutating=True)
@@ -796,10 +907,55 @@ class GripService:
                     f"{chained}",
                 )
             del lib["tunings"][name]
-            st.save(lib)
+            st.save(lib, op={"tool": "remove_tuning",
+                             "detail": {"name": name}})
         except ST.StoreError as e:
             return self._err(e.code, e.detail, mutating=True)
         return self._env({"name": name}, stored=True, warnings=[])
+
+    # -------------------------------------------- journal + history (log)
+
+    def journal(self, entry: str, tags: list | None = None) -> dict:
+        """Record an observation/context note on the project (cdp-mcp
+        style): 'the pass grip wants to resolve down', 'try the bridge in
+        open C'. Surfaced on resume; the accumulating context that turns
+        working titles into settled names."""
+        try:
+            st = self._store()
+            if not entry or not isinstance(entry, str):
+                raise ST.StoreError("bad_input", "entry must be text")
+            if not st.library_path.exists():
+                st.save(st.load())  # bootstrap the namespace consistently
+            rec = {"entry": entry}
+            if tags:
+                rec["tags"] = list(tags)
+            written = st.append_jsonl(st.journal_path, rec)
+        except ST.StoreError as e:
+            return self._err(e.code, e.detail, mutating=True)
+        return self._env({"journal": written}, stored=True, warnings=[])
+
+    def list_journal(self, limit: int = 10,
+                     tag: str | None = None) -> dict:
+        try:
+            st = self._store()
+            entries = st.read_jsonl(st.journal_path)
+        except ST.StoreError as e:
+            return self._err(e.code, e.detail)
+        if tag is not None:
+            entries = [e for e in entries if tag in e.get("tags", [])]
+        return self._env({"entries": entries[:max(1, limit)],
+                          "total": len(entries)})
+
+    def history(self, limit: int = 20) -> dict:
+        """The project's mutation log — every stored change, newest
+        first. The progress record source control would give you,
+        without leaving the conversation."""
+        try:
+            st = self._store()
+            entries = st.read_jsonl(st.history_path, limit=max(1, limit))
+        except ST.StoreError as e:
+            return self._err(e.code, e.detail)
+        return self._env({"entries": entries})
 
     # ------------------------------------------------------- Phase 2a (§9)
 
@@ -837,11 +993,7 @@ class GripService:
                 {
                     "frets": v["strings"],
                     "fingers": v["fingers"],
-                    "string_labels": [
-                        None if p is None else
-                        "".join(ch for ch in p if not ch.isdigit())
-                        for p in v["string_pitches"]
-                    ],
+                    "string_labels": list(v["string_pitches"]),
                     "name": result["chord"],
                     "capo": res["capo"],
                 }
@@ -910,10 +1062,7 @@ class GripService:
                                                 "theme": theme})
             png = RD.to_png(out["svg"], out["width"])
             st.renders_dir.mkdir(parents=True, exist_ok=True)
-            base = f"neck__{out['hash']}"
-            svg_path = st.renders_dir / f"{base}.svg"
-            png_path = st.renders_dir / f"{base}.png"
-            svg_path.write_text(out["svg"], encoding="utf-8")
+            png_path = st.renders_dir / f"neck__{out['hash']}.png"
             png_path.write_bytes(png)
         except (ST.StoreError, TH.TheoryError, RD.RenderError) as e:
             return self._err(getattr(e, "code", "bad_input"), str(e))
@@ -921,7 +1070,7 @@ class GripService:
             "tuning": tname,
             "capo": res["capo"],
             "overlay": title,
-            "files": {"svg": str(svg_path), "png": str(png_path)},
+            "files": {"png": str(png_path)},
             "render_hash": out["hash"],
         })
 
@@ -1017,7 +1166,8 @@ class GripService:
             lib.setdefault("instrument", {"declarations": []})
             lib["instrument"]["declarations"].append(entry)
             lib["default_tuning"] = name  # superseding bare default_tuning
-            st.save(lib)
+            st.save(lib, op={"tool": "set_instrument_tuning",
+                             "detail": {"tuning": name}})
         except ST.StoreError as e:
             return self._err(e.code, e.detail, mutating=True)
         payload = {
@@ -1088,19 +1238,21 @@ class GripService:
         return candidates[0] if candidates else None
 
     def _renderable(self, strings, res, candidates, fingers, labels,
-                    interval_root, chosen, name=None) -> dict:
+                    interval_root, chosen, name=None,
+                    ornaments=None) -> dict:
         disp = self._display_candidate(candidates, chosen)
         opens = [TH.parse_pitch(p) for p in res["pitches"]]
         string_labels = [None] * len(strings)
         if disp is not None and labels in ("notes", "intervals"):
             if labels == "notes":
+                # Full pitch names with octave numbers (user feedback:
+                # D5, not D).
                 spelled = {}
                 midis = sorted(
                     o + f for o, f in zip(opens, strings) if f is not None
                 )
                 for m, p in zip(midis, disp["pitches"]):
-                    spelled[m] = "".join(ch for ch in p
-                                         if not ch.isdigit() and ch != "-")
+                    spelled[m] = p
                 string_labels = [
                     None if f is None else spelled[o + f]
                     for o, f in zip(opens, strings)
@@ -1122,6 +1274,11 @@ class GripService:
             "name": name if name is not None
             else (chosen or (disp["name"] if disp else "")),
             "capo": res["capo"],
+            "ornaments": [
+                {"string": o["string"] - 1, "to": o["to"],
+                 "type": o["type"]}
+                for o in (ornaments or [])
+            ],
         }
 
     def _do_render_grips(self, st: ST.Store, grips: list, options: dict,
@@ -1130,16 +1287,13 @@ class GripService:
             out = RD.render_chart(grips, options)
             png = RD.to_png(out["svg"], out["width"])
             st.renders_dir.mkdir(parents=True, exist_ok=True)
-            base = f"{prefix}__{out['hash']}"
-            svg_path = st.renders_dir / f"{base}.svg"
-            png_path = st.renders_dir / f"{base}.png"
-            svg_path.write_text(out["svg"], encoding="utf-8")
-            png_path.write_bytes(png)  # identical requests overwrite
+            png_path = st.renders_dir / f"{prefix}__{out['hash']}.png"
+            png_path.write_bytes(png)  # PNG only (user feedback);
         except (RD.RenderError, Exception) as e:  # render failure = partial
             code = getattr(e, "code", "render_error")
             return {"error": {"code": code, "detail": str(e)}}
         return {
-            "files": {"svg": str(svg_path), "png": str(png_path)},
+            "files": {"png": str(png_path)},
             "render_hash": out["hash"],
             "width": out["width"], "height": out["height"],
         }
@@ -1157,13 +1311,7 @@ class GripService:
             st = self._store()
             lib = st.load()
             if sequence is not None:
-                if sequence not in lib["sequences"]:
-                    raise ST.StoreError(
-                        "unknown_sequence",
-                        f"sequence {sequence!r} not found; known: "
-                        f"{sorted(lib['sequences'])}",
-                    )
-                gids = lib["sequences"][sequence]
+                gids = ST.flatten_sequence(lib, sequence)
                 prefix = sequence
             else:
                 gids = list(ids)
@@ -1187,7 +1335,7 @@ class GripService:
                 renderables.append(self._renderable(
                     grip["strings"], res, d["candidates"],
                     grip.get("fingers"), labels, interval_root,
-                    grip.get("chosen"),
+                    grip.get("chosen"), ornaments=grip.get("ornaments"),
                 ))
             st.save(lib, derived)
             options = {"labels": labels, "orientation": orientation,

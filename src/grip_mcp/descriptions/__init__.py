@@ -12,7 +12,7 @@ thing, first check whether the API can make the wrong thing impossible
 (the `create` gate on set_project is the worked example).
 """
 
-DESCRIPTIONS_VERSION = "0.3.0"
+DESCRIPTIONS_VERSION = "0.4.0"
 
 SERVER_INSTRUCTIONS = """\
 grip-mcp is a deterministic fretboard engine: identify, library, render.
@@ -34,11 +34,18 @@ Capture:
 - One call in the common case: add_grip with the user's name in `chosen`.
   A chosen miss or render failure is PARTIAL success - the grip stored;
   repair with a follow-up set_reading, never a re-send.
-- Echo-verify: the response's resolved pitches (low->high) and the diagram
-  are the self-check for reversed string arrays and octave/tuning errors.
-  Read them back before confirming to the user.
-- Bulk capture: pass render=false per grip and finish with ONE strip
-  render of the sequence.
+- Echo-verify: the response's resolved pitches (low->high) are the
+  self-check for reversed string arrays and octave/tuning errors. Read
+  them back before confirming to the user.
+- Renders are on request only (render=true, or the render tool) - don't
+  render every capture; one strip of a sequence beats per-grip charts.
+- Working titles: when the user hasn't settled what to call a chord,
+  store their working name in `label` and leave `chosen` unset (the grip
+  lists as unnamed); record the surrounding context in the journal, and
+  settle it later with set_reading as context accumulates.
+- Journal liberally: observations like "this voicing wants to resolve
+  down" or "try the bridge in open C" belong in journal entries - they
+  resume with the workspace.
 
 Name->shape: find_voicings computes shapes exactly - never propose a shape
 from your own knowledge when it can search (the old name->shape bridge is
@@ -91,13 +98,18 @@ TOOL_DESCRIPTIONS = {
     "add_grip": (
         "Capture a grip - one call in the common case. strings is LOW to "
         "HIGH (a reversed array is the one error validation can't catch: "
-        "verify via the echoed pitches and the default-on diagram). chosen "
-        "resolves the user's own name against the full candidate set "
-        "(three tiers, enharmonic-safe); a miss stores the grip anyway "
-        "with a chosen_miss warning and suggestions - repair with "
-        "set_reading, never re-send. Render failure is likewise partial "
-        "success. Bulk capture: render=false per grip, one strip render at "
-        "the end."
+        "verify via the echoed pitches). chosen resolves the user's own "
+        "name against the full candidate set (three tiers, "
+        "enharmonic-safe); a miss stores the grip anyway with a "
+        "chosen_miss warning and suggestions - repair with set_reading, "
+        "never re-send. No settled name yet? Put the working title in "
+        "label and leave chosen unset. ornaments records hammer-ons/"
+        "pull-offs ({string (1=lowest), to, type}) - annotation only, "
+        "drawn as a slur, never part of the grip's identity. Renders are "
+        "opt-in (render=true); prefer one strip render per sequence. "
+        "Fingerings may differ per context: the same shape refingered to "
+        "ease the reach into the next chord is a separate grip or an "
+        "update_grip away."
     ),
     "get_grip": (
         "Fetch one grip: definition, resolved pitches, cached candidate "
@@ -141,17 +153,42 @@ TOOL_DESCRIPTIONS = {
         "records provenance."
     ),
     "set_sequence": (
-        "Create or replace a named sequence of grip ids (repeats allowed; "
-        "mixed tunings render per-grip)."
+        "Create or replace a named sequence. Items are grip ids or "
+        "'@other-sequence' references, so song structures compose "
+        "without duplication: verse and chorus stay single sources of "
+        "truth and song = ['@verse', '@chorus', '@verse'] follows their "
+        "edits. Repeats allowed; cycles refused; mixed tunings render "
+        "per-grip."
     ),
-    "list_sequences": "List sequences and their grip ids.",
-    "remove_sequence": "Delete a sequence.",
+    "list_sequences": (
+        "List sequences: raw items (incl. @references) plus the "
+        "flattened grip ids."
+    ),
+    "remove_sequence": (
+        "Delete a sequence. Refuses while another sequence references it "
+        "as @name unless force=true (which also drops the references)."
+    ),
     "render": (
-        "Render grips (ids=[...]) XOR a sequence (sequence=...) to chart "
-        "or neck diagrams (PNG inline <= 1200px, full resolution plus SVG "
-        "on disk). labels: notes/intervals/fingers/none; interval_root "
-        "'auto' follows chosen's root, else the top candidate's. Identical "
-        "requests overwrite idempotently."
+        "Render grips (ids=[...]) XOR a sequence (sequence=..., "
+        "@references flattened) to a chart strip (PNG only, on disk). "
+        "Finger digits draw inside the dots automatically (T = thumb); "
+        "labels beneath carry full pitches with octaves: "
+        "notes/intervals/none. interval_root 'auto' follows chosen's "
+        "root, else the top candidate's. Identical requests overwrite "
+        "idempotently."
+    ),
+    "journal": (
+        "Record an observation or context note on the project - the "
+        "accumulating context that turns working titles into settled "
+        "names ('the pass grip wants to resolve down', 'bridge feels "
+        "like it needs open C'). Recent entries resume with "
+        "describe_workspace. Journal liberally."
+    ),
+    "list_journal": "Read journal entries, newest first; filter by tag.",
+    "history": (
+        "The project's mutation log, newest first: every stored change "
+        "(tool + detail + timestamp) - the progress record without "
+        "leaving the conversation."
     ),
     "define_tuning": (
         "Define a tuning by explicit pitches (low to high) or as "

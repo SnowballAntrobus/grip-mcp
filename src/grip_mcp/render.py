@@ -108,10 +108,13 @@ NAME_H = 24      # name band
 SIDE_PAD = 26    # room for position numeral
 
 
-def fret_window(frets: list[int | None]) -> tuple[int, int]:
-    """(start_fret, n_rows). From fretted notes only; min 4 rows; all-open
-    falls back to 1..4 with the nut (DESIGN §8)."""
+def fret_window(frets: list[int | None],
+                extra: list[int] | None = None) -> tuple[int, int]:
+    """(start_fret, n_rows). From fretted notes (plus ornament target
+    frets) only; min 4 rows; all-open falls back to 1..4 with the nut
+    (DESIGN §8)."""
     fretted = [f for f in frets if f is not None and f > 0]
+    fretted += [f for f in (extra or []) if f and f > 0]
     if not fretted:
         return 1, 4
     lo, hi = min(fretted), max(fretted)
@@ -119,6 +122,10 @@ def fret_window(frets: list[int | None]) -> tuple[int, int]:
     if hi <= n:  # window can include fret 1 -> show the nut
         return 1, n
     return lo, n
+
+
+def _ornament_frets(g: dict) -> list[int]:
+    return [o["to"] for o in g.get("ornaments") or []]
 
 
 def barre_runs(frets, fingers) -> list[tuple[int, int, int]]:
@@ -163,7 +170,7 @@ def draw_grip(g: dict, theme: dict, labels_mode: str,
     frets = g["frets"]
     fingers = g.get("fingers") or []
     n = len(frets)
-    start, rows = fret_window(frets)
+    start, rows = fret_window(frets, _ornament_frets(g))
     w, h = chart_size(n, rows)
     x0 = ox + SIDE_PAD
     grid_top = oy + TOP_PAD + XO_H
@@ -211,7 +218,10 @@ def draw_grip(g: dict, theme: dict, labels_mode: str,
                 f'<circle cx="{sx(i):.2f}" cy="{cy:.2f}" r="4.8" '
                 f'fill="none" stroke="{fg}" stroke-width="1.8"/>'
             )
-    # barres beneath dots
+    # barres (finger digit once, at the barre's left end, drawn last so
+    # nothing covers it)
+    barred: set[int] = set()
+    barre_digits = []
     for fret, s_from, s_to in barre_runs(frets, fingers):
         if not (start <= fret < start + rows):
             continue
@@ -219,12 +229,20 @@ def draw_grip(g: dict, theme: dict, labels_mode: str,
         out.append(
             f'<rect x="{sx(s_from) - DOT_R:.2f}" y="{y - DOT_R:.2f}" '
             f'width="{sx(s_to) - sx(s_from) + 2 * DOT_R:.2f}" '
-            f'height="{2 * DOT_R:.2f}" rx="{DOT_R:.2f}" fill="{dot}" '
-            f'opacity="0.85"/>'
+            f'height="{2 * DOT_R:.2f}" rx="{DOT_R:.2f}" fill="{dot}"/>'
         )
-    # dots
+        d = fingers[s_from] if s_from < len(fingers) else None
+        if d is not None:
+            txt = "T" if d == 0 else str(d)
+            barre_digits.append(
+                draw_text(sx(s_from), y + 3.4, txt, 9.5, theme["bg"])
+            )
+        barred.update(range(s_from, s_to + 1))
+    # dots, with finger digits inside by default (user feedback: no
+    # separate finger chart; digits live in the circles, notes beneath).
+    # Barred strings keep the rect alone.
     for i, f in enumerate(frets):
-        if f is None or f == 0:
+        if f is None or f == 0 or i in barred:
             continue
         if not (start <= f < start + rows):
             continue
@@ -233,15 +251,38 @@ def draw_grip(g: dict, theme: dict, labels_mode: str,
             f'<circle cx="{sx(i):.2f}" cy="{y:.2f}" r="{DOT_R:.2f}" '
             f'fill="{dot}"/>'
         )
-    # per-string labels beneath the grid (all label modes; §8)
+        d = fingers[i] if i < len(fingers) else None
+        if d is not None:
+            txt = "T" if d == 0 else str(d)
+            out.append(draw_text(sx(i), y + 3.4, txt, 9.5, theme["bg"]))
+    out.extend(barre_digits)
+    # ornaments: hammer-on / pull-off — hollow target dot + slur + H/P
+    for o in g.get("ornaments") or []:
+        i = o["string"]
+        base = frets[i] if frets[i] is not None else 0
+        to = o["to"]
+        y_to = (grid_top + FG * (to - start) + FG / 2 if to > 0
+                else oy + TOP_PAD + XO_H / 2)
+        y_from = (grid_top + FG * (base - start) + FG / 2 if base > 0
+                  else oy + TOP_PAD + XO_H / 2)
+        out.append(
+            f'<circle cx="{sx(i):.2f}" cy="{y_to:.2f}" r="{DOT_R - 1.5:.2f}" '
+            f'fill="none" stroke="{dot}" stroke-width="1.6"/>'
+        )
+        xm = sx(i) + SG * 0.42
+        out.append(
+            f'<path d="M {sx(i) + DOT_R - 1:.2f} {y_from:.2f} '
+            f'Q {xm:.2f} {(y_from + y_to) / 2:.2f} '
+            f'{sx(i) + DOT_R - 1:.2f} {y_to:.2f}" fill="none" '
+            f'stroke="{fg}" stroke-width="1.1"/>'
+        )
+        letter = "H" if o["type"] == "hammer" else "P"
+        out.append(draw_text(xm + 6, (y_from + y_to) / 2 + 3, letter, 8.5,
+                             theme["muted"]))
+    # per-string labels beneath the grid (notes/intervals; §8 + feedback:
+    # labels carry octave numbers, e.g. D5)
     if labels_mode != "none":
         labels = g.get("string_labels") or [None] * n
-        if labels_mode == "fingers":
-            labels = [
-                None if (f is None or f == 0) else
-                ("T" if d == 0 else (str(d) if d is not None else None))
-                for f, d in zip(frets, list(fingers) + [None] * n)
-            ]
         for i, lab in enumerate(labels[:n]):
             if lab:
                 out.append(draw_text(sx(i), grid_bot + 14.5, str(lab), 10, fg))
@@ -290,10 +331,11 @@ def render_chart(grips: list[dict], options: dict | None = None) -> dict:
             f"theme {theme_name!r}; known: {sorted(THEMES)}",
         )
     labels_mode = options.get("labels", "notes")
-    if labels_mode not in ("notes", "intervals", "fingers", "none"):
+    if labels_mode not in ("notes", "intervals", "none"):
         raise RenderError(
             "unknown_labels",
-            f"labels {labels_mode!r}; known: notes, intervals, fingers, none",
+            f"labels {labels_mode!r}; known: notes, intervals, none "
+            "(finger digits draw inside the dots in every mode)",
         )
     orientation = options.get("orientation", "chart")
     if orientation not in ("chart", "neck"):
@@ -307,8 +349,11 @@ def render_chart(grips: list[dict], options: dict | None = None) -> dict:
 
     # Grid layout: cells sized to the largest chart (mixed tunings render
     # per-grip: own string count, own capo badge).
-    sizes = [chart_size(len(g["frets"]), fret_window(g["frets"])[1])
-             for g in grips]
+    sizes = [
+        chart_size(len(g["frets"]),
+                   fret_window(g["frets"], _ornament_frets(g))[1])
+        for g in grips
+    ]
     cell_w = max(s[0] for s in sizes)
     cell_h = max(s[1] for s in sizes)
     rows = (len(grips) + columns - 1) // columns
@@ -322,7 +367,10 @@ def render_chart(grips: list[dict], options: dict | None = None) -> dict:
                               theme["fg"]))
     for i, g in enumerate(grips):
         r, c = divmod(i, columns)
-        gw = chart_size(len(g["frets"]), fret_window(g["frets"])[1])[0]
+        gw = chart_size(
+            len(g["frets"]),
+            fret_window(g["frets"], _ornament_frets(g))[1],
+        )[0]
         ox = c * cell_w + (cell_w - gw) / 2
         oy = title_h + r * cell_h
         frag, _, _ = draw_grip(g, theme, labels_mode, ox, oy)
