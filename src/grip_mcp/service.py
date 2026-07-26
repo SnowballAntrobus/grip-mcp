@@ -867,6 +867,50 @@ class GripService:
             return self._err(e.code, e.detail, mutating=True)
         return self._env({"name": name}, stored=True, warnings=[])
 
+    # ------------------------------------------------------- Phase 3
+
+    def analyze(self, sequence: str, keys: list | None = None) -> dict:
+        """Analysis over a sequence (docs/PHASE3_DESIGN.md): the user's
+        vocabulary first (display candidate = chosen else top),
+        read-only, recomputed per call."""
+        from . import analysis as AN
+        try:
+            st = self._store()
+            lib = st.load()
+            gids = ST.flatten_sequence(lib, sequence)
+            derived = st.load_derived()
+            steps = []
+            for gid in gids:
+                grip = lib["grips"][gid]
+                d = st.derive_grip(lib, derived, gid)
+                disp = self._display_candidate(
+                    d["candidates"], grip.get("chosen")
+                )
+                if disp is None:  # single-PC grip: pitch report only
+                    pr = d.get("pitch_report") or {}
+                    steps.append({
+                        "grip": gid, "name": None, "named": False,
+                        "midi": d["midi"],
+                        "pitches": pr.get("pitches", []),
+                        "root_pc": None, "quality": None, "bass_pc": None,
+                    })
+                    continue
+                steps.append({
+                    "grip": gid,
+                    "name": grip.get("chosen") or disp["name"],
+                    "named": grip.get("chosen") is not None,
+                    "midi": d["midi"],
+                    "pitches": disp["pitches"],
+                    "root_pc": TH._pc_of_name(disp["root"]),
+                    "quality": disp["quality"],
+                    "bass_pc": TH._pc_of_name(disp["bass"]),
+                })
+            st.save(lib, derived)  # cache refresh only; no history op
+            result = AN.analyze(steps, keys)
+        except (ST.StoreError, TH.TheoryError) as e:
+            return self._err(getattr(e, "code", "bad_input"), str(e))
+        return self._env({"sequence": sequence, **result})
+
     # -------------------------------------------- journal + history (log)
 
     def journal(self, entry: str, tags: list | None = None) -> dict:

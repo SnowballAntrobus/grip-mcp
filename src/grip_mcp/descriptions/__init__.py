@@ -12,7 +12,7 @@ thing, first check whether the API can make the wrong thing impossible
 (the `create` gate on set_project is the worked example).
 """
 
-DESCRIPTIONS_VERSION = "0.5.0"
+DESCRIPTIONS_VERSION = "0.6.0"
 
 SERVER_INSTRUCTIONS = """\
 grip-mcp is a deterministic fretboard engine: identify, library, render.
@@ -178,6 +178,19 @@ TOOL_DESCRIPTIONS = {
         "notes/intervals/none. interval_root 'auto' follows chosen's "
         "root, else the top candidate's. Identical requests overwrite "
         "idempotently."
+    ),
+    "analyze": (
+        "Analyze a sequence (@references flattened): Roman numerals in "
+        "the top candidate keys (all 24 scored by the frozen R0 rule; "
+        "pass keys=[...] to override), bass line with motion, common "
+        "tones, per-pair voice leading (minimal monotone matching - "
+        "crossings impossible by construction), and modulation "
+        "segmentation by key membership. The user's chosen readings "
+        "drive every step (display candidate = chosen else top). "
+        "Numerals are null where a step is chromatic to that key - "
+        "stated, not judged; segmentation is membership, not cadence "
+        "inference. YOU narrate what the segments and motions suggest; "
+        "the server never asserts a hearing. Read-only."
     ),
     "journal": (
         "Record an observation or context note on the project - the "

@@ -66,3 +66,82 @@ def test_oracle_covers_all_tertian_rows():
     assert non_tertian_unoracled == (
         {"5", "q4", "coll"} | {q for q in TBL["qualities"] if q.startswith("dy")}
     )
+
+
+# --- Phase 3: Roman numeral oracle (PHASE3 §4) ------------------------------
+
+def test_roman_degree_and_case_match_oracle():
+    """Our numerals vs music21.roman.romanNumeralFromChord: degree and
+    case must agree for tertian rows in root position across all 24
+    keys. Suffix conventions differ by design (m21: viio, I7; ours:
+    viidim, Imaj7) — degree+case is the mechanically shared core."""
+    import sys
+    from pathlib import Path
+    sys.path.insert(
+        0, str(Path(__file__).resolve().parent.parent / "src")
+    )
+    from music21 import chord as m21chord
+    from music21 import key as m21key
+    from music21 import roman as m21roman
+
+    from grip_mcp import analysis as AN
+    from grip_mcp import theory as GT
+
+    ROMAN_SET = {"I", "II", "III", "IV", "V", "VI", "VII"}
+
+    def split_ours(s):
+        i = 0
+        while i < len(s) and s[i] in "b#":
+            i += 1
+        j = i
+        while j < len(s) and s[j].upper() in "IV X".replace(" ", ""):
+            j += 1
+        return s[i:j]  # the numeral body, case intact
+
+    checked = 0
+    for mode in ("major", "minor"):
+        for tonic_pc, tonic in enumerate(
+            ["c", "db", "d", "eb", "e", "f", "f#", "g", "ab", "a",
+             "bb", "b"]
+        ):
+            gkey = GT.Key.parse(f"{tonic}-{mode}")
+            m21k = m21key.Key(
+                GT.lof_str(gkey.tonic_lof)
+                if mode == "major"
+                else GT.lof_str(gkey.tonic_lof).lower()
+            )
+            for qid in ("maj", "m", "dim", "7", "m7", "maj7"):
+                for degree_pc in sorted(gkey.scale_pcs):
+                    ours = AN.roman_numeral(degree_pc, qid, None, gkey)
+                    if ours is None:
+                        continue  # chromatic in this key; oracle n/a
+                    row = GT.load_table()["qualities"][qid]
+                    # Key-spelled members — the oracle must hear the
+                    # chord as the key spells it (Gb, not F#, in db).
+                    members = GT.member_spellings(
+                        degree_pc, qid, f"{tonic}-{mode}"
+                    )
+                    base = 60 + degree_pc  # root position, stacked above
+
+                    def to_m21(p):  # our ASCII flats -> m21's '-'
+                        return p[0] + p[1:].replace("b", "-")
+
+                    pitches = [
+                        to_m21(GT.pitch_str(members[(degree_pc + t) % 12],
+                                            base + t))
+                        for t in row["tones"]
+                    ]
+                    rn = m21roman.romanNumeralFromChord(
+                        m21chord.Chord(pitches), m21k
+                    )
+                    body = split_ours(ours)
+                    assert body, ours
+                    theirs = "".join(
+                        ch for ch in rn.figure if ch.upper() in "IVX"
+                    )
+                    assert body == theirs, (
+                        f"{tonic}-{mode} {qid} pc{degree_pc}: "
+                        f"ours {ours} vs m21 {rn.figure}"
+                    )
+                    checked += 1
+    assert checked > 300

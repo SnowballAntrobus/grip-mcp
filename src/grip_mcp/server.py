@@ -96,6 +96,10 @@ def build_server(root=None) -> FastMCP:
     def remove_sequence(name: str, force: bool = False) -> dict:
         return svc.remove_sequence(name, force)
 
+    @tool("analyze")
+    def analyze(sequence: str, keys: list[str] | None = None) -> dict:
+        return svc.analyze(sequence, keys)
+
     @tool("journal")
     def journal(entry: str, tags: list[str] | None = None) -> dict:
         return svc.journal(entry, tags)

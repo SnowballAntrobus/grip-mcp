@@ -17,6 +17,7 @@ EXPECTED_TOOLS = {
     "set_instrument_tuning", "retune_plan",  # Phase 2b
     "find_voicings", "render_neck",          # Phase 2a
     "journal", "list_journal", "history",    # feedback round 1
+    "analyze",                               # Phase 3
 }
 
 

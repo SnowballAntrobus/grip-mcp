@@ -71,6 +71,9 @@ thumb) with octave-bearing note labels beneath. Sequences compose into
 song structures via `@section` references. Hammer-ons/pull-offs are
 captured as adjacent grips (both shapes get real identities; the
 transition is ordinary voice-leading — the analysis-ready form).
+Phase 3's `analyze` reads sequences through the user's chosen names:
+Roman numerals in candidate keys, bass line, common tones, voice
+leading, and modulation segmentation (docs/PHASE3_DESIGN.md).
 
 ## Development
 
