@@ -143,7 +143,9 @@ def spell_member(root: Spelling, degree_token: str) -> Spelling:
     letter = LETTERS[(LETTERS.index(root.letter) + steps) % 7]
     target_pc = (root.pc + DEGREE_SEMIS[deg] + acc) % 12
     needed = ((target_pc - LETTER_PC[letter] + 6) % 12) - 6
-    if not -2 <= needed <= 2:  # pragma: no cover — table-checked
+    if not -2 <= needed <= 2:
+        # Beyond double accidentals — reachable only from extreme context
+        # respellings; callers fall back per APPENDIX A5.1.
         raise InputError(f"unspellable member {degree_token} on {root}")
     return Spelling(letter, needed)
 
@@ -251,13 +253,28 @@ class Candidate:
 RANK_LABELS = ["R0", "R1", "R2", "R2", "R2", "R3", "tiebreak", "tiebreak", "tiebreak"]
 
 
+def candidate_root_spelling(cand: Candidate, key: Key | None) -> Spelling:
+    """The candidate's root spelling, with the double-accidental overflow
+    fallback (APPENDIX A5.1): if member stacking from the key-respelled
+    root would need a triple accidental (e.g. dim7 on an Fb respelling),
+    the root falls back to the canonical table, which never overflows.
+    Found by randomized parity testing; deterministic and per-candidate."""
+    if key is None:
+        return spell_canonical(cand.root_pc)
+    root_sp = key.spell_root(cand.root_pc)
+    if cand.row["spell"] == "stack":
+        try:
+            for token in cand.row["degrees"]:
+                spell_member(root_sp, token)
+        except InputError:
+            return spell_canonical(cand.root_pc)
+    return root_sp
+
+
 def _spell_candidate(cand: Candidate, key: Key | None) -> dict:
     """Root, member and bass spellings for one candidate."""
     row = cand.row
-    if key is not None:
-        root_sp = key.spell_root(cand.root_pc)
-    else:
-        root_sp = spell_canonical(cand.root_pc)
+    root_sp = candidate_root_spelling(cand, key)
 
     member_sp: dict[int, Spelling] = {}
     if row["spell"] == "canonical":  # coll — §5.2.2, literal: members stay
@@ -377,9 +394,7 @@ def identify(strings, tuning="standard", context_key: str | None = None) -> dict
 
     ranked = sorted(
         candidates,
-        key=lambda c: c.rank_key(
-            key.spell_root(c.root_pc) if key else spell_canonical(c.root_pc)
-        ),
+        key=lambda c: c.rank_key(candidate_root_spelling(c, key)),
     )
 
     tier_labels = {str(k): v for k, v in tbl["tiers"].items()}
@@ -501,8 +516,7 @@ def _decided_at(ranked: list[Candidate], key: Key | None) -> str | None:
     if len(ranked) == 1:
         return "unique"
     def kf(c):
-        sp = key.spell_root(c.root_pc) if key else spell_canonical(c.root_pc)
-        return c.rank_key(sp)
+        return c.rank_key(candidate_root_spelling(c, key))
     k1, k2 = kf(ranked[0]), kf(ranked[1])
     for i, (a, b) in enumerate(zip(k1, k2)):
         if a != b:

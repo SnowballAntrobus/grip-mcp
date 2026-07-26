@@ -136,6 +136,21 @@ its |LoF − s| win). The *behavior* the doc fixes (PC 6 → F♯ in C/a) holds;
 the uniqueness claim does not survive the arithmetic. Flagged in REVIEW.md
 rather than silently repaired.
 
+### A5.1 Double-accidental overflow fallback (post-freeze amendment)
+
+Discovered by randomized cross-engine parity testing after the freeze:
+member stacking from an *extreme* key respelling can demand a triple
+accidental, which the grammar (A1) caps at doubles — e.g. in `db-major`,
+PC 4 respells F♭ (|LoF − s| favors it), and `dim7` on F♭ needs
+E♭♭♭ for its `bb7`; symmetrically, `aug` on a B♯ respelling needs
+F𝄪𝄪. Rule: **if member stacking from the key-respelled root would leave
+the double-accidental band, that candidate's root falls back to the
+canonical table spelling** (canonical roots sit within LoF −5..+6, so
+their members never overflow — this is why the context-free chain cannot
+hit the corner). Deterministic, per-candidate, applied identically to
+ranking (tie-break letter) and display. Engine behavior only — the frozen
+table is untouched.
+
 ## A6. Octave and pitch-name conventions
 
 Scientific pitch notation, C4 = MIDI 60, octave number follows the
