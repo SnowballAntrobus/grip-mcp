@@ -1,13 +1,13 @@
 # Phase R — Rhythm: Design Note
 
-Status: SUPERSEDED pending review — see RHYTHM2_DESIGN.md (the event
-model here proved too poor for detailed rhythm: no velocity, no swing,
-hand-waved meter; process lesson recorded there) · promotes rhythm from DESIGN §9's "Someday"
-at the user's direction; Phases 4 and 5 are tabled. House rules apply:
+Status: SUPERSEDED — see RHYTHM2_DESIGN.md for why (no velocity, no
+swing, underspecified meter) and for the replacement model. Kept as the
+record of the shipped implementation it describes. Promotes rhythm from
+DESIGN §9's "Someday"; Phases 4 and 5 are tabled. House rules apply:
 deterministic, documented, mechanical; the server realizes and
 validates, the LLM suggests, the musician decides.
 
-Why now (user's framing, which this note adopts): (a) rhythm bears on
+Why rhythm before Phases 4/5: (a) rhythm bears on
 harmonic analysis, and suggesting rhythms is part of the task — playing
 a chord and arpeggiating it are different statements; (b) what cdp-mcp
 wants from grip-mcp is **structured rhythm + harmony**, not audio —
