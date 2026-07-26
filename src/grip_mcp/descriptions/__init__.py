@@ -12,7 +12,7 @@ thing, first check whether the API can make the wrong thing impossible
 (the `create` gate on set_project is the worked example).
 """
 
-DESCRIPTIONS_VERSION = "0.6.0"
+DESCRIPTIONS_VERSION = "0.7.0"
 
 SERVER_INSTRUCTIONS = """\
 grip-mcp is a deterministic fretboard engine: identify, library, render.
@@ -178,6 +178,41 @@ TOOL_DESCRIPTIONS = {
         "notes/intervals/none. interval_root 'auto' follows chosen's "
         "root, else the top candidate's. Identical requests overwrite "
         "idempotently."
+    ),
+    "define_rhythm": (
+        "Define a named, reusable, GRIP-AGNOSTIC rhythm pattern (docs/"
+        "RHYTHM_DESIGN.md): events with beat onsets/durations and play "
+        "specs (strum/strum-up/bass/arp-up/arp-down or a 1-based string "
+        "list; muted strings skip, so one gallop fits any shape). "
+        "Arpeggiating versus striking a chord is exactly a pattern "
+        "distinction. Built-ins (whole, quarters, bass-strum, arp-up) "
+        "are immutable. Suggesting rhythms is part of YOUR job - "
+        "propose patterns, define them, audition them with render_audio."
+    ),
+    "remove_rhythm": (
+        "Delete a rhythm pattern. Refuses for built-ins and while any "
+        "sequence assigns it."
+    ),
+    "list_rhythms": "List rhythm patterns (built-ins flagged).",
+    "set_rhythm": (
+        "Assign rhythm to a sequence: a default pattern, a tempo (BPM), "
+        "and per-step overrides {index: {rhythm?, repeat?}}. Items stay "
+        "grip ids; @referenced sections keep their own feels and "
+        "inherit the parent default only where unassigned. Steps "
+        "without any assignment realize as 'whole' (documented "
+        "default)."
+    ),
+    "render_audio": (
+        "AUDITION a sequence: deterministic Karplus-Strong WAV into "
+        "renders/ (same request, same bytes). A preview for the "
+        "musician's ears, not an export - the cdp-mcp bus carries "
+        "export_timeline's structured document, never audio."
+    ),
+    "export_timeline": (
+        "Write the structured timeline document to the shared exports/ "
+        "bus (grip__<sequence>__<hash8>.json): harmony + rhythm + "
+        "voicing + the user's chosen names + the analysis summary - the "
+        "base material cdp-mcp builds on."
     ),
     "analyze": (
         "Analyze a sequence (@references flattened): Roman numerals in "

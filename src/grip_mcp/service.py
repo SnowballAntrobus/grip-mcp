@@ -906,10 +906,296 @@ class GripService:
                     "bass_pc": TH._pc_of_name(disp["bass"]),
                 })
             st.save(lib, derived)  # cache refresh only; no history op
-            result = AN.analyze(steps, keys)
+            timeline, tempo = self._timeline(lib, sequence, None)
+            result = AN.analyze(steps, keys, timeline)
         except (ST.StoreError, TH.TheoryError) as e:
             return self._err(getattr(e, "code", "bad_input"), str(e))
-        return self._env({"sequence": sequence, **result})
+        payload = {"sequence": sequence, **result}
+        if timeline:
+            payload["tempo"] = tempo
+        return self._env(payload)
+
+    def _timeline(self, lib: dict, sequence: str,
+                  tempo_override: int | None):
+        """Realized timeline for a sequence, or (None, None) when no
+        rhythm is assigned anywhere in it (unrhythmed sequences analyze
+        exactly as before — RHYTHM R3)."""
+        from . import rhythm as RH
+        steps = RH.flatten_with_rhythm(lib, sequence)
+        if not any(s["assigned"] for s in steps):
+            return None, None
+        grip_data = {}
+        for s in steps:
+            gid = s["grip"]
+            if gid in grip_data:
+                continue
+            grip = lib["grips"][gid]
+            res = ST.resolve_tuning(lib, grip["tuning"])
+            opens = [TH.parse_pitch(p) for p in res["pitches"]]
+            grip_data[gid] = {
+                "midis_by_string": [
+                    None if f is None else o + f
+                    for o, f in zip(opens, grip["strings"])
+                ],
+            }
+        timeline = RH.realize(lib, steps, grip_data)
+        entry = RH.seq_entry(lib, sequence)
+        tempo = tempo_override or entry["tempo"] or RH.DEFAULT_TEMPO
+        return timeline, tempo
+
+    # ------------------------------------------------------- Phase R (rhythm)
+
+    def define_rhythm(self, name: str, length_beats, events: list,
+                      meter: list | None = None) -> dict:
+        from . import rhythm as RH
+        try:
+            st = self._store()
+            lib = st.load()
+            r = {"length_beats": length_beats, "meter": meter or [4, 4],
+                 "events": events}
+            RH.validate_rhythm(name, r)
+            lib.setdefault("rhythms", {})[name] = r
+            st.save(lib, op={"tool": "define_rhythm",
+                             "detail": {"name": name}})
+        except ST.StoreError as e:
+            return self._err(e.code, e.detail, mutating=True)
+        return self._env({"name": name, "rhythm": r}, stored=True,
+                         warnings=[])
+
+    def remove_rhythm(self, name: str) -> dict:
+        from . import rhythm as RH
+        try:
+            st = self._store()
+            lib = st.load()
+            if name in RH.BUILTIN_RHYTHMS:
+                raise ST.StoreError("immutable_rhythm",
+                                    f"built-in rhythm {name!r} is immutable")
+            if name not in (lib.get("rhythms") or {}):
+                raise ST.StoreError(
+                    "unknown_rhythm",
+                    f"rhythm {name!r} not found; known: "
+                    f"{sorted(RH.all_rhythms(lib))}",
+                )
+            refs = RH.rhythm_references(lib, name)
+            if refs:
+                raise ST.StoreError(
+                    "rhythm_referenced",
+                    f"rhythm {name!r} is assigned in sequences {refs}",
+                )
+            del lib["rhythms"][name]
+            st.save(lib, op={"tool": "remove_rhythm",
+                             "detail": {"name": name}})
+        except ST.StoreError as e:
+            return self._err(e.code, e.detail, mutating=True)
+        return self._env({"name": name}, stored=True, warnings=[])
+
+    def list_rhythms(self) -> dict:
+        from . import rhythm as RH
+        try:
+            st = self._store()
+            lib = st.load()
+        except ST.StoreError as e:
+            return self._err(e.code, e.detail)
+        return self._env({
+            "rhythms": RH.all_rhythms(lib),
+            "builtin": sorted(RH.BUILTIN_RHYTHMS),
+        })
+
+    def set_rhythm(self, sequence: str, rhythm: str | None = None,
+                   tempo: int | None = None,
+                   steps: dict | None = None) -> dict:
+        """Assign rhythm to a sequence: a default pattern, a tempo, and
+        per-step overrides {index: {rhythm?, repeat?}} (RHYTHM R2)."""
+        from . import rhythm as RH
+        try:
+            st = self._store()
+            lib = st.load()
+            if sequence not in lib["sequences"]:
+                raise ST.StoreError(
+                    "unknown_sequence",
+                    f"sequence {sequence!r} not found; known: "
+                    f"{sorted(lib['sequences'])}",
+                )
+            known = RH.all_rhythms(lib)
+            entry = RH.seq_entry(lib, sequence)
+            if rhythm is not None:
+                if rhythm not in known:
+                    raise ST.StoreError(
+                        "unknown_rhythm",
+                        f"rhythm {rhythm!r} not defined; known: "
+                        f"{sorted(known)}",
+                    )
+                entry["rhythm"] = rhythm
+            if tempo is not None:
+                if not (isinstance(tempo, int) and 20 <= tempo <= 300):
+                    raise ST.StoreError("bad_input",
+                                        "tempo must be 20..300 BPM")
+                entry["tempo"] = tempo
+            if steps is not None:
+                n = len(entry["items"])
+                for idx, ov in steps.items():
+                    if not (idx.isdigit() and int(idx) < n):
+                        raise ST.StoreError(
+                            "bad_input",
+                            f"step index {idx!r} out of range 0..{n - 1}",
+                        )
+                    rn = ov.get("rhythm")
+                    if rn is not None and rn not in known:
+                        raise ST.StoreError(
+                            "unknown_rhythm",
+                            f"step {idx}: rhythm {rn!r} not defined",
+                        )
+                    rep = ov.get("repeat", 1)
+                    if not (isinstance(rep, int) and 1 <= rep <= 64):
+                        raise ST.StoreError("bad_input",
+                                            "repeat must be 1..64")
+                entry["steps"] = steps
+            lib["sequences"][sequence] = {
+                k: v for k, v in entry.items()
+                if v not in (None, {}) or k == "items"
+            }
+            flat = RH.flatten_with_rhythm(lib, sequence)  # validates
+            st.save(lib, op={"tool": "set_rhythm",
+                             "detail": {"sequence": sequence,
+                                        "rhythm": rhythm}})
+        except ST.StoreError as e:
+            return self._err(e.code, e.detail, mutating=True)
+        return self._env({
+            "sequence": sequence,
+            "assignment": lib["sequences"][sequence],
+            "resolved_steps": [
+                {"grip": s["grip"], "rhythm": s["rhythm"],
+                 "repeat": s["repeat"]} for s in flat
+            ],
+        }, stored=True, warnings=[])
+
+    def render_audio(self, sequence: str, tempo: int | None = None) -> dict:
+        """Audition (RHYTHM R4): deterministic Karplus-Strong WAV into
+        renders/ — a preview artifact, not the cdp bus."""
+        from . import rhythm as RH
+        import hashlib as _h
+        import json as _j
+        try:
+            st = self._store()
+            lib = st.load()
+            timeline, t = self._timeline(lib, sequence, tempo)
+            if timeline is None:
+                # Unassigned sequences audition with the documented
+                # default (every step = whole).
+                entry = RH.seq_entry(lib, sequence)
+                steps = RH.flatten_with_rhythm(lib, sequence)
+                grip_data = {}
+                for s in steps:
+                    grip = lib["grips"][s["grip"]]
+                    res = ST.resolve_tuning(lib, grip["tuning"])
+                    opens = [TH.parse_pitch(p) for p in res["pitches"]]
+                    grip_data[s["grip"]] = {"midis_by_string": [
+                        None if f is None else o + f
+                        for o, f in zip(opens, grip["strings"])
+                    ]}
+                timeline = RH.realize(lib, steps, grip_data)
+                t = tempo or entry["tempo"] or RH.DEFAULT_TEMPO
+            wav = RH.synthesize(timeline, t)
+            h = _h.sha256(
+                _j.dumps([timeline, t], sort_keys=True).encode()
+            ).hexdigest()[:8]
+            st.renders_dir.mkdir(parents=True, exist_ok=True)
+            path = st.renders_dir / f"{sequence}__{h}.wav"
+            path.write_bytes(wav)
+        except (ST.StoreError, TH.TheoryError) as e:
+            return self._err(getattr(e, "code", "bad_input"), str(e))
+        return self._env({
+            "sequence": sequence, "tempo": t,
+            "files": {"wav": str(path)},
+            "seconds": round(len(wav) / 2 / RH.SR, 2),
+            "render_hash": h,
+        })
+
+    def export_timeline(self, sequence: str,
+                        tempo: int | None = None) -> dict:
+        """The cdp-mcp bus document (RHYTHM R5): structured harmony +
+        rhythm + voicing + the user's vocabulary, into exports/."""
+        from . import analysis as AN
+        from . import rhythm as RH
+        import hashlib as _h
+        import json as _j
+        try:
+            st = self._store()
+            lib = st.load()
+            gids = ST.flatten_sequence(lib, sequence)
+            derived = st.load_derived()
+            steps = []
+            for gid in gids:
+                grip = lib["grips"][gid]
+                d = st.derive_grip(lib, derived, gid)
+                disp = self._display_candidate(
+                    d["candidates"], grip.get("chosen"))
+                steps.append({
+                    "grip": gid,
+                    "name": (grip.get("chosen")
+                             or (disp["name"] if disp else None)),
+                    "named": grip.get("chosen") is not None,
+                    "midi": d["midi"],
+                    "pitches": disp["pitches"] if disp else [],
+                    "root_pc": (TH._pc_of_name(disp["root"])
+                                if disp else None),
+                    "quality": disp["quality"] if disp else None,
+                    "bass_pc": (TH._pc_of_name(disp["bass"])
+                                if disp else None),
+                })
+            st.save(lib, derived)
+            timeline, t = self._timeline(lib, sequence, tempo)
+            if timeline is None:
+                rsteps = RH.flatten_with_rhythm(lib, sequence)
+                grip_data = {
+                    s["grip"]: {"midis_by_string": None} for s in rsteps
+                }
+                for s in rsteps:
+                    grip = lib["grips"][s["grip"]]
+                    res = ST.resolve_tuning(lib, grip["tuning"])
+                    opens = [TH.parse_pitch(p) for p in res["pitches"]]
+                    grip_data[s["grip"]] = {"midis_by_string": [
+                        None if f is None else o + f
+                        for o, f in zip(opens, grip["strings"])
+                    ]}
+                timeline = RH.realize(lib, rsteps, grip_data)
+                t = tempo or RH.seq_entry(lib, sequence)["tempo"]                     or RH.DEFAULT_TEMPO
+            an = AN.analyze(steps, None, timeline)
+            doc = {
+                "format": "grip-timeline", "version": 1,
+                "project": self.project, "sequence": sequence,
+                "tempo": t, "meter": timeline[0]["meter"],
+                "steps": [
+                    {
+                        "grip": s["grip"], "name": st_["name"],
+                        "named": st_["named"],
+                        "onset_beats": s["onset_beats"],
+                        "duration_beats": s["duration_beats"],
+                        "rhythm": s["rhythm"],
+                        "midi": st_["midi"], "pitches": st_["pitches"],
+                        "events": [
+                            {"at": e["at"], "dur": e["dur"],
+                             "midis": e["midis"]}
+                            for e in s["events"]
+                        ],
+                    }
+                    for s, st_ in zip(timeline, steps)
+                ],
+                "keys": an["keys"], "numerals": an["numerals"],
+            }
+            blob = _j.dumps(doc, indent=2, ensure_ascii=False) + "\n"
+            h = _h.sha256(blob.encode()).hexdigest()[:8]
+            exports = st.dir / "exports"
+            exports.mkdir(parents=True, exist_ok=True)
+            path = exports / f"grip__{sequence}__{h}.json"
+            path.write_text(blob, encoding="utf-8")
+        except (ST.StoreError, TH.TheoryError) as e:
+            return self._err(getattr(e, "code", "bad_input"), str(e))
+        return self._env({
+            "sequence": sequence, "tempo": t,
+            "files": {"json": str(path)},
+            "steps": len(doc["steps"]),
+        })
 
     # -------------------------------------------- journal + history (log)
 

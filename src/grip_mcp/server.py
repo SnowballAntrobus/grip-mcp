@@ -96,6 +96,33 @@ def build_server(root=None) -> FastMCP:
     def remove_sequence(name: str, force: bool = False) -> dict:
         return svc.remove_sequence(name, force)
 
+    @tool("define_rhythm")
+    def define_rhythm(name: str, length_beats: float, events: list[dict],
+                      meter: list[int] | None = None) -> dict:
+        return svc.define_rhythm(name, length_beats, events, meter)
+
+    @tool("remove_rhythm")
+    def remove_rhythm(name: str) -> dict:
+        return svc.remove_rhythm(name)
+
+    @tool("list_rhythms")
+    def list_rhythms() -> dict:
+        return svc.list_rhythms()
+
+    @tool("set_rhythm")
+    def set_rhythm(sequence: str, rhythm: str | None = None,
+                   tempo: int | None = None,
+                   steps: dict | None = None) -> dict:
+        return svc.set_rhythm(sequence, rhythm, tempo, steps)
+
+    @tool("render_audio")
+    def render_audio(sequence: str, tempo: int | None = None) -> dict:
+        return svc.render_audio(sequence, tempo)
+
+    @tool("export_timeline")
+    def export_timeline(sequence: str, tempo: int | None = None) -> dict:
+        return svc.export_timeline(sequence, tempo)
+
     @tool("analyze")
     def analyze(sequence: str, keys: list[str] | None = None) -> dict:
         return svc.analyze(sequence, keys)

@@ -75,6 +75,7 @@ def empty_library() -> dict:
         "tunings": {"standard": list(STANDARD_TUNING)},
         "grips": {},
         "sequences": {},
+        "rhythms": {},
     }
 
 
@@ -108,12 +109,19 @@ def _validate_library(lib: dict) -> None:
                 "bad_grip", f"grip {gid!r} missing strings/tuning"
             )
     for name, seq in lib["sequences"].items():
-        if not isinstance(seq, list) or not all(
-            isinstance(x, str) for x in seq
+        items = seq if isinstance(seq, list) else (
+            seq.get("items") if isinstance(seq, dict) else None
+        )
+        if not isinstance(items, list) or not all(
+            isinstance(x, str) for x in items
         ):
             raise StoreError(
-                "bad_sequence", f"sequence {name!r} is not a list of grip ids"
+                "bad_sequence",
+                f"sequence {name!r} must be a list of grip ids or "
+                "{items, tempo?, rhythm?, steps?} (Phase R)",
             )
+    if "rhythms" in lib and not isinstance(lib["rhythms"], dict):
+        raise StoreError("bad_library", "rhythms must be an object")
     inst = lib.get("instrument")
     if inst is not None:
         if not isinstance(inst, dict) or not isinstance(
@@ -449,8 +457,10 @@ def flatten_sequence(lib: dict, name: str, _stack: tuple = ()) -> list[str]:
             f"sequence {name!r} not found; known: "
             f"{sorted(lib['sequences'])}",
         )
+    raw = lib["sequences"][name]
+    items = raw if isinstance(raw, list) else raw.get("items", [])
     out: list[str] = []
-    for item in lib["sequences"][name]:
+    for item in items:
         if item.startswith("@"):
             out.extend(flatten_sequence(lib, item[1:], _stack + (name,)))
         else:
@@ -461,4 +471,9 @@ def flatten_sequence(lib: dict, name: str, _stack: tuple = ()) -> list[str]:
 def sequence_references(lib: dict, name: str) -> list[str]:
     """Sequences whose items reference @name directly."""
     ref = "@" + name
-    return [s for s, items in lib["sequences"].items() if ref in items]
+    out = []
+    for s, raw in lib["sequences"].items():
+        items = raw if isinstance(raw, list) else raw.get("items", [])
+        if ref in items:
+            out.append(s)
+    return out

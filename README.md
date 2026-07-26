@@ -73,7 +73,12 @@ captured as adjacent grips (both shapes get real identities; the
 transition is ordinary voice-leading — the analysis-ready form).
 Phase 3's `analyze` reads sequences through the user's chosen names:
 Roman numerals in candidate keys, bass line, common tones, voice
-leading, and modulation segmentation (docs/PHASE3_DESIGN.md).
+leading, and modulation segmentation (docs/PHASE3_DESIGN.md). Phase R
+adds rhythm as vocabulary (docs/RHYTHM_DESIGN.md): named grip-agnostic
+patterns with immutable built-ins, sequence assignments with @section
+inheritance, duration-weighted analysis, deterministic Karplus-Strong
+audition WAVs, and the structured timeline document cdp-mcp builds on
+(`exports/grip__<seq>__<hash8>.json`). Phases 4 and 5 are tabled.
 
 ## Development
 
