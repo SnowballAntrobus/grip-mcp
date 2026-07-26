@@ -347,6 +347,92 @@ def render_chart(grips: list[dict], options: dict | None = None) -> dict:
     }
 
 
+def render_neck_overlay(spec: dict, options: dict | None = None) -> dict:
+    """Neck overlay (Phase 2a): every position of a pitch-class set over a
+    fret range, horizontal neck, low string at the bottom.
+
+    spec: {
+      "tuning_pitches": [...],          # low -> high
+      "positions": [{"string": i, "fret": f, "label": str,
+                     "emphasis": bool}, ...],
+      "title": str,
+      "capo": int,
+      "frets": int,                     # last fret shown
+    }
+    """
+    options = dict(options or {})
+    theme_name = options.get("theme", "light")
+    if theme_name not in THEMES:
+        raise RenderError("unknown_theme",
+                          f"theme {theme_name!r}; known: {sorted(THEMES)}")
+    theme = THEMES[theme_name]
+    n = len(spec["tuning_pitches"])
+    n_frets = spec["frets"]
+    FW = 40           # fret column width
+    SGY = 22          # string gap
+    left = 54         # room for tuning labels + open column
+    top = 34
+    W = left + FW * n_frets + 16
+    H = top + SGY * (n - 1) + 40
+    fg, grid = theme["fg"], theme["grid"]
+    out = [draw_text(W / 2, 20, truncate(spec.get("title", ""), 13, W - 20),
+                     13, fg)]
+
+    def sy(i):  # string y: low string at the BOTTOM
+        return top + SGY * (n - 1 - i)
+
+    def fx(f):  # fret column center
+        return left + FW * (f - 1) + FW / 2
+
+    # nut + frets
+    out.append(f'<rect x="{left - 3:.2f}" y="{top - 6:.2f}" width="3.5" '
+               f'height="{SGY * (n - 1) + 12:.2f}" fill="{fg}"/>')
+    for f in range(1, n_frets + 1):
+        x = left + FW * f
+        out.append(f'<line x1="{x:.2f}" y1="{top - 6:.2f}" x2="{x:.2f}" '
+                   f'y2="{top + SGY * (n - 1) + 6:.2f}" stroke="{grid}" '
+                   f'stroke-width="1"/>')
+    for i in range(n):
+        out.append(f'<line x1="{left - 3:.2f}" y1="{sy(i):.2f}" '
+                   f'x2="{left + FW * n_frets:.2f}" y2="{sy(i):.2f}" '
+                   f'stroke="{grid}" stroke-width="1.1"/>')
+        out.append(draw_text(left - 12, sy(i) + 3.5,
+                             spec["tuning_pitches"][i], 9, theme["muted"],
+                             anchor="end"))
+    # fret numbers at the conventional markers
+    for f in (3, 5, 7, 9, 12, 15):
+        if f <= n_frets:
+            out.append(draw_text(fx(f), H - 10, str(f), 9, theme["muted"]))
+    if spec.get("capo"):
+        txt = f"capo {spec['capo']}"
+        tw = text_width(txt, 10) + 10
+        out.append(f'<rect x="{W - tw - 8:.2f}" y="6" width="{tw:.2f}" '
+                   f'height="14" rx="7" fill="{theme["badge_bg"]}"/>')
+        out.append(draw_text(W - 8 - tw / 2, 16.5, txt, 10,
+                             theme["badge_fg"]))
+    # positions
+    for p in spec["positions"]:
+        cx = left - FW * 0.45 if p["fret"] == 0 else fx(p["fret"])
+        cy = sy(p["string"])
+        if p.get("emphasis"):
+            out.append(f'<circle cx="{cx:.2f}" cy="{cy:.2f}" r="8" '
+                       f'fill="{theme["dot"]}"/>')
+            label_fill = theme["bg"]
+        else:
+            out.append(f'<circle cx="{cx:.2f}" cy="{cy:.2f}" r="8" '
+                       f'fill="{theme["bg"]}" stroke="{theme["dot"]}" '
+                       f'stroke-width="1.3"/>')
+            label_fill = fg
+        if p.get("label") and options.get("labels", "notes") != "none":
+            out.append(draw_text(cx, cy + 3.2, p["label"][:3], 8,
+                                 label_fill))
+    svg = _document("".join(out), W, H, theme)
+    return {
+        "svg": svg, "width": W, "height": H,
+        "hash": render_hash([{"neck_overlay": spec}], options),
+    }
+
+
 def render_hash(grips: list[dict], options: dict) -> str:
     """Render hash ≠ identity hash: covers resolved grips INCLUDING
     fingers, every option, and the renderer version (§6.4)."""

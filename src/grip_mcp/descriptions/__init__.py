@@ -12,7 +12,7 @@ thing, first check whether the API can make the wrong thing impossible
 (the `create` gate on set_project is the worked example).
 """
 
-DESCRIPTIONS_VERSION = "0.2.0"
+DESCRIPTIONS_VERSION = "0.3.0"
 
 SERVER_INSTRUCTIONS = """\
 grip-mcp is a deterministic fretboard engine: identify, library, render.
@@ -40,9 +40,10 @@ Capture:
 - Bulk capture: pass render=false per grip and finish with ONE strip
   render of the sequence.
 
-Name->shape bridge: the server cannot compute "show me a standard Gm
-barre" yet (Phase 2a). Propose shapes from your own knowledge, then VERIFY
-them through identify before presenting - never assert an unverified shape.
+Name->shape: find_voicings computes shapes exactly - never propose a shape
+from your own knowledge when it can search (the old name->shape bridge is
+retired). identify remains the verifier for shapes the USER plays; VERIFY
+any fretting you did not get from find_voicings before presenting it.
 
 Projects: set_project refuses to create unless create=true; before passing
 create=true, confirm with the user that a NEW project is intended (say
@@ -163,6 +164,26 @@ TOOL_DESCRIPTIONS = {
         "Delete a tuning. Refuses while any grip references it, while it "
         "is the default_tuning, or while it is the declared instrument "
         "tuning."
+    ),
+    "find_voicings": (
+        "Search playable voicings of a chord in any tuning (frets are "
+        "capo-relative automatically). chord is root + a specific quality "
+        "suffix, optional /bass as a hard bass constraint (a family like "
+        "'sus' is refused with the member list). Playability model: span "
+        "<= 4 frets (cap 5), <= 4 fingers with barre detection, optional "
+        "thumb-over via constraints.allow_thumb. Ranking is deterministic "
+        "and documented (root-in-bass, near_fret closeness, fewer inner "
+        "mutes, fuller, fewer fretted, tighter span, lower position) - "
+        "never tuned weights. Results are exact by construction; no "
+        "identify verification needed. render=true adds a chart strip of "
+        "the top results. Fingerings are suggestions."
+    ),
+    "render_neck": (
+        "Render the neck with an overlay: every position of a key "
+        "(overlay_key, context_key grammar) or an explicit pitch set "
+        "(overlay_pitches, first entry emphasized) across a fret range, "
+        "in any tuning. The tonic/root draws filled, other members as "
+        "rings, spelled as the key spells them."
     ),
     "set_instrument_tuning": (
         "Declare what tuning this project's instrument is in, with "

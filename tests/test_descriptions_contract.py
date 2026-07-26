@@ -15,6 +15,7 @@ EXPECTED_TOOLS = {
     "set_sequence", "list_sequences", "remove_sequence", "render",
     "define_tuning", "remove_tuning",
     "set_instrument_tuning", "retune_plan",  # Phase 2b
+    "find_voicings", "render_neck",          # Phase 2a
 }
 
 
@@ -64,3 +65,8 @@ def test_tool_description_keywords():
     assert "heuristics ONLY" in d["retune_plan"]
     assert "aggressive" in d["retune_plan"]
     assert "not a peg turn" in d["retune_plan"]
+    # Phase 2a: exact-by-construction search; deterministic ranking.
+    assert "exact by construction" in d["find_voicings"]
+    assert "never tuned weights" in d["find_voicings"]
+    assert "capo-relative" in d["find_voicings"]
+    assert "suggestions" in d["find_voicings"]

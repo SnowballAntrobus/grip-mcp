@@ -113,6 +113,23 @@ def build_server(root=None) -> FastMCP:
     def remove_tuning(name: str) -> dict:
         return svc.remove_tuning(name)
 
+    @tool("find_voicings")
+    def find_voicings(chord: str, key: str | None = None,
+                      near_fret: int | None = None,
+                      tuning: str | None = None,
+                      constraints: dict | None = None,
+                      render: bool = False) -> dict:
+        return svc.find_voicings(chord, key, near_fret, tuning,
+                                 constraints, render)
+
+    @tool("render_neck")
+    def render_neck(overlay_key: str | None = None,
+                    overlay_pitches: list[str] | None = None,
+                    tuning: str | None = None, frets: int = 12,
+                    labels: str = "notes", theme: str = "light") -> dict:
+        return svc.render_neck(overlay_key, overlay_pitches, tuning,
+                               frets, labels, theme)
+
     @tool("set_instrument_tuning")
     def set_instrument_tuning(name: str, render: bool = False) -> dict:
         return svc.set_instrument_tuning(name, render)

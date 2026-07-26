@@ -410,6 +410,98 @@ def identify(strings, tuning_pitches: list[str],
     return r
 
 
+# --- chord-name helpers (Phase 2a: find_voicings input/output) --------------
+
+def parse_chord_name(s: str) -> tuple[int, str, int | None]:
+    """Canonical chord name -> (root_pc, quality_id, bass_pc|None).
+
+    The suffix must name a specific table quality (families are ambiguous
+    for search — instructive error names the members). `coll` has no
+    interval structure and is rejected. Bass must be a chord tone
+    (foreign-bass slash chords are Phase 3). Enharmonic and Unicode
+    accidental inputs resolve by PC as everywhere else.
+    """
+    tbl = load_table()
+    src = _norm(s)
+    body, bass_pc = src, None
+    if "/" in src:
+        body, bass = src.split("/", 1)
+        try:
+            bass_pc = _pc_of_name(bass)
+        except TheoryError:
+            raise TheoryError(f"bad bass {bass!r} in {s!r}") from None
+    m = re.match(r"^([A-G])(bb|##|b|#)?(.*)$", body)
+    if not m:
+        raise TheoryError(f"bad chord name {s!r}: no root")
+    root_pc = lof_pc(_BASE[m.group(1)] + 7 * _TXT_ACC[m.group(2) or ""])
+    suffix = m.group(3)
+    if suffix in tbl["_names"]:
+        qid = tbl["_names"][suffix]
+    elif suffix in tbl["_families"]:
+        members = sorted(
+            tbl["qualities"][q]["name"] or "(major)"
+            for q in tbl["_families"][suffix]
+        )
+        raise TheoryError(
+            f"{suffix!r} is a family, not a quality; voicing search needs "
+            f"one of: {members}"
+        )
+    else:
+        raise TheoryError(
+            f"unknown quality suffix {suffix!r} in {s!r}"
+        )
+    if qid == "coll":
+        raise TheoryError(
+            "coll has no interval structure; use render_neck with a pitch "
+            "set, or pick a table quality"
+        )
+    tones = {(root_pc + t) % 12 for t in tbl["qualities"][qid]["tones"]}
+    if bass_pc is not None and bass_pc not in tones:
+        raise TheoryError(
+            f"bass {lof_str(load_table()['_canonical_lof'][bass_pc])} is "
+            f"not a chord tone of {body}; foreign-bass slash chords are "
+            "Phase 3"
+        )
+    return root_pc, qid, bass_pc
+
+
+def chord_root_lof(root_pc: int, qid: str,
+                   context_key: str | None = None) -> int:
+    """Root spelling for a (root, quality) with the A5.1 overflow
+    fallback, matching identify's behavior exactly."""
+    tbl = load_table()
+    if context_key is None:
+        return tbl["_canonical_lof"][root_pc]
+    key = Key.parse(context_key)
+    l = key.spell(root_pc)
+    row = tbl["qualities"][qid]
+    if row["spell"] == "stack" and any(
+        abs(lof_acc(l + d)) > 2 for d in row["_deg_deltas"]
+    ):
+        return tbl["_canonical_lof"][root_pc]
+    return l
+
+
+def member_spellings(root_pc: int, qid: str,
+                     context_key: str | None = None) -> dict[int, int]:
+    """abs pc -> LoF for the chord's members (strict stacking, §5.2.2)."""
+    tbl = load_table()
+    row = tbl["qualities"][qid]
+    root_lof = chord_root_lof(root_pc, qid, context_key)
+    return {lof_pc(root_lof + d): root_lof + d for d in row["_deg_deltas"]}
+
+
+def chord_name(root_pc: int, qid: str, bass_pc: int | None = None,
+               context_key: str | None = None) -> str:
+    tbl = load_table()
+    root_lof = chord_root_lof(root_pc, qid, context_key)
+    name = lof_str(root_lof) + tbl["qualities"][qid]["name"]
+    if bass_pc is not None and bass_pc != root_pc:
+        members = member_spellings(root_pc, qid, context_key)
+        name += "/" + lof_str(members[bass_pc])
+    return name
+
+
 # --- chosen resolution (three tiers; §5.1 / APPENDIX A2) --------------------
 
 _UNI = {"♯": "#", "♭": "b", "\U0001d12a": "##", "\U0001d12b": "bb"}

@@ -801,6 +801,130 @@ class GripService:
             return self._err(e.code, e.detail, mutating=True)
         return self._env({"name": name}, stored=True, warnings=[])
 
+    # ------------------------------------------------------- Phase 2a (§9)
+
+    def find_voicings(self, chord: str, key: str | None = None,
+                      near_fret: int | None = None,
+                      tuning: str | None = None,
+                      constraints: dict | None = None,
+                      render: bool = False, top: int = TOP_N) -> dict:
+        from . import voicings as V
+        try:
+            st = self._store()
+            lib = st.load()
+            tname, res = self._resolve_tuning_arg(lib, tuning)
+            if key is not None:
+                TH.Key.parse(key)  # validate early, instructively
+            result = V.find_voicings(res["pitches"], chord, key, near_fret,
+                                     constraints)
+        except (ST.StoreError, TH.TheoryError, V.VoicingError) as e:
+            return self._err(getattr(e, "code", "bad_input"), str(e))
+        ranked = result["voicings"]
+        payload = {
+            "chord": result["chord"],
+            "quality": result["quality"],
+            "tones": result["tones"],
+            "tuning": tname,
+            "resolved_pitches": res["pitches"],
+            "capo": res["capo"],
+            "constraints": result["constraints"],
+            "voicings": ranked[:top],
+            "truncated": max(0, len(ranked) - top),
+        }
+        warnings = []
+        if render and ranked:
+            cards = [
+                {
+                    "frets": v["strings"],
+                    "fingers": v["fingers"],
+                    "string_labels": [
+                        None if p is None else
+                        "".join(ch for ch in p if not ch.isdigit())
+                        for p in v["string_pitches"]
+                    ],
+                    "name": result["chord"],
+                    "capo": res["capo"],
+                }
+                for v in ranked[:min(top, 4)]
+            ]
+            rr = self._do_render_grips(
+                st, cards,
+                {"labels": "notes", "title": result["chord"]},
+                prefix="adhoc",
+            )
+            if "error" in rr:
+                warnings.append({"code": "render_failed",
+                                 "detail": rr["error"]["detail"]})
+            else:
+                payload["render"] = rr
+        return self._env(payload, warnings=warnings or None)
+
+
+    def render_neck(self, overlay_key: str | None = None,
+                    overlay_pitches: list | None = None,
+                    tuning: str | None = None, frets: int = 12,
+                    labels: str = "notes", theme: str = "light") -> dict:
+        if (overlay_key is None) == (overlay_pitches is None):
+            return self._err(
+                "exactly_one_of",
+                "pass exactly one of overlay_key ('e-minor') or "
+                "overlay_pitches (['E','G','B']; first entry is "
+                "emphasized)",
+            )
+        try:
+            st = self._store()
+            lib = st.load()
+            tname, res = self._resolve_tuning_arg(lib, tuning)
+            frets = max(4, min(int(frets), 15))
+            tbl = TH.load_table()
+            if overlay_key is not None:
+                k = TH.Key.parse(overlay_key)
+                pcs = {pc: TH.lof_str(k.spell(pc)) for pc in k.scale_pcs}
+                emphasis = k.tonic_pc
+                title = overlay_key
+            else:
+                lofs = [TH.parse_note(p) for p in overlay_pitches]
+                if not lofs:
+                    raise TH.TheoryError("overlay_pitches is empty")
+                pcs = {TH.lof_pc(l): TH.lof_str(l) for l in lofs}
+                emphasis = TH.lof_pc(lofs[0])
+                title = " ".join(TH.lof_str(l) for l in lofs)
+            opens = [TH.parse_pitch(p) for p in res["pitches"]]
+            positions = []
+            for si, om in enumerate(opens):
+                for f in range(0, frets + 1):
+                    pc = (om + f) % 12
+                    if pc in pcs:
+                        positions.append({
+                            "string": si, "fret": f, "label": pcs[pc],
+                            "emphasis": pc == emphasis,
+                        })
+            spec = {
+                "tuning_pitches": res["pitches"],
+                "positions": positions,
+                "title": title,
+                "capo": res["capo"],
+                "frets": frets,
+            }
+            out = RD.render_neck_overlay(spec, {"labels": labels,
+                                                "theme": theme})
+            png = RD.to_png(out["svg"], out["width"])
+            st.renders_dir.mkdir(parents=True, exist_ok=True)
+            base = f"neck__{out['hash']}"
+            svg_path = st.renders_dir / f"{base}.svg"
+            png_path = st.renders_dir / f"{base}.png"
+            svg_path.write_text(out["svg"], encoding="utf-8")
+            png_path.write_bytes(png)
+        except (ST.StoreError, TH.TheoryError, RD.RenderError) as e:
+            return self._err(getattr(e, "code", "bad_input"), str(e))
+        return self._env({
+            "tuning": tname,
+            "capo": res["capo"],
+            "overlay": title,
+            "files": {"svg": str(svg_path), "png": str(png_path)},
+            "render_hash": out["hash"],
+        })
+
     # ------------------------------------------------------- Phase 2b (§9)
 
     UPTUNE_AGGRESSIVE = 3    # semitones; direction + magnitude only —
