@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+
+# Tooling
+.pytest_cache/
+.ruff_cache/
+uv.lock
+
+# OS
+.DS_Store
+
+# Device-sync scratch (phase snapshots staged from the cloud workspace)
+.sync/
