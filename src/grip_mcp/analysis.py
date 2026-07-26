@@ -186,25 +186,8 @@ def passing_keys(steps: list[dict], names: list[str]) -> dict[str, set]:
     return out
 
 
-def rank_keys(steps: list[dict], names: list[str], top: int = 3,
-              durations: list | None = None) -> list:
-    """Duration-weighted when durations (beats per step) are given —
-    data, not a tuned weight (RHYTHM R3): a chord held four bars argues
-    harder than a passing eighth."""
+def rank_keys(steps: list[dict], names: list[str], top: int = 3) -> list:
     per_key = passing_keys(steps, names)
-    if durations:
-        beats = {
-            n: sum(durations[i] for i in per_key[n]) for n in per_key
-        }
-        scored = sorted(
-            per_key,
-            key=lambda n: (-beats[n],) + _key_rank(n, len(per_key[n])),
-        )
-        return [
-            {"key": n, "passes": len(per_key[n]), "of": len(steps),
-             "beats": beats[n], "of_beats": sum(durations)}
-            for n in scored[:top]
-        ]
     scored = sorted(per_key, key=lambda n: _key_rank(n, len(per_key[n])))
     return [
         {"key": n, "passes": len(per_key[n]), "of": len(steps)}
@@ -239,8 +222,7 @@ def segment(steps: list[dict], names: list[str]) -> list[dict]:
 # analyze (PHASE3 §2)
 # ---------------------------------------------------------------------------
 
-def analyze(steps: list[dict], keys: list[str] | None = None,
-            timeline: list | None = None) -> dict:
+def analyze(steps: list[dict], keys: list[str] | None = None) -> dict:
     """steps[i]: {grip, name, named, midi, root_pc, quality, bass_pc,
     pitches (spelled, low->high)} — built by the service from the
     library + derived caches (display candidate = chosen else top)."""
@@ -286,10 +268,7 @@ def analyze(steps: list[dict], keys: list[str] | None = None,
             },
         })
 
-    durations = (
-        [t["duration_beats"] for t in timeline] if timeline else None
-    )
-    ranked = rank_keys(steps, key_names, durations=durations)
+    ranked = rank_keys(steps, key_names)
     numerals = {}
     for entry in ranked:
         key = TH.Key.parse(entry["key"])
@@ -310,22 +289,11 @@ def analyze(steps: list[dict], keys: list[str] | None = None,
         for i in range(len(segments) - 1)
     ]
 
-    out_steps = [
-        {k: s[k] for k in ("grip", "name", "named", "midi")}
-        for s in steps
-    ]
-    if timeline:
-        for s, t in zip(out_steps, timeline):
-            beats_per_bar = t["meter"][0]
-            s.update({
-                "rhythm": t["rhythm"],
-                "onset_beats": t["onset_beats"],
-                "duration_beats": t["duration_beats"],
-                "bar": int(t["onset_beats"] // beats_per_bar) + 1,
-                "beat": (t["onset_beats"] % beats_per_bar) + 1,
-            })
     return {
-        "steps": out_steps,
+        "steps": [
+            {k: s[k] for k in ("grip", "name", "named", "midi")}
+            for s in steps
+        ],
         "bass_line": bass_line,
         "bass_motion": bass_motion,
         "pairs": pairs,

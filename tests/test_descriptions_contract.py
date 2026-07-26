@@ -18,8 +18,6 @@ EXPECTED_TOOLS = {
     "find_voicings", "render_neck",          # Phase 2a
     "journal", "list_journal", "history",    # feedback round 1
     "analyze",                               # Phase 3
-    "define_rhythm", "remove_rhythm", "list_rhythms", "set_rhythm",
-    "render_audio", "export_timeline",       # Phase R
 }
 
 
