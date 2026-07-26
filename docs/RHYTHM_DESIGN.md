@@ -1,6 +1,8 @@
 # Phase R — Rhythm: Design Note
 
-Status: v1.0 · 2026-07-26 · promotes rhythm from DESIGN §9's "Someday"
+Status: SUPERSEDED pending review — see RHYTHM2_DESIGN.md (the event
+model here proved too poor for detailed rhythm: no velocity, no swing,
+hand-waved meter; process lesson recorded there) · promotes rhythm from DESIGN §9's "Someday"
 at the user's direction; Phases 4 and 5 are tabled. House rules apply:
 deterministic, documented, mechanical; the server realizes and
 validates, the LLM suggests, the musician decides.
