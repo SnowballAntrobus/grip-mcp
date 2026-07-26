@@ -134,10 +134,14 @@ def test_b5_over_fs():
 
 def test_q_context_free():
     r = result("q")
-    assert names("q") == [
+    # The chord-tone readings, in order; foreign-bass readings (engine
+    # 1.1.0, PHASE3 §3) trail behind them by R1 class.
+    assert names("q")[:7] == [
         "F#q4", "F#7sus4", "Bsus4/F#", "Esus2/F#",
         "B7sus4/F#", "Eadd9/F#", "Emadd9/F#",
     ]
+    tail = r["candidates"][7:]
+    assert tail and all(c["foreign_bass"] for c in tail)
     assert cand("q", "F#7sus4")["missing"] == ["C#"]
     assert r["decided_at"] == "R2"
 
@@ -145,8 +149,10 @@ def test_q_context_free():
 def test_q_in_e_minor():
     r = result("q-e-minor")
     assert r["mode"] == "context"
-    passers = [c["name"] for c in r["candidates"] if c["r0_pass"]]
-    # Exactly the documented passer set (§7.3).
+    passers = [c["name"] for c in r["candidates"]
+               if c["r0_pass"] and not c["foreign_bass"]]
+    # Exactly the documented passer set (§7.3) among chord-tone readings;
+    # foreign-bass readings may also pass and rank in their own class.
     assert set(passers) == {
         "F#q4", "Bsus4/F#", "Esus2/F#", "Emadd9/F#", "B7sus4/F#",
     }

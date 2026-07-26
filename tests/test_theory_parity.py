@@ -27,7 +27,7 @@ ALL_FIXTURES = {
 
 PARITY_FIELDS = (
     "name", "root", "quality", "bass", "inversion",
-    "intervals_from_root", "missing", "pitches",
+    "intervals_from_root", "missing", "pitches", "foreign_bass",
 )
 
 
@@ -124,7 +124,7 @@ def test_covariant_parity_cdim():
 # --- engine constants ---------------------------------------------------------
 
 def test_engine_version_and_table():
-    assert T.ENGINE_VERSION == "1.0.0"
+    assert T.ENGINE_VERSION == "1.1.0"
     assert T.table_version() == "1.0.0"
 
 

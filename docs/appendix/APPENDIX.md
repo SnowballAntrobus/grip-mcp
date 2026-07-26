@@ -85,6 +85,14 @@ A suffix that is *both* a quality name and a family name (e.g. `m`, `q4`,
 `5`, `dim`, `aug`, `7`) resolves at tier 2 first by construction; tier 3 is
 reached only when tier 2 matched nothing.
 
+**A2.1 (engine 1.1.0 amendment):** foreign-bass slash candidates
+(PHASE3 §3) are reachable at tiers 2–3 only when the input carries an
+explicit `/bass`; bare shorthand (`"Cmaj7"` on a grip whose only
+C-rooted maj7 reading is a foreign-bass fragment) is a **miss**, never a
+silent landing. Tier 1 (the exact canonical name, `"Cmaj7/F#"`) always
+resolves. Found by the acceptance suite the day foreign-bass candidates
+landed — the miss-with-suggestions safety net is load-bearing.
+
 **Family assignments** (the `family` column; single-valued):
 `dy` (all dyads) · `5` · `maj` {maj, maj7, 6} · `m` {m, m7, m6, mMaj7,
 madd9} · `dim` {dim, dim7, m7b5} · `aug` {aug} · `sus` {sus2, sus4, 7sus4}

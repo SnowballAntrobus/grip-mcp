@@ -62,6 +62,11 @@ SET_B = {
     "dy-M7": ([X, 3, 9, X, X, X], "standard", None),
     # Totality catch-all: the chromatic cluster nothing covers.
     "coll-cluster": ([8, 4, 0, X, X, X], "standard", None),
+    # Foreign-bass slash candidates (PHASE3 §3): the classic C/D, a
+    # pedal point, and the 4-note cluster that keeps coll reachable.
+    "c-over-d": ([X, 5, 2, 0, 1, 0], "standard", None),
+    "pedal-d":  ([X, 5, X, 5, X, 3], "standard", None),
+    "coll-cluster4": ([8, 4, 0, 8, X, X], "standard", None),
     # Member-stacking bass spelling (the Cdim/Gb divergence input) and its
     # transposition source (Ddim/Ab).
     "cdim-gb": ([2, 6, X, 5, X, X], "standard", None),

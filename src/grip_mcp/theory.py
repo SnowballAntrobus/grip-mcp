@@ -21,7 +21,7 @@ import tomllib
 from functools import lru_cache
 from importlib import resources
 
-ENGINE_VERSION = "1.0.0"
+ENGINE_VERSION = "1.1.0"
 
 # --- line-of-fifths machinery ----------------------------------------------
 # LoF index l: ... Fb=-8 Cb=-7 Gb=-6 Db=-5 Ab=-4 Eb=-3 Bb=-2 F=-1 C=0 G=1
@@ -171,26 +171,36 @@ class Key:
 
 class _Cand:
     __slots__ = ("root_pc", "row", "abs_tones", "sounding_rel", "bass_pc",
-                 "missing_rel", "r0")
+                 "missing_rel", "r0", "foreign")
 
-    def __init__(self, root_pc, row, abs_tones, pcs, bass_pc):
+    def __init__(self, root_pc, row, abs_tones, pcs, bass_pc,
+                 foreign=False):
         self.root_pc = root_pc
         self.row = row
         self.abs_tones = abs_tones
         self.sounding_rel = frozenset((p - root_pc) % 12 for p in pcs)
         self.bass_pc = bass_pc
+        self.foreign = foreign
         tone_rel = (
             frozenset(row["_tones"]) if row["gen"] != "coll"
             else frozenset((p - root_pc) % 12 for p in abs_tones)
         )
         self.missing_rel = tuple(sorted(tone_rel - self.sounding_rel))
         self.r0 = None
+        assert not (foreign and (bass_pc - root_pc) % 12 in tone_rel)
 
 
 def _rank(c: _Cand, root_lof: int) -> tuple:
+    # R1 three classes (PHASE3 §3): root-is-bass < inversion < foreign.
+    if c.root_pc == c.bass_pc:
+        r1 = 0
+    elif c.foreign:
+        r1 = 2
+    else:
+        r1 = 1
     return (
         0 if c.r0 in (True, None) else 1,
-        0 if c.root_pc == c.bass_pc else 1,
+        r1,
         0 if 0 in c.sounding_rel else 1,
         len(set(c.missing_rel) - set(c.row["discount"])),
         len(c.missing_rel),
@@ -217,7 +227,8 @@ def _r0_pass(c: _Cand, key: Key) -> bool:
     )
 
 
-def _generate(pcs: frozenset, bass_pc: int, tbl: dict) -> list[_Cand]:
+def _generate(pcs: frozenset, upper_pcs: frozenset, bass_pc: int,
+              tbl: dict) -> list[_Cand]:
     out: dict[tuple, _Cand] = {}
     for row in tbl["qualities"].values():
         if row["gen"] != "table":
@@ -228,6 +239,16 @@ def _generate(pcs: frozenset, bass_pc: int, tbl: dict) -> list[_Cand]:
                 key = (root, abs_tones)
                 if key not in out:
                     out[key] = _Cand(root, row, abs_tones, pcs, bass_pc)
+            elif (
+                len(upper_pcs) >= 2
+                and bass_pc not in abs_tones
+                and upper_pcs <= abs_tones
+            ):
+                # Foreign-bass slash candidate (PHASE3 §3).
+                key = (root, abs_tones)
+                if key not in out:
+                    out[key] = _Cand(root, row, abs_tones, pcs, bass_pc,
+                                     foreign=True)
     if len(pcs) == 2:
         (other,) = pcs - {bass_pc}
         dist = (other - bass_pc) % 12
@@ -307,7 +328,10 @@ def _reading(c: _Cand, name: str, root_lof: int, members: dict[int, int],
     if assumed:
         parts.append(f"{', '.join(assumed)} assumed")
     if c.root_pc != c.bass_pc:
-        parts.append(f"{lof_str(members[c.bass_pc])} in the bass")
+        if c.foreign:
+            parts.append(f"foreign bass {lof_str(members[c.bass_pc])}")
+        else:
+            parts.append(f"{lof_str(members[c.bass_pc])} in the bass")
     return "; ".join(parts)
 
 
@@ -340,7 +364,8 @@ def identify_midis(midis: list[int], context_key: str | None = None) -> dict:
         result["decided_at"] = None
         return result
 
-    cands = _generate(pcs, bass_pc, tbl)
+    upper_pcs = frozenset(m % 12 for m in sounding[1:])
+    cands = _generate(pcs, upper_pcs, bass_pc, tbl)
     if key:
         for c in cands:
             c.r0 = _r0_pass(c, key)
@@ -350,17 +375,23 @@ def identify_midis(midis: list[int], context_key: str | None = None) -> dict:
     for c in ranked:
         root_lof = _root_lof(c, key, tbl)
         members = _member_lofs(c, root_lof, tbl)
+        if c.foreign:
+            # Foreign bass: not a member — canonical, or key-respelled.
+            members[c.bass_pc] = (
+                key.spell(c.bass_pc) if key
+                else tbl["_canonical_lof"][c.bass_pc]
+            )
         suffix = c.row["name"]
         if c.bass_pc != c.root_pc:
             name = f"{lof_str(root_lof)}{suffix}/{lof_str(members[c.bass_pc])}"
         else:
             name = f"{lof_str(root_lof)}{suffix}"
-        if c.row["inversion"] == "member-index":
+        if c.foreign or c.row["inversion"] != "member-index":
+            inversion = None
+        else:
             # Index of the bass member in degree order (0 = root position).
             rel = (c.bass_pc - c.root_pc) % 12
             inversion = c.row["_deg_deltas"].index(c.row["_tone_by_pcrel"][rel])
-        else:
-            inversion = None
         entry = {
             "name": name,
             "root": lof_str(root_lof),
@@ -373,6 +404,7 @@ def identify_midis(midis: list[int], context_key: str | None = None) -> dict:
             ],
             "pitches": [pitch_str(members[m % 12], m) for m in sounding],
             "reading": _reading(c, name, root_lof, members, sounding, tbl),
+            "foreign_bass": c.foreign,
         }
         if key:
             entry["r0_pass"] = bool(c.r0)
@@ -545,9 +577,13 @@ def resolve_chosen(chosen: str, candidates: list[dict]) -> dict:
         return {"status": "resolved", "name": exact[0]["name"], "tier": 1}
 
     def matches(qids):
+        # Foreign-bass candidates are reachable at tiers 2-3 only via an
+        # explicit /bass (A2 amendment): shorthand must never silently
+        # land on a foreign-bass fragment; the exact name always works.
         return [
             c for c in candidates
             if _pc_of_name(c["root"]) == root_pc and c["quality"] in qids
+            and not (c.get("foreign_bass") and bass_pc is None)
             and (bass_pc is None or _pc_of_name(c["bass"]) == bass_pc)
         ]
 

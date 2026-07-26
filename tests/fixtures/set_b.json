@@ -1,7 +1,7 @@
 {
   "folk-c": {
     "result": {
-      "engine_version": "0.1.0",
+      "engine_version": "1.1.0",
       "table_version": "1.0.0",
       "input": {
         "strings": [
@@ -52,7 +52,8 @@
           ],
           "reading": "C: triads reading",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "C7",
@@ -77,7 +78,8 @@
           ],
           "reading": "C7: sevenths reading; Bb assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Cmaj7",
@@ -102,7 +104,8 @@
           ],
           "reading": "Cmaj7: sevenths reading; B assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Cadd9",
@@ -127,7 +130,8 @@
           ],
           "reading": "Cadd9: add/sus/sixth reading; D assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "C6",
@@ -152,7 +156,8 @@
           ],
           "reading": "C6: add/sus/sixth reading; A assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Am7/C",
@@ -177,7 +182,8 @@
           ],
           "reading": "Am7/C: sevenths reading; root A assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         }
       ],
       "decided_at": "R2"
@@ -185,7 +191,7 @@
   },
   "folk-g": {
     "result": {
-      "engine_version": "0.1.0",
+      "engine_version": "1.1.0",
       "table_version": "1.0.0",
       "input": {
         "strings": [
@@ -238,7 +244,8 @@
           ],
           "reading": "G: triads reading",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "G7",
@@ -264,7 +271,8 @@
           ],
           "reading": "G7: sevenths reading; F assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Gmaj7",
@@ -290,7 +298,8 @@
           ],
           "reading": "Gmaj7: sevenths reading; F# assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Gadd9",
@@ -316,7 +325,8 @@
           ],
           "reading": "Gadd9: add/sus/sixth reading; A assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "G6",
@@ -342,7 +352,8 @@
           ],
           "reading": "G6: add/sus/sixth reading; E assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Em7/G",
@@ -368,7 +379,8 @@
           ],
           "reading": "Em7/G: sevenths reading; root E assumed; G in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         }
       ],
       "decided_at": "R2"
@@ -376,7 +388,7 @@
   },
   "folk-d": {
     "result": {
-      "engine_version": "0.1.0",
+      "engine_version": "1.1.0",
       "table_version": "1.0.0",
       "input": {
         "strings": [
@@ -425,7 +437,8 @@
           ],
           "reading": "D: triads reading",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "D7",
@@ -449,7 +462,8 @@
           ],
           "reading": "D7: sevenths reading; C assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Dmaj7",
@@ -473,7 +487,8 @@
           ],
           "reading": "Dmaj7: sevenths reading; C# assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Dadd9",
@@ -497,7 +512,8 @@
           ],
           "reading": "Dadd9: add/sus/sixth reading; E assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "D6",
@@ -521,7 +537,8 @@
           ],
           "reading": "D6: add/sus/sixth reading; B assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Bm7/D",
@@ -545,7 +562,8 @@
           ],
           "reading": "Bm7/D: sevenths reading; root B assumed; D in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         }
       ],
       "decided_at": "R2"
@@ -553,7 +571,7 @@
   },
   "folk-em": {
     "result": {
-      "engine_version": "0.1.0",
+      "engine_version": "1.1.0",
       "table_version": "1.0.0",
       "input": {
         "strings": [
@@ -606,7 +624,8 @@
           ],
           "reading": "Em: triads reading",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Em7",
@@ -632,7 +651,8 @@
           ],
           "reading": "Em7: sevenths reading; D assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "EmMaj7",
@@ -658,7 +678,8 @@
           ],
           "reading": "EmMaj7: sevenths reading; D# assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Emadd9",
@@ -684,7 +705,8 @@
           ],
           "reading": "Emadd9: add/sus/sixth reading; F# assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Em6",
@@ -710,7 +732,8 @@
           ],
           "reading": "Em6: add/sus/sixth reading; C# assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "G6/E",
@@ -736,7 +759,8 @@
           ],
           "reading": "G6/E: add/sus/sixth reading; D assumed; E in the bass",
           "root_is_bass": false,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Cmaj7/E",
@@ -762,7 +786,8 @@
           ],
           "reading": "Cmaj7/E: sevenths reading; root C assumed; E in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         },
         {
           "name": "Dbm7b5/Fb",
@@ -788,7 +813,8 @@
           ],
           "reading": "Dbm7b5/Fb: sevenths reading; root Db assumed; Fb in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         }
       ],
       "decided_at": "R2"
@@ -796,7 +822,7 @@
   },
   "folk-am": {
     "result": {
-      "engine_version": "0.1.0",
+      "engine_version": "1.1.0",
       "table_version": "1.0.0",
       "input": {
         "strings": [
@@ -847,7 +873,8 @@
           ],
           "reading": "Am: triads reading",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Am7",
@@ -872,7 +899,8 @@
           ],
           "reading": "Am7: sevenths reading; G assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "AmMaj7",
@@ -897,7 +925,8 @@
           ],
           "reading": "AmMaj7: sevenths reading; G# assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Amadd9",
@@ -922,7 +951,8 @@
           ],
           "reading": "Amadd9: add/sus/sixth reading; B assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Am6",
@@ -947,7 +977,8 @@
           ],
           "reading": "Am6: add/sus/sixth reading; F# assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "C6/A",
@@ -972,7 +1003,8 @@
           ],
           "reading": "C6/A: add/sus/sixth reading; G assumed; A in the bass",
           "root_is_bass": false,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Fmaj7/A",
@@ -997,7 +1029,8 @@
           ],
           "reading": "Fmaj7/A: sevenths reading; root F assumed; A in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         },
         {
           "name": "F#m7b5/A",
@@ -1022,7 +1055,8 @@
           ],
           "reading": "F#m7b5/A: sevenths reading; root F# assumed; A in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         }
       ],
       "decided_at": "R2"
@@ -1030,7 +1064,7 @@
   },
   "freddie-g7": {
     "result": {
-      "engine_version": "0.1.0",
+      "engine_version": "1.1.0",
       "table_version": "1.0.0",
       "input": {
         "strings": [
@@ -1079,15 +1113,289 @@
           ],
           "reading": "G7: sevenths reading; D assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
+        },
+        {
+          "name": "Bdim/G",
+          "root": "B",
+          "quality": "dim",
+          "bass": "G",
+          "inversion": null,
+          "intervals_from_root": [
+            0,
+            6,
+            8
+          ],
+          "missing": [
+            "D"
+          ],
+          "pitches": [
+            "G2",
+            "F3",
+            "B3"
+          ],
+          "reading": "Bdim/G: triads reading; D assumed; foreign bass G",
+          "root_is_bass": false,
+          "root_sounds": true,
+          "foreign_bass": true
+        },
+        {
+          "name": "Fdim/G",
+          "root": "F",
+          "quality": "dim",
+          "bass": "G",
+          "inversion": null,
+          "intervals_from_root": [
+            0,
+            2,
+            6
+          ],
+          "missing": [
+            "Ab"
+          ],
+          "pitches": [
+            "G2",
+            "F3",
+            "Cb4"
+          ],
+          "reading": "Fdim/G: triads reading; Ab assumed; foreign bass G",
+          "root_is_bass": false,
+          "root_sounds": true,
+          "foreign_bass": true
+        },
+        {
+          "name": "Bm7b5/G",
+          "root": "B",
+          "quality": "m7b5",
+          "bass": "G",
+          "inversion": null,
+          "intervals_from_root": [
+            0,
+            6,
+            8
+          ],
+          "missing": [
+            "D",
+            "A"
+          ],
+          "pitches": [
+            "G2",
+            "F3",
+            "B3"
+          ],
+          "reading": "Bm7b5/G: sevenths reading; D, A assumed; foreign bass G",
+          "root_is_bass": false,
+          "root_sounds": true,
+          "foreign_bass": true
+        },
+        {
+          "name": "Bdim7/G",
+          "root": "B",
+          "quality": "dim7",
+          "bass": "G",
+          "inversion": null,
+          "intervals_from_root": [
+            0,
+            6,
+            8
+          ],
+          "missing": [
+            "D",
+            "Ab"
+          ],
+          "pitches": [
+            "G2",
+            "F3",
+            "B3"
+          ],
+          "reading": "Bdim7/G: sevenths reading; D, Ab assumed; foreign bass G",
+          "root_is_bass": false,
+          "root_sounds": true,
+          "foreign_bass": true
+        },
+        {
+          "name": "Fm7b5/G",
+          "root": "F",
+          "quality": "m7b5",
+          "bass": "G",
+          "inversion": null,
+          "intervals_from_root": [
+            0,
+            2,
+            6
+          ],
+          "missing": [
+            "Ab",
+            "Eb"
+          ],
+          "pitches": [
+            "G2",
+            "F3",
+            "Cb4"
+          ],
+          "reading": "Fm7b5/G: sevenths reading; Ab, Eb assumed; foreign bass G",
+          "root_is_bass": false,
+          "root_sounds": true,
+          "foreign_bass": true
+        },
+        {
+          "name": "Fdim7/G",
+          "root": "F",
+          "quality": "dim7",
+          "bass": "G",
+          "inversion": null,
+          "intervals_from_root": [
+            0,
+            2,
+            6
+          ],
+          "missing": [
+            "Ab",
+            "Ebb"
+          ],
+          "pitches": [
+            "G2",
+            "F3",
+            "Cb4"
+          ],
+          "reading": "Fdim7/G: sevenths reading; Ab, Ebb assumed; foreign bass G",
+          "root_is_bass": false,
+          "root_sounds": true,
+          "foreign_bass": true
+        },
+        {
+          "name": "Db7/G",
+          "root": "Db",
+          "quality": "7",
+          "bass": "G",
+          "inversion": null,
+          "intervals_from_root": [
+            4,
+            6,
+            10
+          ],
+          "missing": [
+            "Db",
+            "Ab"
+          ],
+          "pitches": [
+            "G2",
+            "F3",
+            "Cb4"
+          ],
+          "reading": "Db7/G: sevenths reading; root Db assumed; Ab assumed; foreign bass G",
+          "root_is_bass": false,
+          "root_sounds": false,
+          "foreign_bass": true
+        },
+        {
+          "name": "Abm6/G",
+          "root": "Ab",
+          "quality": "m6",
+          "bass": "G",
+          "inversion": null,
+          "intervals_from_root": [
+            3,
+            9,
+            11
+          ],
+          "missing": [
+            "Ab",
+            "Eb"
+          ],
+          "pitches": [
+            "G2",
+            "F3",
+            "Cb4"
+          ],
+          "reading": "Abm6/G: add/sus/sixth reading; root Ab assumed; Eb assumed; foreign bass G",
+          "root_is_bass": false,
+          "root_sounds": false,
+          "foreign_bass": true
+        },
+        {
+          "name": "Dm6/G",
+          "root": "D",
+          "quality": "m6",
+          "bass": "G",
+          "inversion": null,
+          "intervals_from_root": [
+            3,
+            5,
+            9
+          ],
+          "missing": [
+            "D",
+            "A"
+          ],
+          "pitches": [
+            "G2",
+            "F3",
+            "B3"
+          ],
+          "reading": "Dm6/G: add/sus/sixth reading; root D assumed; A assumed; foreign bass G",
+          "root_is_bass": false,
+          "root_sounds": false,
+          "foreign_bass": true
+        },
+        {
+          "name": "Abdim7/G",
+          "root": "Ab",
+          "quality": "dim7",
+          "bass": "G",
+          "inversion": null,
+          "intervals_from_root": [
+            3,
+            9,
+            11
+          ],
+          "missing": [
+            "Ab",
+            "Ebb"
+          ],
+          "pitches": [
+            "G2",
+            "Gbb3",
+            "Cb4"
+          ],
+          "reading": "Abdim7/G: sevenths reading; root Ab assumed; Ebb assumed; foreign bass G",
+          "root_is_bass": false,
+          "root_sounds": false,
+          "foreign_bass": true
+        },
+        {
+          "name": "Ddim7/G",
+          "root": "D",
+          "quality": "dim7",
+          "bass": "G",
+          "inversion": null,
+          "intervals_from_root": [
+            3,
+            5,
+            9
+          ],
+          "missing": [
+            "D",
+            "Ab"
+          ],
+          "pitches": [
+            "G2",
+            "F3",
+            "Cb4"
+          ],
+          "reading": "Ddim7/G: sevenths reading; root D assumed; Ab assumed; foreign bass G",
+          "root_is_bass": false,
+          "root_sounds": false,
+          "foreign_bass": true
         }
       ],
-      "decided_at": "unique"
+      "decided_at": "R1"
     }
   },
   "drop2-cmaj7": {
     "result": {
-      "engine_version": "0.1.0",
+      "engine_version": "1.1.0",
       "table_version": "1.0.0",
       "input": {
         "strings": [
@@ -1137,15 +1445,196 @@
           ],
           "reading": "Cmaj7: sevenths reading",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
+        },
+        {
+          "name": "Em/C",
+          "root": "E",
+          "quality": "m",
+          "bass": "C",
+          "inversion": null,
+          "intervals_from_root": [
+            0,
+            3,
+            7,
+            8
+          ],
+          "missing": [],
+          "pitches": [
+            "C3",
+            "G3",
+            "B3",
+            "E4"
+          ],
+          "reading": "Em/C: triads reading; foreign bass C",
+          "root_is_bass": false,
+          "root_sounds": true,
+          "foreign_bass": true
+        },
+        {
+          "name": "G6/C",
+          "root": "G",
+          "quality": "6",
+          "bass": "C",
+          "inversion": null,
+          "intervals_from_root": [
+            0,
+            4,
+            5,
+            9
+          ],
+          "missing": [
+            "D"
+          ],
+          "pitches": [
+            "C3",
+            "G3",
+            "B3",
+            "E4"
+          ],
+          "reading": "G6/C: add/sus/sixth reading; D assumed; foreign bass C",
+          "root_is_bass": false,
+          "root_sounds": true,
+          "foreign_bass": true
+        },
+        {
+          "name": "Em7/C",
+          "root": "E",
+          "quality": "m7",
+          "bass": "C",
+          "inversion": null,
+          "intervals_from_root": [
+            0,
+            3,
+            7,
+            8
+          ],
+          "missing": [
+            "D"
+          ],
+          "pitches": [
+            "C3",
+            "G3",
+            "B3",
+            "E4"
+          ],
+          "reading": "Em7/C: sevenths reading; D assumed; foreign bass C",
+          "root_is_bass": false,
+          "root_sounds": true,
+          "foreign_bass": true
+        },
+        {
+          "name": "EmMaj7/C",
+          "root": "E",
+          "quality": "mMaj7",
+          "bass": "C",
+          "inversion": null,
+          "intervals_from_root": [
+            0,
+            3,
+            7,
+            8
+          ],
+          "missing": [
+            "D#"
+          ],
+          "pitches": [
+            "C3",
+            "G3",
+            "B3",
+            "E4"
+          ],
+          "reading": "EmMaj7/C: sevenths reading; D# assumed; foreign bass C",
+          "root_is_bass": false,
+          "root_sounds": true,
+          "foreign_bass": true
+        },
+        {
+          "name": "Emadd9/C",
+          "root": "E",
+          "quality": "madd9",
+          "bass": "C",
+          "inversion": null,
+          "intervals_from_root": [
+            0,
+            3,
+            7,
+            8
+          ],
+          "missing": [
+            "F#"
+          ],
+          "pitches": [
+            "C3",
+            "G3",
+            "B3",
+            "E4"
+          ],
+          "reading": "Emadd9/C: add/sus/sixth reading; F# assumed; foreign bass C",
+          "root_is_bass": false,
+          "root_sounds": true,
+          "foreign_bass": true
+        },
+        {
+          "name": "Em6/C",
+          "root": "E",
+          "quality": "m6",
+          "bass": "C",
+          "inversion": null,
+          "intervals_from_root": [
+            0,
+            3,
+            7,
+            8
+          ],
+          "missing": [
+            "C#"
+          ],
+          "pitches": [
+            "C3",
+            "G3",
+            "B3",
+            "E4"
+          ],
+          "reading": "Em6/C: add/sus/sixth reading; C# assumed; foreign bass C",
+          "root_is_bass": false,
+          "root_sounds": true,
+          "foreign_bass": true
+        },
+        {
+          "name": "Dbm7b5/C",
+          "root": "Db",
+          "quality": "m7b5",
+          "bass": "C",
+          "inversion": null,
+          "intervals_from_root": [
+            3,
+            6,
+            10,
+            11
+          ],
+          "missing": [
+            "Db"
+          ],
+          "pitches": [
+            "C3",
+            "Abb3",
+            "Cb4",
+            "Fb4"
+          ],
+          "reading": "Dbm7b5/C: sevenths reading; root Db assumed; foreign bass C",
+          "root_is_bass": false,
+          "root_sounds": false,
+          "foreign_bass": true
         }
       ],
-      "decided_at": "unique"
+      "decided_at": "R1"
     }
   },
   "drop2-dm7": {
     "result": {
-      "engine_version": "0.1.0",
+      "engine_version": "1.1.0",
       "table_version": "1.0.0",
       "input": {
         "strings": [
@@ -1195,7 +1684,8 @@
           ],
           "reading": "Dm7: sevenths reading",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "F6/D",
@@ -1218,7 +1708,110 @@
           ],
           "reading": "F6/D: add/sus/sixth reading; D in the bass",
           "root_is_bass": false,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
+        },
+        {
+          "name": "F/D",
+          "root": "F",
+          "quality": "maj",
+          "bass": "D",
+          "inversion": null,
+          "intervals_from_root": [
+            0,
+            4,
+            7,
+            9
+          ],
+          "missing": [],
+          "pitches": [
+            "D3",
+            "A3",
+            "C4",
+            "F4"
+          ],
+          "reading": "F/D: triads reading; foreign bass D",
+          "root_is_bass": false,
+          "root_sounds": true,
+          "foreign_bass": true
+        },
+        {
+          "name": "F7/D",
+          "root": "F",
+          "quality": "7",
+          "bass": "D",
+          "inversion": null,
+          "intervals_from_root": [
+            0,
+            4,
+            7,
+            9
+          ],
+          "missing": [
+            "Eb"
+          ],
+          "pitches": [
+            "D3",
+            "A3",
+            "C4",
+            "F4"
+          ],
+          "reading": "F7/D: sevenths reading; Eb assumed; foreign bass D",
+          "root_is_bass": false,
+          "root_sounds": true,
+          "foreign_bass": true
+        },
+        {
+          "name": "Fmaj7/D",
+          "root": "F",
+          "quality": "maj7",
+          "bass": "D",
+          "inversion": null,
+          "intervals_from_root": [
+            0,
+            4,
+            7,
+            9
+          ],
+          "missing": [
+            "E"
+          ],
+          "pitches": [
+            "D3",
+            "A3",
+            "C4",
+            "F4"
+          ],
+          "reading": "Fmaj7/D: sevenths reading; E assumed; foreign bass D",
+          "root_is_bass": false,
+          "root_sounds": true,
+          "foreign_bass": true
+        },
+        {
+          "name": "Fadd9/D",
+          "root": "F",
+          "quality": "add9",
+          "bass": "D",
+          "inversion": null,
+          "intervals_from_root": [
+            0,
+            4,
+            7,
+            9
+          ],
+          "missing": [
+            "G"
+          ],
+          "pitches": [
+            "D3",
+            "A3",
+            "C4",
+            "F4"
+          ],
+          "reading": "Fadd9/D: add/sus/sixth reading; G assumed; foreign bass D",
+          "root_is_bass": false,
+          "root_sounds": true,
+          "foreign_bass": true
         }
       ],
       "decided_at": "R1"
@@ -1226,7 +1819,7 @@
   },
   "dadgad-open": {
     "result": {
-      "engine_version": "0.1.0",
+      "engine_version": "1.1.0",
       "table_version": "1.0.0",
       "input": {
         "strings": [
@@ -1279,7 +1872,8 @@
           ],
           "reading": "Dsus4: add/sus/sixth reading",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "D7sus4",
@@ -1305,7 +1899,8 @@
           ],
           "reading": "D7sus4: add/sus/sixth reading; C assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Gsus2/D",
@@ -1329,7 +1924,8 @@
           ],
           "reading": "Gsus2/D: add/sus/sixth reading; D in the bass",
           "root_is_bass": false,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Aq4/D",
@@ -1353,7 +1949,8 @@
           ],
           "reading": "Aq4/D: quartal reading; D in the bass",
           "root_is_bass": false,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "A7sus4/D",
@@ -1379,7 +1976,8 @@
           ],
           "reading": "A7sus4/D: add/sus/sixth reading; E assumed; D in the bass",
           "root_is_bass": false,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Gadd9/D",
@@ -1405,7 +2003,8 @@
           ],
           "reading": "Gadd9/D: add/sus/sixth reading; B assumed; D in the bass",
           "root_is_bass": false,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Gmadd9/D",
@@ -1431,7 +2030,8 @@
           ],
           "reading": "Gmadd9/D: add/sus/sixth reading; Bb assumed; D in the bass",
           "root_is_bass": false,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         }
       ],
       "decided_at": "R2"
@@ -1439,7 +2039,7 @@
   },
   "am-vs-adim": {
     "result": {
-      "engine_version": "0.1.0",
+      "engine_version": "1.1.0",
       "table_version": "1.0.0",
       "input": {
         "strings": [
@@ -1483,7 +2083,8 @@
           ],
           "reading": "Bare minor-third dyad above A (sounds compound: 15 semitones)",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Am",
@@ -1504,7 +2105,8 @@
           ],
           "reading": "Am: triads reading; E assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Adim",
@@ -1525,7 +2127,8 @@
           ],
           "reading": "Adim: triads reading; Eb assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Am7",
@@ -1547,7 +2150,8 @@
           ],
           "reading": "Am7: sevenths reading; E, G assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "AmMaj7",
@@ -1569,7 +2173,8 @@
           ],
           "reading": "AmMaj7: sevenths reading; E, G# assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Amadd9",
@@ -1591,7 +2196,8 @@
           ],
           "reading": "Amadd9: add/sus/sixth reading; B, E assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Am6",
@@ -1613,7 +2219,8 @@
           ],
           "reading": "Am6: add/sus/sixth reading; E, F# assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Am7b5",
@@ -1635,7 +2242,8 @@
           ],
           "reading": "Am7b5: sevenths reading; Eb, G assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Adim7",
@@ -1657,7 +2265,8 @@
           ],
           "reading": "Adim7: sevenths reading; Eb, Gb assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "C6/A",
@@ -1679,7 +2288,8 @@
           ],
           "reading": "C6/A: add/sus/sixth reading; E, G assumed; A in the bass",
           "root_is_bass": false,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Cm6/A",
@@ -1701,7 +2311,8 @@
           ],
           "reading": "Cm6/A: add/sus/sixth reading; Eb, G assumed; A in the bass",
           "root_is_bass": false,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Cdim7/Bbb",
@@ -1723,7 +2334,8 @@
           ],
           "reading": "Cdim7/Bbb: sevenths reading; Eb, Gb assumed; Bbb in the bass",
           "root_is_bass": false,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "F/A",
@@ -1744,7 +2356,8 @@
           ],
           "reading": "F/A: triads reading; root F assumed; A in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         },
         {
           "name": "F#dim/A",
@@ -1765,7 +2378,8 @@
           ],
           "reading": "F#dim/A: triads reading; root F# assumed; A in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         },
         {
           "name": "D7/A",
@@ -1787,7 +2401,8 @@
           ],
           "reading": "D7/A: sevenths reading; root D assumed; F# assumed; A in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         },
         {
           "name": "Dm7/A",
@@ -1809,7 +2424,8 @@
           ],
           "reading": "Dm7/A: sevenths reading; root D assumed; F assumed; A in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         },
         {
           "name": "Ebdim7/Bbb",
@@ -1831,7 +2447,8 @@
           ],
           "reading": "Ebdim7/Bbb: sevenths reading; root Eb assumed; Gb assumed; Bbb in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         },
         {
           "name": "F7/A",
@@ -1853,7 +2470,8 @@
           ],
           "reading": "F7/A: sevenths reading; root F assumed; Eb assumed; A in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         },
         {
           "name": "Fmaj7/A",
@@ -1875,7 +2493,8 @@
           ],
           "reading": "Fmaj7/A: sevenths reading; root F assumed; E assumed; A in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         },
         {
           "name": "F#m7b5/A",
@@ -1897,7 +2516,8 @@
           ],
           "reading": "F#m7b5/A: sevenths reading; root F# assumed; E assumed; A in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         },
         {
           "name": "F#dim7/A",
@@ -1919,7 +2539,8 @@
           ],
           "reading": "F#dim7/A: sevenths reading; root F# assumed; Eb assumed; A in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         },
         {
           "name": "D7sus4/A",
@@ -1941,7 +2562,8 @@
           ],
           "reading": "D7sus4/A: add/sus/sixth reading; root D assumed; G assumed; A in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         },
         {
           "name": "Fadd9/A",
@@ -1963,7 +2585,8 @@
           ],
           "reading": "Fadd9/A: add/sus/sixth reading; root F assumed; G assumed; A in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         },
         {
           "name": "F6/A",
@@ -1985,7 +2608,8 @@
           ],
           "reading": "F6/A: add/sus/sixth reading; root F assumed; D assumed; A in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         }
       ],
       "decided_at": "R2"
@@ -1993,7 +2617,7 @@
   },
   "b5-tiebreak": {
     "result": {
-      "engine_version": "0.1.0",
+      "engine_version": "1.1.0",
       "table_version": "1.0.0",
       "input": {
         "strings": [
@@ -2037,7 +2661,8 @@
           ],
           "reading": "B5: dyads and the bare fifth reading",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "B",
@@ -2058,7 +2683,8 @@
           ],
           "reading": "B: triads reading; D# assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Bm",
@@ -2079,7 +2705,8 @@
           ],
           "reading": "Bm: triads reading; D assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Bsus2",
@@ -2100,7 +2727,8 @@
           ],
           "reading": "Bsus2: add/sus/sixth reading; C# assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Bsus4",
@@ -2121,7 +2749,8 @@
           ],
           "reading": "Bsus4: add/sus/sixth reading; E assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "B7",
@@ -2143,7 +2772,8 @@
           ],
           "reading": "B7: sevenths reading; D#, A assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Bmaj7",
@@ -2165,7 +2795,8 @@
           ],
           "reading": "Bmaj7: sevenths reading; D#, A# assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Bm7",
@@ -2187,7 +2818,8 @@
           ],
           "reading": "Bm7: sevenths reading; D, A assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "BmMaj7",
@@ -2209,7 +2841,8 @@
           ],
           "reading": "BmMaj7: sevenths reading; D, A# assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "B7sus4",
@@ -2231,7 +2864,8 @@
           ],
           "reading": "B7sus4: add/sus/sixth reading; E, A assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Badd9",
@@ -2253,7 +2887,8 @@
           ],
           "reading": "Badd9: add/sus/sixth reading; C#, D# assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Bmadd9",
@@ -2275,7 +2910,8 @@
           ],
           "reading": "Bmadd9: add/sus/sixth reading; C#, D assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "B6",
@@ -2297,7 +2933,8 @@
           ],
           "reading": "B6: add/sus/sixth reading; D#, G# assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Bm6",
@@ -2319,7 +2956,8 @@
           ],
           "reading": "Bm6: add/sus/sixth reading; D, G# assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "F#sus4/B",
@@ -2340,7 +2978,8 @@
           ],
           "reading": "F#sus4/B: add/sus/sixth reading; C# assumed; B in the bass",
           "root_is_bass": false,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "F#q4/B",
@@ -2361,7 +3000,8 @@
           ],
           "reading": "F#q4/B: quartal reading; E assumed; B in the bass",
           "root_is_bass": false,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "F#7sus4/B",
@@ -2383,7 +3023,8 @@
           ],
           "reading": "F#7sus4/B: add/sus/sixth reading; C#, E assumed; B in the bass",
           "root_is_bass": false,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Esus2/B",
@@ -2404,7 +3045,8 @@
           ],
           "reading": "Esus2/B: add/sus/sixth reading; root E assumed; B in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         },
         {
           "name": "Dbq4/Cb",
@@ -2425,7 +3067,8 @@
           ],
           "reading": "Dbq4/Cb: quartal reading; root Db assumed; Cb in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         },
         {
           "name": "Abm7/Cb",
@@ -2447,7 +3090,8 @@
           ],
           "reading": "Abm7/Cb: sevenths reading; root Ab assumed; Eb assumed; Cb in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         },
         {
           "name": "Gmaj7/B",
@@ -2469,7 +3113,8 @@
           ],
           "reading": "Gmaj7/B: sevenths reading; root G assumed; D assumed; B in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         },
         {
           "name": "Db7sus4/Cb",
@@ -2491,7 +3136,8 @@
           ],
           "reading": "Db7sus4/Cb: add/sus/sixth reading; root Db assumed; Ab assumed; Cb in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         },
         {
           "name": "D6/B",
@@ -2513,7 +3159,8 @@
           ],
           "reading": "D6/B: add/sus/sixth reading; root D assumed; A assumed; B in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         },
         {
           "name": "Abm7b5/Cb",
@@ -2535,7 +3182,8 @@
           ],
           "reading": "Abm7b5/Cb: sevenths reading; root Ab assumed; Ebb assumed; Cb in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         },
         {
           "name": "Eadd9/B",
@@ -2557,7 +3205,8 @@
           ],
           "reading": "Eadd9/B: add/sus/sixth reading; root E assumed; G# assumed; B in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         },
         {
           "name": "Emadd9/B",
@@ -2579,7 +3228,8 @@
           ],
           "reading": "Emadd9/B: add/sus/sixth reading; root E assumed; G assumed; B in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         }
       ],
       "decided_at": "R2"
@@ -2587,7 +3237,7 @@
   },
   "dy-M2": {
     "result": {
-      "engine_version": "0.1.0",
+      "engine_version": "1.1.0",
       "table_version": "1.0.0",
       "input": {
         "strings": [
@@ -2631,7 +3281,8 @@
           ],
           "reading": "Bare major-second dyad above C",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Csus2",
@@ -2652,7 +3303,8 @@
           ],
           "reading": "Csus2: add/sus/sixth reading; G assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Cadd9",
@@ -2674,7 +3326,8 @@
           ],
           "reading": "Cadd9: add/sus/sixth reading; E, G assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Cmadd9",
@@ -2696,7 +3349,8 @@
           ],
           "reading": "Cmadd9: add/sus/sixth reading; Eb, G assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Dq4/C",
@@ -2717,7 +3371,8 @@
           ],
           "reading": "Dq4/C: quartal reading; G assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "D7/C",
@@ -2739,7 +3394,8 @@
           ],
           "reading": "D7/C: sevenths reading; F#, A assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Dm7/C",
@@ -2761,7 +3417,8 @@
           ],
           "reading": "Dm7/C: sevenths reading; F, A assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "D7sus4/C",
@@ -2783,7 +3440,8 @@
           ],
           "reading": "D7sus4/C: add/sus/sixth reading; G, A assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Dm7b5/C",
@@ -2805,7 +3463,8 @@
           ],
           "reading": "Dm7b5/C: sevenths reading; F, Ab assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Gsus4/C",
@@ -2826,7 +3485,8 @@
           ],
           "reading": "Gsus4/C: add/sus/sixth reading; root G assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         },
         {
           "name": "Bbadd9/C",
@@ -2848,7 +3508,8 @@
           ],
           "reading": "Bbadd9/C: add/sus/sixth reading; root Bb assumed; F assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         },
         {
           "name": "F6/C",
@@ -2870,7 +3531,8 @@
           ],
           "reading": "F6/C: add/sus/sixth reading; root F assumed; A assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         },
         {
           "name": "Fm6/C",
@@ -2892,7 +3554,8 @@
           ],
           "reading": "Fm6/C: add/sus/sixth reading; root F assumed; Ab assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         },
         {
           "name": "G7sus4/C",
@@ -2914,7 +3577,8 @@
           ],
           "reading": "G7sus4/C: add/sus/sixth reading; root G assumed; F assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         }
       ],
       "decided_at": "R2"
@@ -2922,7 +3586,7 @@
   },
   "dy-A4": {
     "result": {
-      "engine_version": "0.1.0",
+      "engine_version": "1.1.0",
       "table_version": "1.0.0",
       "input": {
         "strings": [
@@ -2966,7 +3630,8 @@
           ],
           "reading": "Bare tritone dyad above C",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Cdim",
@@ -2987,7 +3652,8 @@
           ],
           "reading": "Cdim: triads reading; Eb assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Cm7b5",
@@ -3009,7 +3675,8 @@
           ],
           "reading": "Cm7b5: sevenths reading; Eb, Bb assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Cdim7",
@@ -3031,7 +3698,8 @@
           ],
           "reading": "Cdim7: sevenths reading; Eb, Bbb assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "F#dim/C",
@@ -3052,7 +3720,8 @@
           ],
           "reading": "F#dim/C: triads reading; A assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "F#m7b5/C",
@@ -3074,7 +3743,8 @@
           ],
           "reading": "F#m7b5/C: sevenths reading; A, E assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "F#dim7/C",
@@ -3096,7 +3766,8 @@
           ],
           "reading": "F#dim7/C: sevenths reading; A, Eb assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Ab7/C",
@@ -3118,7 +3789,8 @@
           ],
           "reading": "Ab7/C: sevenths reading; root Ab assumed; Eb assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         },
         {
           "name": "D7/C",
@@ -3140,7 +3812,8 @@
           ],
           "reading": "D7/C: sevenths reading; root D assumed; A assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         },
         {
           "name": "Am6/C",
@@ -3162,7 +3835,8 @@
           ],
           "reading": "Am6/C: add/sus/sixth reading; root A assumed; E assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         },
         {
           "name": "Ebm6/C",
@@ -3184,7 +3858,8 @@
           ],
           "reading": "Ebm6/C: add/sus/sixth reading; root Eb assumed; Bb assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         },
         {
           "name": "Adim7/C",
@@ -3206,7 +3881,8 @@
           ],
           "reading": "Adim7/C: sevenths reading; root A assumed; Eb assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         },
         {
           "name": "Ebdim7/Dbb",
@@ -3228,7 +3904,8 @@
           ],
           "reading": "Ebdim7/Dbb: sevenths reading; root Eb assumed; Bbb assumed; Dbb in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         }
       ],
       "decided_at": "R2"
@@ -3236,7 +3913,7 @@
   },
   "dy-m6": {
     "result": {
-      "engine_version": "0.1.0",
+      "engine_version": "1.1.0",
       "table_version": "1.0.0",
       "input": {
         "strings": [
@@ -3280,7 +3957,8 @@
           ],
           "reading": "Bare minor-sixth dyad above C",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Caug",
@@ -3301,7 +3979,8 @@
           ],
           "reading": "Caug: triads reading; E assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Ab/C",
@@ -3322,7 +4001,8 @@
           ],
           "reading": "Ab/C: triads reading; Eb assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Abaug/C",
@@ -3343,7 +4023,8 @@
           ],
           "reading": "Abaug/C: triads reading; E assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Ab7/C",
@@ -3365,7 +4046,8 @@
           ],
           "reading": "Ab7/C: sevenths reading; Eb, Gb assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Abmaj7/C",
@@ -3387,7 +4069,8 @@
           ],
           "reading": "Abmaj7/C: sevenths reading; Eb, G assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Abadd9/C",
@@ -3409,7 +4092,8 @@
           ],
           "reading": "Abadd9/C: add/sus/sixth reading; Bb, Eb assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Ab6/C",
@@ -3431,7 +4115,8 @@
           ],
           "reading": "Ab6/C: add/sus/sixth reading; Eb, F assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Eaug/B#",
@@ -3452,7 +4137,8 @@
           ],
           "reading": "Eaug/B#: triads reading; root E assumed; B# in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         },
         {
           "name": "Fm/C",
@@ -3473,7 +4159,8 @@
           ],
           "reading": "Fm/C: triads reading; root F assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         },
         {
           "name": "AmMaj7/C",
@@ -3495,7 +4182,8 @@
           ],
           "reading": "AmMaj7/C: sevenths reading; root A assumed; E assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         },
         {
           "name": "Dbmaj7/C",
@@ -3517,7 +4205,8 @@
           ],
           "reading": "Dbmaj7/C: sevenths reading; root Db assumed; F assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         },
         {
           "name": "Dm7b5/C",
@@ -3539,7 +4228,8 @@
           ],
           "reading": "Dm7b5/C: sevenths reading; root D assumed; F assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         },
         {
           "name": "DbmMaj7/C",
@@ -3561,7 +4251,8 @@
           ],
           "reading": "DbmMaj7/C: sevenths reading; root Db assumed; Fb assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         },
         {
           "name": "Fm7/C",
@@ -3583,7 +4274,8 @@
           ],
           "reading": "Fm7/C: sevenths reading; root F assumed; Eb assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         },
         {
           "name": "FmMaj7/C",
@@ -3605,7 +4297,8 @@
           ],
           "reading": "FmMaj7/C: sevenths reading; root F assumed; E assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         },
         {
           "name": "Fmadd9/C",
@@ -3627,7 +4320,8 @@
           ],
           "reading": "Fmadd9/C: add/sus/sixth reading; root F assumed; G assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         },
         {
           "name": "Fm6/C",
@@ -3649,7 +4343,8 @@
           ],
           "reading": "Fm6/C: add/sus/sixth reading; root F assumed; D assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         }
       ],
       "decided_at": "R2"
@@ -3657,7 +4352,7 @@
   },
   "dy-M6": {
     "result": {
-      "engine_version": "0.1.0",
+      "engine_version": "1.1.0",
       "table_version": "1.0.0",
       "input": {
         "strings": [
@@ -3701,7 +4396,8 @@
           ],
           "reading": "Bare major-sixth dyad above C",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "C6",
@@ -3723,7 +4419,8 @@
           ],
           "reading": "C6: add/sus/sixth reading; E, G assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Cm6",
@@ -3745,7 +4442,8 @@
           ],
           "reading": "Cm6: add/sus/sixth reading; Eb, G assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Cdim7",
@@ -3767,7 +4465,8 @@
           ],
           "reading": "Cdim7: sevenths reading; Eb, Gb assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Am/C",
@@ -3788,7 +4487,8 @@
           ],
           "reading": "Am/C: triads reading; E assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Adim/C",
@@ -3809,7 +4509,8 @@
           ],
           "reading": "Adim/C: triads reading; Eb assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Am7/C",
@@ -3831,7 +4532,8 @@
           ],
           "reading": "Am7/C: sevenths reading; E, G assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "AmMaj7/C",
@@ -3853,7 +4555,8 @@
           ],
           "reading": "AmMaj7/C: sevenths reading; E, G# assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Amadd9/C",
@@ -3875,7 +4578,8 @@
           ],
           "reading": "Amadd9/C: add/sus/sixth reading; B, E assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Am6/C",
@@ -3897,7 +4601,8 @@
           ],
           "reading": "Am6/C: add/sus/sixth reading; E, F# assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Am7b5/C",
@@ -3919,7 +4624,8 @@
           ],
           "reading": "Am7b5/C: sevenths reading; Eb, G assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Adim7/C",
@@ -3941,7 +4647,8 @@
           ],
           "reading": "Adim7/C: sevenths reading; Eb, Gb assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "F/C",
@@ -3962,7 +4669,8 @@
           ],
           "reading": "F/C: triads reading; root F assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         },
         {
           "name": "F#dim/C",
@@ -3983,7 +4691,8 @@
           ],
           "reading": "F#dim/C: triads reading; root F# assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         },
         {
           "name": "D7/C",
@@ -4005,7 +4714,8 @@
           ],
           "reading": "D7/C: sevenths reading; root D assumed; F# assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         },
         {
           "name": "Dm7/C",
@@ -4027,7 +4737,8 @@
           ],
           "reading": "Dm7/C: sevenths reading; root D assumed; F assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         },
         {
           "name": "Ebdim7/Dbb",
@@ -4049,7 +4760,8 @@
           ],
           "reading": "Ebdim7/Dbb: sevenths reading; root Eb assumed; Gb assumed; Dbb in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         },
         {
           "name": "F7/C",
@@ -4071,7 +4783,8 @@
           ],
           "reading": "F7/C: sevenths reading; root F assumed; Eb assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         },
         {
           "name": "Fmaj7/C",
@@ -4093,7 +4806,8 @@
           ],
           "reading": "Fmaj7/C: sevenths reading; root F assumed; E assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         },
         {
           "name": "F#m7b5/C",
@@ -4115,7 +4829,8 @@
           ],
           "reading": "F#m7b5/C: sevenths reading; root F# assumed; E assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         },
         {
           "name": "F#dim7/C",
@@ -4137,7 +4852,8 @@
           ],
           "reading": "F#dim7/C: sevenths reading; root F# assumed; Eb assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         },
         {
           "name": "D7sus4/C",
@@ -4159,7 +4875,8 @@
           ],
           "reading": "D7sus4/C: add/sus/sixth reading; root D assumed; G assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         },
         {
           "name": "Fadd9/C",
@@ -4181,7 +4898,8 @@
           ],
           "reading": "Fadd9/C: add/sus/sixth reading; root F assumed; G assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         },
         {
           "name": "F6/C",
@@ -4203,7 +4921,8 @@
           ],
           "reading": "F6/C: add/sus/sixth reading; root F assumed; D assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         }
       ],
       "decided_at": "R2"
@@ -4211,7 +4930,7 @@
   },
   "dy-m7": {
     "result": {
-      "engine_version": "0.1.0",
+      "engine_version": "1.1.0",
       "table_version": "1.0.0",
       "input": {
         "strings": [
@@ -4255,7 +4974,8 @@
           ],
           "reading": "Bare minor-seventh dyad above C",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Cq4",
@@ -4276,7 +4996,8 @@
           ],
           "reading": "Cq4: quartal reading; F assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "C7",
@@ -4298,7 +5019,8 @@
           ],
           "reading": "C7: sevenths reading; E, G assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Cm7",
@@ -4320,7 +5042,8 @@
           ],
           "reading": "Cm7: sevenths reading; Eb, G assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "C7sus4",
@@ -4342,7 +5065,8 @@
           ],
           "reading": "C7sus4: add/sus/sixth reading; F, G assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Cm7b5",
@@ -4364,7 +5088,8 @@
           ],
           "reading": "Cm7b5: sevenths reading; Eb, Gb assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Bbsus2/C",
@@ -4385,7 +5110,8 @@
           ],
           "reading": "Bbsus2/C: add/sus/sixth reading; F assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Bbadd9/C",
@@ -4407,7 +5133,8 @@
           ],
           "reading": "Bbadd9/C: add/sus/sixth reading; D, F assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Bbmadd9/C",
@@ -4429,7 +5156,8 @@
           ],
           "reading": "Bbmadd9/C: add/sus/sixth reading; Db, F assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Fsus4/C",
@@ -4450,7 +5178,8 @@
           ],
           "reading": "Fsus4/C: add/sus/sixth reading; root F assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         },
         {
           "name": "Abadd9/C",
@@ -4472,7 +5201,8 @@
           ],
           "reading": "Abadd9/C: add/sus/sixth reading; root Ab assumed; Eb assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         },
         {
           "name": "Eb6/C",
@@ -4494,7 +5224,8 @@
           ],
           "reading": "Eb6/C: add/sus/sixth reading; root Eb assumed; G assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         },
         {
           "name": "Ebm6/C",
@@ -4516,7 +5247,8 @@
           ],
           "reading": "Ebm6/C: add/sus/sixth reading; root Eb assumed; Gb assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         },
         {
           "name": "F7sus4/C",
@@ -4538,7 +5270,8 @@
           ],
           "reading": "F7sus4/C: add/sus/sixth reading; root F assumed; Eb assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         }
       ],
       "decided_at": "R2"
@@ -4546,7 +5279,7 @@
   },
   "dy-M7": {
     "result": {
-      "engine_version": "0.1.0",
+      "engine_version": "1.1.0",
       "table_version": "1.0.0",
       "input": {
         "strings": [
@@ -4590,7 +5323,8 @@
           ],
           "reading": "Bare major-seventh dyad above C",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Cmaj7",
@@ -4612,7 +5346,8 @@
           ],
           "reading": "Cmaj7: sevenths reading; E, G assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "CmMaj7",
@@ -4634,7 +5369,8 @@
           ],
           "reading": "CmMaj7: sevenths reading; Eb, G assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Amadd9/C",
@@ -4656,7 +5392,8 @@
           ],
           "reading": "Amadd9/C: add/sus/sixth reading; root A assumed; E assumed; C in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         }
       ],
       "decided_at": "R2"
@@ -4664,7 +5401,7 @@
   },
   "coll-cluster": {
     "result": {
-      "engine_version": "0.1.0",
+      "engine_version": "1.1.0",
       "table_version": "1.0.0",
       "input": {
         "strings": [
@@ -4693,6 +5430,973 @@
       "mode": "context-free",
       "candidates": [
         {
+          "name": "Dmaj7/C",
+          "root": "D",
+          "quality": "maj7",
+          "bass": "C",
+          "inversion": null,
+          "intervals_from_root": [
+            0,
+            10,
+            11
+          ],
+          "missing": [
+            "F#",
+            "A"
+          ],
+          "pitches": [
+            "C3",
+            "C#3",
+            "D3"
+          ],
+          "reading": "Dmaj7/C: sevenths reading; F#, A assumed; foreign bass C",
+          "root_is_bass": false,
+          "root_sounds": true,
+          "foreign_bass": true
+        },
+        {
+          "name": "DmMaj7/C",
+          "root": "D",
+          "quality": "mMaj7",
+          "bass": "C",
+          "inversion": null,
+          "intervals_from_root": [
+            0,
+            10,
+            11
+          ],
+          "missing": [
+            "F",
+            "A"
+          ],
+          "pitches": [
+            "C3",
+            "C#3",
+            "D3"
+          ],
+          "reading": "DmMaj7/C: sevenths reading; F, A assumed; foreign bass C",
+          "root_is_bass": false,
+          "root_sounds": true,
+          "foreign_bass": true
+        },
+        {
+          "name": "Bmadd9/C",
+          "root": "B",
+          "quality": "madd9",
+          "bass": "C",
+          "inversion": null,
+          "intervals_from_root": [
+            1,
+            2,
+            3
+          ],
+          "missing": [
+            "B",
+            "F#"
+          ],
+          "pitches": [
+            "C3",
+            "C#3",
+            "D3"
+          ],
+          "reading": "Bmadd9/C: add/sus/sixth reading; root B assumed; F# assumed; foreign bass C",
+          "root_is_bass": false,
+          "root_sounds": false,
+          "foreign_bass": true
+        }
+      ],
+      "decided_at": "tiebreak"
+    }
+  },
+  "c-over-d": {
+    "result": {
+      "engine_version": "1.1.0",
+      "table_version": "1.0.0",
+      "input": {
+        "strings": [
+          null,
+          5,
+          2,
+          0,
+          1,
+          0
+        ],
+        "tuning": [
+          "E2",
+          "A2",
+          "D3",
+          "G3",
+          "B3",
+          "E4"
+        ],
+        "context_key": null
+      },
+      "midi": [
+        50,
+        52,
+        55,
+        60,
+        64
+      ],
+      "mode": "context-free",
+      "candidates": [
+        {
+          "name": "Cadd9/D",
+          "root": "C",
+          "quality": "add9",
+          "bass": "D",
+          "inversion": 3,
+          "intervals_from_root": [
+            0,
+            2,
+            4,
+            7
+          ],
+          "missing": [],
+          "pitches": [
+            "D3",
+            "E3",
+            "G3",
+            "C4",
+            "E4"
+          ],
+          "reading": "Cadd9/D: add/sus/sixth reading; D in the bass",
+          "root_is_bass": false,
+          "root_sounds": true,
+          "foreign_bass": false
+        },
+        {
+          "name": "C/D",
+          "root": "C",
+          "quality": "maj",
+          "bass": "D",
+          "inversion": null,
+          "intervals_from_root": [
+            0,
+            2,
+            4,
+            7
+          ],
+          "missing": [],
+          "pitches": [
+            "D3",
+            "E3",
+            "G3",
+            "C4",
+            "E4"
+          ],
+          "reading": "C/D: triads reading; foreign bass D",
+          "root_is_bass": false,
+          "root_sounds": true,
+          "foreign_bass": true
+        },
+        {
+          "name": "C7/D",
+          "root": "C",
+          "quality": "7",
+          "bass": "D",
+          "inversion": null,
+          "intervals_from_root": [
+            0,
+            2,
+            4,
+            7
+          ],
+          "missing": [
+            "Bb"
+          ],
+          "pitches": [
+            "D3",
+            "E3",
+            "G3",
+            "C4",
+            "E4"
+          ],
+          "reading": "C7/D: sevenths reading; Bb assumed; foreign bass D",
+          "root_is_bass": false,
+          "root_sounds": true,
+          "foreign_bass": true
+        },
+        {
+          "name": "Cmaj7/D",
+          "root": "C",
+          "quality": "maj7",
+          "bass": "D",
+          "inversion": null,
+          "intervals_from_root": [
+            0,
+            2,
+            4,
+            7
+          ],
+          "missing": [
+            "B"
+          ],
+          "pitches": [
+            "D3",
+            "E3",
+            "G3",
+            "C4",
+            "E4"
+          ],
+          "reading": "Cmaj7/D: sevenths reading; B assumed; foreign bass D",
+          "root_is_bass": false,
+          "root_sounds": true,
+          "foreign_bass": true
+        },
+        {
+          "name": "C6/D",
+          "root": "C",
+          "quality": "6",
+          "bass": "D",
+          "inversion": null,
+          "intervals_from_root": [
+            0,
+            2,
+            4,
+            7
+          ],
+          "missing": [
+            "A"
+          ],
+          "pitches": [
+            "D3",
+            "E3",
+            "G3",
+            "C4",
+            "E4"
+          ],
+          "reading": "C6/D: add/sus/sixth reading; A assumed; foreign bass D",
+          "root_is_bass": false,
+          "root_sounds": true,
+          "foreign_bass": true
+        },
+        {
+          "name": "Am7/D",
+          "root": "A",
+          "quality": "m7",
+          "bass": "D",
+          "inversion": null,
+          "intervals_from_root": [
+            3,
+            5,
+            7,
+            10
+          ],
+          "missing": [
+            "A"
+          ],
+          "pitches": [
+            "D3",
+            "E3",
+            "G3",
+            "C4",
+            "E4"
+          ],
+          "reading": "Am7/D: sevenths reading; root A assumed; foreign bass D",
+          "root_is_bass": false,
+          "root_sounds": false,
+          "foreign_bass": true
+        }
+      ],
+      "decided_at": "R1"
+    }
+  },
+  "pedal-d": {
+    "result": {
+      "engine_version": "1.1.0",
+      "table_version": "1.0.0",
+      "input": {
+        "strings": [
+          null,
+          5,
+          null,
+          5,
+          null,
+          3
+        ],
+        "tuning": [
+          "E2",
+          "A2",
+          "D3",
+          "G3",
+          "B3",
+          "E4"
+        ],
+        "context_key": null
+      },
+      "midi": [
+        50,
+        60,
+        67
+      ],
+      "mode": "context-free",
+      "candidates": [
+        {
+          "name": "Dq4",
+          "root": "D",
+          "quality": "q4",
+          "bass": "D",
+          "inversion": null,
+          "intervals_from_root": [
+            0,
+            5,
+            10
+          ],
+          "missing": [],
+          "pitches": [
+            "D3",
+            "C4",
+            "G4"
+          ],
+          "reading": "Dq4: quartal reading",
+          "root_is_bass": true,
+          "root_sounds": true,
+          "foreign_bass": false
+        },
+        {
+          "name": "D7sus4",
+          "root": "D",
+          "quality": "7sus4",
+          "bass": "D",
+          "inversion": 0,
+          "intervals_from_root": [
+            0,
+            5,
+            10
+          ],
+          "missing": [
+            "A"
+          ],
+          "pitches": [
+            "D3",
+            "C4",
+            "G4"
+          ],
+          "reading": "D7sus4: add/sus/sixth reading; A assumed",
+          "root_is_bass": true,
+          "root_sounds": true,
+          "foreign_bass": false
+        },
+        {
+          "name": "Csus2/D",
+          "root": "C",
+          "quality": "sus2",
+          "bass": "D",
+          "inversion": 1,
+          "intervals_from_root": [
+            0,
+            2,
+            7
+          ],
+          "missing": [],
+          "pitches": [
+            "D3",
+            "C4",
+            "G4"
+          ],
+          "reading": "Csus2/D: add/sus/sixth reading; D in the bass",
+          "root_is_bass": false,
+          "root_sounds": true,
+          "foreign_bass": false
+        },
+        {
+          "name": "Gsus4/D",
+          "root": "G",
+          "quality": "sus4",
+          "bass": "D",
+          "inversion": 2,
+          "intervals_from_root": [
+            0,
+            5,
+            7
+          ],
+          "missing": [],
+          "pitches": [
+            "D3",
+            "C4",
+            "G4"
+          ],
+          "reading": "Gsus4/D: add/sus/sixth reading; D in the bass",
+          "root_is_bass": false,
+          "root_sounds": true,
+          "foreign_bass": false
+        },
+        {
+          "name": "Cadd9/D",
+          "root": "C",
+          "quality": "add9",
+          "bass": "D",
+          "inversion": 3,
+          "intervals_from_root": [
+            0,
+            2,
+            7
+          ],
+          "missing": [
+            "E"
+          ],
+          "pitches": [
+            "D3",
+            "C4",
+            "G4"
+          ],
+          "reading": "Cadd9/D: add/sus/sixth reading; E assumed; D in the bass",
+          "root_is_bass": false,
+          "root_sounds": true,
+          "foreign_bass": false
+        },
+        {
+          "name": "Cmadd9/D",
+          "root": "C",
+          "quality": "madd9",
+          "bass": "D",
+          "inversion": 3,
+          "intervals_from_root": [
+            0,
+            2,
+            7
+          ],
+          "missing": [
+            "Eb"
+          ],
+          "pitches": [
+            "D3",
+            "C4",
+            "G4"
+          ],
+          "reading": "Cmadd9/D: add/sus/sixth reading; Eb assumed; D in the bass",
+          "root_is_bass": false,
+          "root_sounds": true,
+          "foreign_bass": false
+        },
+        {
+          "name": "G7sus4/D",
+          "root": "G",
+          "quality": "7sus4",
+          "bass": "D",
+          "inversion": 2,
+          "intervals_from_root": [
+            0,
+            5,
+            7
+          ],
+          "missing": [
+            "F"
+          ],
+          "pitches": [
+            "D3",
+            "C4",
+            "G4"
+          ],
+          "reading": "G7sus4/D: add/sus/sixth reading; F assumed; D in the bass",
+          "root_is_bass": false,
+          "root_sounds": true,
+          "foreign_bass": false
+        },
+        {
+          "name": "C5/D",
+          "root": "C",
+          "quality": "5",
+          "bass": "D",
+          "inversion": null,
+          "intervals_from_root": [
+            0,
+            2,
+            7
+          ],
+          "missing": [],
+          "pitches": [
+            "D3",
+            "C4",
+            "G4"
+          ],
+          "reading": "C5/D: dyads and the bare fifth reading; foreign bass D",
+          "root_is_bass": false,
+          "root_sounds": true,
+          "foreign_bass": true
+        },
+        {
+          "name": "C/D",
+          "root": "C",
+          "quality": "maj",
+          "bass": "D",
+          "inversion": null,
+          "intervals_from_root": [
+            0,
+            2,
+            7
+          ],
+          "missing": [
+            "E"
+          ],
+          "pitches": [
+            "D3",
+            "C4",
+            "G4"
+          ],
+          "reading": "C/D: triads reading; E assumed; foreign bass D",
+          "root_is_bass": false,
+          "root_sounds": true,
+          "foreign_bass": true
+        },
+        {
+          "name": "Cm/D",
+          "root": "C",
+          "quality": "m",
+          "bass": "D",
+          "inversion": null,
+          "intervals_from_root": [
+            0,
+            2,
+            7
+          ],
+          "missing": [
+            "Eb"
+          ],
+          "pitches": [
+            "D3",
+            "C4",
+            "G4"
+          ],
+          "reading": "Cm/D: triads reading; Eb assumed; foreign bass D",
+          "root_is_bass": false,
+          "root_sounds": true,
+          "foreign_bass": true
+        },
+        {
+          "name": "Csus4/D",
+          "root": "C",
+          "quality": "sus4",
+          "bass": "D",
+          "inversion": null,
+          "intervals_from_root": [
+            0,
+            2,
+            7
+          ],
+          "missing": [
+            "F"
+          ],
+          "pitches": [
+            "D3",
+            "C4",
+            "G4"
+          ],
+          "reading": "Csus4/D: add/sus/sixth reading; F assumed; foreign bass D",
+          "root_is_bass": false,
+          "root_sounds": true,
+          "foreign_bass": true
+        },
+        {
+          "name": "Gq4/D",
+          "root": "G",
+          "quality": "q4",
+          "bass": "D",
+          "inversion": null,
+          "intervals_from_root": [
+            0,
+            5,
+            7
+          ],
+          "missing": [
+            "F"
+          ],
+          "pitches": [
+            "D3",
+            "C4",
+            "G4"
+          ],
+          "reading": "Gq4/D: quartal reading; F assumed; foreign bass D",
+          "root_is_bass": false,
+          "root_sounds": true,
+          "foreign_bass": true
+        },
+        {
+          "name": "C7/D",
+          "root": "C",
+          "quality": "7",
+          "bass": "D",
+          "inversion": null,
+          "intervals_from_root": [
+            0,
+            2,
+            7
+          ],
+          "missing": [
+            "E",
+            "Bb"
+          ],
+          "pitches": [
+            "D3",
+            "C4",
+            "G4"
+          ],
+          "reading": "C7/D: sevenths reading; E, Bb assumed; foreign bass D",
+          "root_is_bass": false,
+          "root_sounds": true,
+          "foreign_bass": true
+        },
+        {
+          "name": "Cmaj7/D",
+          "root": "C",
+          "quality": "maj7",
+          "bass": "D",
+          "inversion": null,
+          "intervals_from_root": [
+            0,
+            2,
+            7
+          ],
+          "missing": [
+            "E",
+            "B"
+          ],
+          "pitches": [
+            "D3",
+            "C4",
+            "G4"
+          ],
+          "reading": "Cmaj7/D: sevenths reading; E, B assumed; foreign bass D",
+          "root_is_bass": false,
+          "root_sounds": true,
+          "foreign_bass": true
+        },
+        {
+          "name": "Cm7/D",
+          "root": "C",
+          "quality": "m7",
+          "bass": "D",
+          "inversion": null,
+          "intervals_from_root": [
+            0,
+            2,
+            7
+          ],
+          "missing": [
+            "Eb",
+            "Bb"
+          ],
+          "pitches": [
+            "D3",
+            "C4",
+            "G4"
+          ],
+          "reading": "Cm7/D: sevenths reading; Eb, Bb assumed; foreign bass D",
+          "root_is_bass": false,
+          "root_sounds": true,
+          "foreign_bass": true
+        },
+        {
+          "name": "CmMaj7/D",
+          "root": "C",
+          "quality": "mMaj7",
+          "bass": "D",
+          "inversion": null,
+          "intervals_from_root": [
+            0,
+            2,
+            7
+          ],
+          "missing": [
+            "Eb",
+            "B"
+          ],
+          "pitches": [
+            "D3",
+            "C4",
+            "G4"
+          ],
+          "reading": "CmMaj7/D: sevenths reading; Eb, B assumed; foreign bass D",
+          "root_is_bass": false,
+          "root_sounds": true,
+          "foreign_bass": true
+        },
+        {
+          "name": "C7sus4/D",
+          "root": "C",
+          "quality": "7sus4",
+          "bass": "D",
+          "inversion": null,
+          "intervals_from_root": [
+            0,
+            2,
+            7
+          ],
+          "missing": [
+            "F",
+            "Bb"
+          ],
+          "pitches": [
+            "D3",
+            "C4",
+            "G4"
+          ],
+          "reading": "C7sus4/D: add/sus/sixth reading; F, Bb assumed; foreign bass D",
+          "root_is_bass": false,
+          "root_sounds": true,
+          "foreign_bass": true
+        },
+        {
+          "name": "C6/D",
+          "root": "C",
+          "quality": "6",
+          "bass": "D",
+          "inversion": null,
+          "intervals_from_root": [
+            0,
+            2,
+            7
+          ],
+          "missing": [
+            "E",
+            "A"
+          ],
+          "pitches": [
+            "D3",
+            "C4",
+            "G4"
+          ],
+          "reading": "C6/D: add/sus/sixth reading; E, A assumed; foreign bass D",
+          "root_is_bass": false,
+          "root_sounds": true,
+          "foreign_bass": true
+        },
+        {
+          "name": "Cm6/D",
+          "root": "C",
+          "quality": "m6",
+          "bass": "D",
+          "inversion": null,
+          "intervals_from_root": [
+            0,
+            2,
+            7
+          ],
+          "missing": [
+            "Eb",
+            "A"
+          ],
+          "pitches": [
+            "D3",
+            "C4",
+            "G4"
+          ],
+          "reading": "Cm6/D: add/sus/sixth reading; Eb, A assumed; foreign bass D",
+          "root_is_bass": false,
+          "root_sounds": true,
+          "foreign_bass": true
+        },
+        {
+          "name": "Fsus2/D",
+          "root": "F",
+          "quality": "sus2",
+          "bass": "D",
+          "inversion": null,
+          "intervals_from_root": [
+            2,
+            7,
+            9
+          ],
+          "missing": [
+            "F"
+          ],
+          "pitches": [
+            "D3",
+            "C4",
+            "G4"
+          ],
+          "reading": "Fsus2/D: add/sus/sixth reading; root F assumed; foreign bass D",
+          "root_is_bass": false,
+          "root_sounds": false,
+          "foreign_bass": true
+        },
+        {
+          "name": "Abmaj7/D",
+          "root": "Ab",
+          "quality": "maj7",
+          "bass": "D",
+          "inversion": null,
+          "intervals_from_root": [
+            4,
+            6,
+            11
+          ],
+          "missing": [
+            "Ab",
+            "Eb"
+          ],
+          "pitches": [
+            "D3",
+            "C4",
+            "G4"
+          ],
+          "reading": "Abmaj7/D: sevenths reading; root Ab assumed; Eb assumed; foreign bass D",
+          "root_is_bass": false,
+          "root_sounds": false,
+          "foreign_bass": true
+        },
+        {
+          "name": "Am7/D",
+          "root": "A",
+          "quality": "m7",
+          "bass": "D",
+          "inversion": null,
+          "intervals_from_root": [
+            3,
+            5,
+            10
+          ],
+          "missing": [
+            "A",
+            "E"
+          ],
+          "pitches": [
+            "D3",
+            "C4",
+            "G4"
+          ],
+          "reading": "Am7/D: sevenths reading; root A assumed; E assumed; foreign bass D",
+          "root_is_bass": false,
+          "root_sounds": false,
+          "foreign_bass": true
+        },
+        {
+          "name": "Eb6/D",
+          "root": "Eb",
+          "quality": "6",
+          "bass": "D",
+          "inversion": null,
+          "intervals_from_root": [
+            4,
+            9,
+            11
+          ],
+          "missing": [
+            "Eb",
+            "Bb"
+          ],
+          "pitches": [
+            "D3",
+            "C4",
+            "G4"
+          ],
+          "reading": "Eb6/D: add/sus/sixth reading; root Eb assumed; Bb assumed; foreign bass D",
+          "root_is_bass": false,
+          "root_sounds": false,
+          "foreign_bass": true
+        },
+        {
+          "name": "Am7b5/D",
+          "root": "A",
+          "quality": "m7b5",
+          "bass": "D",
+          "inversion": null,
+          "intervals_from_root": [
+            3,
+            5,
+            10
+          ],
+          "missing": [
+            "A",
+            "Eb"
+          ],
+          "pitches": [
+            "D3",
+            "C4",
+            "G4"
+          ],
+          "reading": "Am7b5/D: sevenths reading; root A assumed; Eb assumed; foreign bass D",
+          "root_is_bass": false,
+          "root_sounds": false,
+          "foreign_bass": true
+        },
+        {
+          "name": "Fadd9/D",
+          "root": "F",
+          "quality": "add9",
+          "bass": "D",
+          "inversion": null,
+          "intervals_from_root": [
+            2,
+            7,
+            9
+          ],
+          "missing": [
+            "F",
+            "A"
+          ],
+          "pitches": [
+            "D3",
+            "C4",
+            "G4"
+          ],
+          "reading": "Fadd9/D: add/sus/sixth reading; root F assumed; A assumed; foreign bass D",
+          "root_is_bass": false,
+          "root_sounds": false,
+          "foreign_bass": true
+        },
+        {
+          "name": "Fmadd9/D",
+          "root": "F",
+          "quality": "madd9",
+          "bass": "D",
+          "inversion": null,
+          "intervals_from_root": [
+            2,
+            7,
+            9
+          ],
+          "missing": [
+            "F",
+            "Ab"
+          ],
+          "pitches": [
+            "D3",
+            "C4",
+            "G4"
+          ],
+          "reading": "Fmadd9/D: add/sus/sixth reading; root F assumed; Ab assumed; foreign bass D",
+          "root_is_bass": false,
+          "root_sounds": false,
+          "foreign_bass": true
+        }
+      ],
+      "decided_at": "R2"
+    }
+  },
+  "coll-cluster4": {
+    "result": {
+      "engine_version": "1.1.0",
+      "table_version": "1.0.0",
+      "input": {
+        "strings": [
+          8,
+          4,
+          0,
+          8,
+          null,
+          null
+        ],
+        "tuning": [
+          "E2",
+          "A2",
+          "D3",
+          "G3",
+          "B3",
+          "E4"
+        ],
+        "context_key": null
+      },
+      "midi": [
+        48,
+        49,
+        50,
+        63
+      ],
+      "mode": "context-free",
+      "candidates": [
+        {
           "name": "Ccoll",
           "root": "C",
           "quality": "coll",
@@ -4701,17 +6405,20 @@
           "intervals_from_root": [
             0,
             1,
-            2
+            2,
+            3
           ],
           "missing": [],
           "pitches": [
             "C3",
             "Db3",
-            "D3"
+            "D3",
+            "Eb4"
           ],
           "reading": "Unclassified collection over C; no floor quality covers it",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         }
       ],
       "decided_at": "unique"
@@ -4719,7 +6426,7 @@
   },
   "cdim-gb": {
     "result": {
-      "engine_version": "0.1.0",
+      "engine_version": "1.1.0",
       "table_version": "1.0.0",
       "input": {
         "strings": [
@@ -4768,7 +6475,8 @@
           ],
           "reading": "F#dim7: sevenths reading; A assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Cdim/Gb",
@@ -4789,7 +6497,8 @@
           ],
           "reading": "Cdim/Gb: triads reading; Gb in the bass",
           "root_is_bass": false,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Ebm6/Gb",
@@ -4812,7 +6521,8 @@
           ],
           "reading": "Ebm6/Gb: add/sus/sixth reading; Bb assumed; Gb in the bass",
           "root_is_bass": false,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Cm7b5/Gb",
@@ -4835,7 +6545,8 @@
           ],
           "reading": "Cm7b5/Gb: sevenths reading; Bb assumed; Gb in the bass",
           "root_is_bass": false,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Cdim7/Gb",
@@ -4858,7 +6569,8 @@
           ],
           "reading": "Cdim7/Gb: sevenths reading; Bbb assumed; Gb in the bass",
           "root_is_bass": false,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Ebdim7/Gb",
@@ -4881,7 +6593,8 @@
           ],
           "reading": "Ebdim7/Gb: sevenths reading; Bbb assumed; Gb in the bass",
           "root_is_bass": false,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Ab7/Gb",
@@ -4904,7 +6617,8 @@
           ],
           "reading": "Ab7/Gb: sevenths reading; root Ab assumed; Gb in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         },
         {
           "name": "Adim7/Gb",
@@ -4927,7 +6641,380 @@
           ],
           "reading": "Adim7/Gb: sevenths reading; root A assumed; Gb in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
+        },
+        {
+          "name": "Cm/F#",
+          "root": "C",
+          "quality": "m",
+          "bass": "F#",
+          "inversion": null,
+          "intervals_from_root": [
+            0,
+            3,
+            6
+          ],
+          "missing": [
+            "G"
+          ],
+          "pitches": [
+            "F#2",
+            "Eb3",
+            "C4"
+          ],
+          "reading": "Cm/F#: triads reading; G assumed; foreign bass F#",
+          "root_is_bass": false,
+          "root_sounds": true,
+          "foreign_bass": true
+        },
+        {
+          "name": "Cm7/F#",
+          "root": "C",
+          "quality": "m7",
+          "bass": "F#",
+          "inversion": null,
+          "intervals_from_root": [
+            0,
+            3,
+            6
+          ],
+          "missing": [
+            "G",
+            "Bb"
+          ],
+          "pitches": [
+            "F#2",
+            "Eb3",
+            "C4"
+          ],
+          "reading": "Cm7/F#: sevenths reading; G, Bb assumed; foreign bass F#",
+          "root_is_bass": false,
+          "root_sounds": true,
+          "foreign_bass": true
+        },
+        {
+          "name": "CmMaj7/F#",
+          "root": "C",
+          "quality": "mMaj7",
+          "bass": "F#",
+          "inversion": null,
+          "intervals_from_root": [
+            0,
+            3,
+            6
+          ],
+          "missing": [
+            "G",
+            "B"
+          ],
+          "pitches": [
+            "F#2",
+            "Eb3",
+            "C4"
+          ],
+          "reading": "CmMaj7/F#: sevenths reading; G, B assumed; foreign bass F#",
+          "root_is_bass": false,
+          "root_sounds": true,
+          "foreign_bass": true
+        },
+        {
+          "name": "Cmadd9/F#",
+          "root": "C",
+          "quality": "madd9",
+          "bass": "F#",
+          "inversion": null,
+          "intervals_from_root": [
+            0,
+            3,
+            6
+          ],
+          "missing": [
+            "D",
+            "G"
+          ],
+          "pitches": [
+            "F#2",
+            "Eb3",
+            "C4"
+          ],
+          "reading": "Cmadd9/F#: add/sus/sixth reading; D, G assumed; foreign bass F#",
+          "root_is_bass": false,
+          "root_sounds": true,
+          "foreign_bass": true
+        },
+        {
+          "name": "Cm6/F#",
+          "root": "C",
+          "quality": "m6",
+          "bass": "F#",
+          "inversion": null,
+          "intervals_from_root": [
+            0,
+            3,
+            6
+          ],
+          "missing": [
+            "G",
+            "A"
+          ],
+          "pitches": [
+            "F#2",
+            "Eb3",
+            "C4"
+          ],
+          "reading": "Cm6/F#: add/sus/sixth reading; G, A assumed; foreign bass F#",
+          "root_is_bass": false,
+          "root_sounds": true,
+          "foreign_bass": true
+        },
+        {
+          "name": "Eb6/F#",
+          "root": "Eb",
+          "quality": "6",
+          "bass": "F#",
+          "inversion": null,
+          "intervals_from_root": [
+            0,
+            3,
+            9
+          ],
+          "missing": [
+            "G",
+            "Bb"
+          ],
+          "pitches": [
+            "F#2",
+            "Eb3",
+            "C4"
+          ],
+          "reading": "Eb6/F#: add/sus/sixth reading; G, Bb assumed; foreign bass F#",
+          "root_is_bass": false,
+          "root_sounds": true,
+          "foreign_bass": true
+        },
+        {
+          "name": "Ab/F#",
+          "root": "Ab",
+          "quality": "maj",
+          "bass": "F#",
+          "inversion": null,
+          "intervals_from_root": [
+            4,
+            7,
+            10
+          ],
+          "missing": [
+            "Ab"
+          ],
+          "pitches": [
+            "F#2",
+            "Eb3",
+            "C4"
+          ],
+          "reading": "Ab/F#: triads reading; root Ab assumed; foreign bass F#",
+          "root_is_bass": false,
+          "root_sounds": false,
+          "foreign_bass": true
+        },
+        {
+          "name": "Adim/F#",
+          "root": "A",
+          "quality": "dim",
+          "bass": "F#",
+          "inversion": null,
+          "intervals_from_root": [
+            3,
+            6,
+            9
+          ],
+          "missing": [
+            "A"
+          ],
+          "pitches": [
+            "F#2",
+            "Eb3",
+            "C4"
+          ],
+          "reading": "Adim/F#: triads reading; root A assumed; foreign bass F#",
+          "root_is_bass": false,
+          "root_sounds": false,
+          "foreign_bass": true
+        },
+        {
+          "name": "Abmaj7/F#",
+          "root": "Ab",
+          "quality": "maj7",
+          "bass": "F#",
+          "inversion": null,
+          "intervals_from_root": [
+            4,
+            7,
+            10
+          ],
+          "missing": [
+            "Ab",
+            "G"
+          ],
+          "pitches": [
+            "F#2",
+            "Eb3",
+            "C4"
+          ],
+          "reading": "Abmaj7/F#: sevenths reading; root Ab assumed; G assumed; foreign bass F#",
+          "root_is_bass": false,
+          "root_sounds": false,
+          "foreign_bass": true
+        },
+        {
+          "name": "Am7b5/F#",
+          "root": "A",
+          "quality": "m7b5",
+          "bass": "F#",
+          "inversion": null,
+          "intervals_from_root": [
+            3,
+            6,
+            9
+          ],
+          "missing": [
+            "A",
+            "G"
+          ],
+          "pitches": [
+            "F#2",
+            "Eb3",
+            "C4"
+          ],
+          "reading": "Am7b5/F#: sevenths reading; root A assumed; G assumed; foreign bass F#",
+          "root_is_bass": false,
+          "root_sounds": false,
+          "foreign_bass": true
+        },
+        {
+          "name": "F7/F#",
+          "root": "F",
+          "quality": "7",
+          "bass": "F#",
+          "inversion": null,
+          "intervals_from_root": [
+            1,
+            7,
+            10
+          ],
+          "missing": [
+            "F",
+            "A"
+          ],
+          "pitches": [
+            "F#2",
+            "Eb3",
+            "C4"
+          ],
+          "reading": "F7/F#: sevenths reading; root F assumed; A assumed; foreign bass F#",
+          "root_is_bass": false,
+          "root_sounds": false,
+          "foreign_bass": true
+        },
+        {
+          "name": "Fm7/F#",
+          "root": "F",
+          "quality": "m7",
+          "bass": "F#",
+          "inversion": null,
+          "intervals_from_root": [
+            1,
+            7,
+            10
+          ],
+          "missing": [
+            "F",
+            "Ab"
+          ],
+          "pitches": [
+            "F#2",
+            "Eb3",
+            "C4"
+          ],
+          "reading": "Fm7/F#: sevenths reading; root F assumed; Ab assumed; foreign bass F#",
+          "root_is_bass": false,
+          "root_sounds": false,
+          "foreign_bass": true
+        },
+        {
+          "name": "Abadd9/F#",
+          "root": "Ab",
+          "quality": "add9",
+          "bass": "F#",
+          "inversion": null,
+          "intervals_from_root": [
+            4,
+            7,
+            10
+          ],
+          "missing": [
+            "Ab",
+            "Bb"
+          ],
+          "pitches": [
+            "F#2",
+            "Eb3",
+            "C4"
+          ],
+          "reading": "Abadd9/F#: add/sus/sixth reading; root Ab assumed; Bb assumed; foreign bass F#",
+          "root_is_bass": false,
+          "root_sounds": false,
+          "foreign_bass": true
+        },
+        {
+          "name": "Ab6/F#",
+          "root": "Ab",
+          "quality": "6",
+          "bass": "F#",
+          "inversion": null,
+          "intervals_from_root": [
+            4,
+            7,
+            10
+          ],
+          "missing": [
+            "Ab",
+            "F"
+          ],
+          "pitches": [
+            "F#2",
+            "Eb3",
+            "C4"
+          ],
+          "reading": "Ab6/F#: add/sus/sixth reading; root Ab assumed; F assumed; foreign bass F#",
+          "root_is_bass": false,
+          "root_sounds": false,
+          "foreign_bass": true
+        },
+        {
+          "name": "F7sus4/F#",
+          "root": "F",
+          "quality": "7sus4",
+          "bass": "F#",
+          "inversion": null,
+          "intervals_from_root": [
+            1,
+            7,
+            10
+          ],
+          "missing": [
+            "F",
+            "Bb"
+          ],
+          "pitches": [
+            "F#2",
+            "Eb3",
+            "C4"
+          ],
+          "reading": "F7sus4/F#: add/sus/sixth reading; root F assumed; Bb assumed; foreign bass F#",
+          "root_is_bass": false,
+          "root_sounds": false,
+          "foreign_bass": true
         }
       ],
       "decided_at": "R1"
@@ -4935,7 +7022,7 @@
   },
   "ddim-ab": {
     "result": {
-      "engine_version": "0.1.0",
+      "engine_version": "1.1.0",
       "table_version": "1.0.0",
       "input": {
         "strings": [
@@ -4984,7 +7071,8 @@
           ],
           "reading": "Abdim7: sevenths reading; Cb assumed",
           "root_is_bass": true,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Ddim/Ab",
@@ -5005,7 +7093,8 @@
           ],
           "reading": "Ddim/Ab: triads reading; Ab in the bass",
           "root_is_bass": false,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Fm6/Ab",
@@ -5028,7 +7117,8 @@
           ],
           "reading": "Fm6/Ab: add/sus/sixth reading; C assumed; Ab in the bass",
           "root_is_bass": false,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Dm7b5/Ab",
@@ -5051,7 +7141,8 @@
           ],
           "reading": "Dm7b5/Ab: sevenths reading; C assumed; Ab in the bass",
           "root_is_bass": false,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Ddim7/Ab",
@@ -5074,7 +7165,8 @@
           ],
           "reading": "Ddim7/Ab: sevenths reading; Cb assumed; Ab in the bass",
           "root_is_bass": false,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Fdim7/Ab",
@@ -5097,7 +7189,8 @@
           ],
           "reading": "Fdim7/Ab: sevenths reading; Cb assumed; Ab in the bass",
           "root_is_bass": false,
-          "root_sounds": true
+          "root_sounds": true,
+          "foreign_bass": false
         },
         {
           "name": "Bb7/Ab",
@@ -5120,7 +7213,8 @@
           ],
           "reading": "Bb7/Ab: sevenths reading; root Bb assumed; Ab in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
         },
         {
           "name": "Bdim7/Ab",
@@ -5143,7 +7237,380 @@
           ],
           "reading": "Bdim7/Ab: sevenths reading; root B assumed; Ab in the bass",
           "root_is_bass": false,
-          "root_sounds": false
+          "root_sounds": false,
+          "foreign_bass": false
+        },
+        {
+          "name": "Dm/Ab",
+          "root": "D",
+          "quality": "m",
+          "bass": "Ab",
+          "inversion": null,
+          "intervals_from_root": [
+            0,
+            3,
+            6
+          ],
+          "missing": [
+            "A"
+          ],
+          "pitches": [
+            "Ab2",
+            "D3",
+            "F4"
+          ],
+          "reading": "Dm/Ab: triads reading; A assumed; foreign bass Ab",
+          "root_is_bass": false,
+          "root_sounds": true,
+          "foreign_bass": true
+        },
+        {
+          "name": "Dm7/Ab",
+          "root": "D",
+          "quality": "m7",
+          "bass": "Ab",
+          "inversion": null,
+          "intervals_from_root": [
+            0,
+            3,
+            6
+          ],
+          "missing": [
+            "A",
+            "C"
+          ],
+          "pitches": [
+            "Ab2",
+            "D3",
+            "F4"
+          ],
+          "reading": "Dm7/Ab: sevenths reading; A, C assumed; foreign bass Ab",
+          "root_is_bass": false,
+          "root_sounds": true,
+          "foreign_bass": true
+        },
+        {
+          "name": "DmMaj7/Ab",
+          "root": "D",
+          "quality": "mMaj7",
+          "bass": "Ab",
+          "inversion": null,
+          "intervals_from_root": [
+            0,
+            3,
+            6
+          ],
+          "missing": [
+            "A",
+            "C#"
+          ],
+          "pitches": [
+            "Ab2",
+            "D3",
+            "F4"
+          ],
+          "reading": "DmMaj7/Ab: sevenths reading; A, C# assumed; foreign bass Ab",
+          "root_is_bass": false,
+          "root_sounds": true,
+          "foreign_bass": true
+        },
+        {
+          "name": "Dmadd9/Ab",
+          "root": "D",
+          "quality": "madd9",
+          "bass": "Ab",
+          "inversion": null,
+          "intervals_from_root": [
+            0,
+            3,
+            6
+          ],
+          "missing": [
+            "E",
+            "A"
+          ],
+          "pitches": [
+            "Ab2",
+            "D3",
+            "F4"
+          ],
+          "reading": "Dmadd9/Ab: add/sus/sixth reading; E, A assumed; foreign bass Ab",
+          "root_is_bass": false,
+          "root_sounds": true,
+          "foreign_bass": true
+        },
+        {
+          "name": "Dm6/Ab",
+          "root": "D",
+          "quality": "m6",
+          "bass": "Ab",
+          "inversion": null,
+          "intervals_from_root": [
+            0,
+            3,
+            6
+          ],
+          "missing": [
+            "A",
+            "B"
+          ],
+          "pitches": [
+            "Ab2",
+            "D3",
+            "F4"
+          ],
+          "reading": "Dm6/Ab: add/sus/sixth reading; A, B assumed; foreign bass Ab",
+          "root_is_bass": false,
+          "root_sounds": true,
+          "foreign_bass": true
+        },
+        {
+          "name": "F6/Ab",
+          "root": "F",
+          "quality": "6",
+          "bass": "Ab",
+          "inversion": null,
+          "intervals_from_root": [
+            0,
+            3,
+            9
+          ],
+          "missing": [
+            "A",
+            "C"
+          ],
+          "pitches": [
+            "Ab2",
+            "D3",
+            "F4"
+          ],
+          "reading": "F6/Ab: add/sus/sixth reading; A, C assumed; foreign bass Ab",
+          "root_is_bass": false,
+          "root_sounds": true,
+          "foreign_bass": true
+        },
+        {
+          "name": "Bb/Ab",
+          "root": "Bb",
+          "quality": "maj",
+          "bass": "Ab",
+          "inversion": null,
+          "intervals_from_root": [
+            4,
+            7,
+            10
+          ],
+          "missing": [
+            "Bb"
+          ],
+          "pitches": [
+            "Ab2",
+            "D3",
+            "F4"
+          ],
+          "reading": "Bb/Ab: triads reading; root Bb assumed; foreign bass Ab",
+          "root_is_bass": false,
+          "root_sounds": false,
+          "foreign_bass": true
+        },
+        {
+          "name": "Bdim/Ab",
+          "root": "B",
+          "quality": "dim",
+          "bass": "Ab",
+          "inversion": null,
+          "intervals_from_root": [
+            3,
+            6,
+            9
+          ],
+          "missing": [
+            "B"
+          ],
+          "pitches": [
+            "Ab2",
+            "D3",
+            "F4"
+          ],
+          "reading": "Bdim/Ab: triads reading; root B assumed; foreign bass Ab",
+          "root_is_bass": false,
+          "root_sounds": false,
+          "foreign_bass": true
+        },
+        {
+          "name": "Bbmaj7/Ab",
+          "root": "Bb",
+          "quality": "maj7",
+          "bass": "Ab",
+          "inversion": null,
+          "intervals_from_root": [
+            4,
+            7,
+            10
+          ],
+          "missing": [
+            "Bb",
+            "A"
+          ],
+          "pitches": [
+            "Ab2",
+            "D3",
+            "F4"
+          ],
+          "reading": "Bbmaj7/Ab: sevenths reading; root Bb assumed; A assumed; foreign bass Ab",
+          "root_is_bass": false,
+          "root_sounds": false,
+          "foreign_bass": true
+        },
+        {
+          "name": "Bm7b5/Ab",
+          "root": "B",
+          "quality": "m7b5",
+          "bass": "Ab",
+          "inversion": null,
+          "intervals_from_root": [
+            3,
+            6,
+            9
+          ],
+          "missing": [
+            "B",
+            "A"
+          ],
+          "pitches": [
+            "Ab2",
+            "D3",
+            "F4"
+          ],
+          "reading": "Bm7b5/Ab: sevenths reading; root B assumed; A assumed; foreign bass Ab",
+          "root_is_bass": false,
+          "root_sounds": false,
+          "foreign_bass": true
+        },
+        {
+          "name": "G7/Ab",
+          "root": "G",
+          "quality": "7",
+          "bass": "Ab",
+          "inversion": null,
+          "intervals_from_root": [
+            1,
+            7,
+            10
+          ],
+          "missing": [
+            "G",
+            "B"
+          ],
+          "pitches": [
+            "Ab2",
+            "D3",
+            "F4"
+          ],
+          "reading": "G7/Ab: sevenths reading; root G assumed; B assumed; foreign bass Ab",
+          "root_is_bass": false,
+          "root_sounds": false,
+          "foreign_bass": true
+        },
+        {
+          "name": "Gm7/Ab",
+          "root": "G",
+          "quality": "m7",
+          "bass": "Ab",
+          "inversion": null,
+          "intervals_from_root": [
+            1,
+            7,
+            10
+          ],
+          "missing": [
+            "G",
+            "Bb"
+          ],
+          "pitches": [
+            "Ab2",
+            "D3",
+            "F4"
+          ],
+          "reading": "Gm7/Ab: sevenths reading; root G assumed; Bb assumed; foreign bass Ab",
+          "root_is_bass": false,
+          "root_sounds": false,
+          "foreign_bass": true
+        },
+        {
+          "name": "Bbadd9/Ab",
+          "root": "Bb",
+          "quality": "add9",
+          "bass": "Ab",
+          "inversion": null,
+          "intervals_from_root": [
+            4,
+            7,
+            10
+          ],
+          "missing": [
+            "Bb",
+            "C"
+          ],
+          "pitches": [
+            "Ab2",
+            "D3",
+            "F4"
+          ],
+          "reading": "Bbadd9/Ab: add/sus/sixth reading; root Bb assumed; C assumed; foreign bass Ab",
+          "root_is_bass": false,
+          "root_sounds": false,
+          "foreign_bass": true
+        },
+        {
+          "name": "Bb6/Ab",
+          "root": "Bb",
+          "quality": "6",
+          "bass": "Ab",
+          "inversion": null,
+          "intervals_from_root": [
+            4,
+            7,
+            10
+          ],
+          "missing": [
+            "Bb",
+            "G"
+          ],
+          "pitches": [
+            "Ab2",
+            "D3",
+            "F4"
+          ],
+          "reading": "Bb6/Ab: add/sus/sixth reading; root Bb assumed; G assumed; foreign bass Ab",
+          "root_is_bass": false,
+          "root_sounds": false,
+          "foreign_bass": true
+        },
+        {
+          "name": "G7sus4/Ab",
+          "root": "G",
+          "quality": "7sus4",
+          "bass": "Ab",
+          "inversion": null,
+          "intervals_from_root": [
+            1,
+            7,
+            10
+          ],
+          "missing": [
+            "G",
+            "C"
+          ],
+          "pitches": [
+            "Ab2",
+            "D3",
+            "F4"
+          ],
+          "reading": "G7sus4/Ab: add/sus/sixth reading; root G assumed; C assumed; foreign bass Ab",
+          "root_is_bass": false,
+          "root_sounds": false,
+          "foreign_bass": true
         }
       ],
       "decided_at": "R1"
@@ -5151,7 +7618,7 @@
   },
   "unison-e": {
     "result": {
-      "engine_version": "0.1.0",
+      "engine_version": "1.1.0",
       "table_version": "1.0.0",
       "input": {
         "strings": [

@@ -31,7 +31,7 @@ import re
 import tomllib
 from pathlib import Path
 
-REF_ENGINE_VERSION = "0.1.0"
+REF_ENGINE_VERSION = "1.1.0"
 
 _TABLE_PATH = (
     Path(__file__).resolve().parent.parent.parent
@@ -225,13 +225,14 @@ class Key:
 
 class Candidate:
     def __init__(self, root_pc: int, row: dict, sounding_rel: frozenset,
-                 bass_pc: int, tones: tuple):
+                 bass_pc: int, tones: tuple, foreign: bool = False):
         self.root_pc = root_pc
         self.row = row
         self.qid = row["id"]
         self.tones = tones                      # absolute-interval tone set
         self.sounding_rel = sounding_rel        # sounding PCs relative to root
         self.bass_pc = bass_pc
+        self.foreign = foreign                  # bass PC outside the tone set
         self.missing_rel = tuple(sorted(set(tones) - set(sounding_rel)))
         self.r0_pass = None                     # set in context mode
 
@@ -239,7 +240,13 @@ class Candidate:
 
     def rank_key(self, root_spelling: Spelling) -> tuple:
         r0 = 0 if self.r0_pass in (True, None) else 1
-        r1 = 0 if self.root_pc == self.bass_pc else 1
+        # Three classes (PHASE3 §3): root-is-bass < inversion < foreign.
+        if self.root_pc == self.bass_pc:
+            r1 = 0
+        elif self.foreign:
+            r1 = 2
+        else:
+            r1 = 1
         root_sounds = 0 in self.sounding_rel
         r2a = 0 if root_sounds else 1
         discounted = set(self.row["discount"])
@@ -318,7 +325,10 @@ def _reading(cand: Candidate, spelled: dict, midis: list[int],
             parts.append(f"{', '.join(names)} assumed")
     if cand.root_pc != cand.bass_pc:
         bass_sp = spelled["members"].get(cand.bass_pc)
-        parts.append(f"{bass_sp} in the bass")
+        if cand.foreign:
+            parts.append(f"foreign bass {bass_sp}")
+        else:
+            parts.append(f"{bass_sp} in the bass")
     return "; ".join(parts)
 
 
@@ -387,7 +397,8 @@ def identify(strings, tuning="standard", context_key: str | None = None) -> dict
         result["decided_at"] = None
         return result
 
-    candidates = _generate(pcs, bass_pc, tbl)
+    upper_pcs = frozenset(m % 12 for m in sounding[1:])
+    candidates = _generate(pcs, upper_pcs, bass_pc, tbl)
     if key:
         for c in candidates:
             c.r0_pass = _r0(c, key)
@@ -403,14 +414,27 @@ def identify(strings, tuning="standard", context_key: str | None = None) -> dict
         spelled = _spell_candidate(c, key)
         root_sp = spelled["root"]
         suffix = c.row["name"]
-        if c.bass_pc != c.root_pc:
+        if c.foreign:
+            # Foreign bass: not a member — spelled canonically, or as the
+            # key spells it (PHASE3 §3).
+            bass_sp = key.spell_root(c.bass_pc) if key else \
+                spell_canonical(c.bass_pc)
+            spelled["members"][c.bass_pc] = bass_sp
+            name = f"{root_sp}{suffix}/{bass_sp}"
+            inversion = None
+        elif c.bass_pc != c.root_pc:
             bass_sp = spelled["members"][c.bass_pc]
             name = f"{root_sp}{suffix}/{bass_sp}"
+            inversion = None
+            if c.row["inversion"] == "member-index":
+                inversion = c.row["degree_pcs"].index(
+                    (c.bass_pc - c.root_pc) % 12
+                )
         else:
             name = f"{root_sp}{suffix}"
-        inversion = None
-        if c.row["inversion"] == "member-index":
-            inversion = c.row["degree_pcs"].index((c.bass_pc - c.root_pc) % 12)
+            inversion = None
+            if c.row["inversion"] == "member-index":
+                inversion = 0
         entry = {
             "name": name,
             "root": str(root_sp),
@@ -431,6 +455,7 @@ def identify(strings, tuning="standard", context_key: str | None = None) -> dict
             "reading": _reading(c, spelled, sounding, name, tier_labels),
             "root_is_bass": c.root_pc == c.bass_pc,
             "root_sounds": 0 in c.sounding_rel,
+            "foreign_bass": c.foreign,
         }
         if key:
             entry["r0_pass"] = bool(c.r0_pass)
@@ -441,7 +466,8 @@ def identify(strings, tuning="standard", context_key: str | None = None) -> dict
     return result
 
 
-def _generate(pcs: frozenset, bass_pc: int, tbl: dict) -> list[Candidate]:
+def _generate(pcs: frozenset, upper_pcs: frozenset, bass_pc: int,
+              tbl: dict) -> list[Candidate]:
     rows = tbl["qualities"]
     found: dict[tuple, Candidate] = {}
 
@@ -458,6 +484,26 @@ def _generate(pcs: frozenset, bass_pc: int, tbl: dict) -> list[Candidate]:
                     found[dk] = Candidate(
                         root, row, rel, bass_pc, tuple(row["tones"])
                     )
+
+    # Foreign-bass slash candidates (PHASE3 §3): >= 2 distinct PCs above
+    # a bass whose PC is outside the row's tone set; cover the uppers.
+    if len(upper_pcs) >= 2:
+        for row in rows.values():
+            if row["gen"] != "table":
+                continue
+            tone_set = frozenset(row["tones"])
+            for root in range(12):
+                abs_tones = frozenset((root + t) % 12 for t in row["tones"])
+                if bass_pc in abs_tones:
+                    continue
+                if upper_pcs <= abs_tones:
+                    rel = frozenset((p - root) % 12 for p in pcs)
+                    dk = (root, abs_tones)
+                    if dk not in found:
+                        found[dk] = Candidate(
+                            root, row, rel, bass_pc, tuple(row["tones"]),
+                            foreign=True,
+                        )
 
     # Dyads: one candidate, rooted at the bass, 2-distinct-PC inputs only;
     # PC distance 7 generates only X5 (already covered by the `5` row above).
@@ -585,6 +631,11 @@ def resolve_chosen(chosen: str, candidates: list[dict]) -> dict:
         return {"status": "resolved", "name": exact[0]["name"], "tier": 1}
 
     def bass_ok(c):
+        # Foreign-bass candidates are reachable at tiers 2-3 only via an
+        # explicit /bass (A2 amendment): shorthand must never silently
+        # land on a foreign-bass fragment; the exact name always works.
+        if c.get("foreign_bass") and bass_pc is None:
+            return False
         return bass_pc is None or cpc(c["bass"]) == bass_pc
 
     # Tier 2: root-PC + exact quality row.

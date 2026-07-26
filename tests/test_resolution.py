@@ -92,6 +92,30 @@ def test_unparseable_is_a_miss_not_an_exception():
     assert r["status"] == "miss"
 
 
+# --- A2.1: foreign-bass candidates need the explicit slash ------------------
+
+def test_shorthand_never_lands_on_foreign_bass():
+    """'Cmaj7' on Q: the only C-rooted maj7 reading is the foreign-bass
+    fragment Cmaj7/F# — shorthand must MISS (A2.1), preserving the
+    safety net."""
+    r = R.resolve_chosen("Cmaj7", Q)
+    assert r["status"] == "miss"
+
+
+def test_exact_foreign_bass_name_resolves():
+    r = R.resolve_chosen("Cmaj7/F#", Q)
+    assert r["status"] == "resolved" and r["tier"] == 1
+
+
+def test_explicit_bass_reaches_foreign_at_tier2():
+    # Enharmonic bass: not the canonical string, so tier 1 misses and
+    # tier 2 matches with the bass filter — foreign reachable because
+    # the bass was explicit.
+    r = R.resolve_chosen("Cmaj7/Gb", Q)
+    assert r["status"] == "resolved" and r["name"] == "Cmaj7/F#"
+    assert r["tier"] == 2
+
+
 # --- covariant re-derivation incl. the Cdim/Gb divergence (§11) -------------
 
 def test_covariant_chosen_cdim_gb():

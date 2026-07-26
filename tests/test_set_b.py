@@ -54,28 +54,35 @@ def test_folk_chords_top_exactly(fname, top):
 
 def test_freddie_green_shell():
     r = result("freddie-g7")
-    assert names("freddie-g7") == ["G7"]
+    assert names("freddie-g7")[0] == "G7"
     assert cand("freddie-g7", "G7")["missing"] == ["D"]
     assert all(c["quality"] != "coll" for c in r["candidates"])
-    # The rung floats with the frozen table version; under table 0.1.0 the
-    # cover is unique. Asserted by the script, not prose (§7.3).
-    assert r["decided_at"] == "unique"
+    # "The rung floats with the frozen table version ... asserted by the
+    # script, not prose" (§7.3) — and float it did: engine 1.1.0's
+    # foreign-bass class ended the cover's uniqueness (Bdim/G et al.),
+    # moving the rung from "unique" to R1. Every non-top reading is
+    # foreign.
+    assert all(c["foreign_bass"] for c in r["candidates"][1:])
+    assert r["decided_at"] == "R1"
 
 
 # --- drop-2 voicings --------------------------------------------------------
 
 def test_drop2_cmaj7():
     r = result("drop2-cmaj7")
-    assert names("drop2-cmaj7") == ["Cmaj7"]
+    assert names("drop2-cmaj7")[0] == "Cmaj7"
     assert r["candidates"][0]["pitches"] == ["C3", "G3", "B3", "E4"]
-    assert r["decided_at"] == "unique"
+    # Another rung float (engine 1.1.0): Em/C et al. end the uniqueness.
+    assert all(c["foreign_bass"] for c in r["candidates"][1:])
+    assert r["decided_at"] == "R1"
 
 
 def test_drop2_dm7():
     r = result("drop2-dm7")
     # The C6/Am7-class coincidence, R1-sorted: Dm7 (root-is-bass) above
     # the exact F6/D inversion. Kept deliberately; do not "fix" (§7.1).
-    assert names("drop2-dm7") == ["Dm7", "F6/D"]
+    assert names("drop2-dm7")[:2] == ["Dm7", "F6/D"]
+    assert all(c["foreign_bass"] for c in r["candidates"][2:])
     assert r["decided_at"] == "R1"
 
 
@@ -83,10 +90,11 @@ def test_drop2_dm7():
 
 def test_dadgad_open():
     r = result("dadgad-open")
-    assert names("dadgad-open") == [
+    assert names("dadgad-open")[:7] == [
         "Dsus4", "D7sus4", "Gsus2/D", "Aq4/D",
         "A7sus4/D", "Gadd9/D", "Gmadd9/D",
     ]
+    assert all(c["foreign_bass"] for c in r["candidates"][7:])
     assert r["decided_at"] == "R2"
     # A7sus4/D: the discounted fifth (E) is the one missing tone.
     assert cand("dadgad-open", "A7sus4/D")["missing"] == ["E"]
@@ -137,17 +145,60 @@ def test_dy_m2_shadows_carry_add9_family():
         assert c["root_is_bass"] and c["root_sounds"]
 
 
-# --- totality catch-all -----------------------------------------------------
+# --- totality catch-all + foreign bass (PHASE3 §3) --------------------------
 
-def test_coll_cluster():
+def test_cluster3_now_reads_as_foreign_fragments():
+    """Engine 1.1.0: the 3-note cluster's uppers {Db, D} are coverable
+    over the foreign C bass (Dmaj7 contains both), so readings exist and
+    coll stays suppressed — its catch-all role is strictly empty-set."""
     r = result("coll-cluster")
-    assert names("coll-cluster") == ["Ccoll"]
+    assert names("coll-cluster")[0] == "Dmaj7/C"
+    assert all(c["foreign_bass"] for c in r["candidates"])
+    assert all(c["quality"] != "coll" for c in r["candidates"])
+    assert r["decided_at"] == "tiebreak"
+
+
+def test_coll_cluster4():
+    """The 4-note chromatic cluster: nothing covers it, uppers included
+    — coll, alone, at the bass (its fixture per the membership
+    criterion)."""
+    r = result("coll-cluster4")
+    assert names("coll-cluster4") == ["Ccoll"]
     c = r["candidates"][0]
     assert c["quality"] == "coll"
     assert c["missing"] == []
     assert c["inversion"] is None
-    assert c["pitches"] == ["C3", "Db3", "D3"]  # canonical per-PC spelling
+    assert c["pitches"] == ["C3", "Db3", "D3", "Eb4"]
     assert r["decided_at"] == "unique"
+
+
+def test_c_over_d_foreign_bass():
+    """The classic C/D: the literal top is Cadd9/D (that PC set IS
+    Cadd9); C/D is the first foreign reading — present, flagged, bass
+    never in missing, inversion null."""
+    r = result("c-over-d")
+    assert names("c-over-d")[0] == "Cadd9/D"
+    cd = cand("c-over-d", "C/D")
+    assert cd["foreign_bass"] is True
+    assert cd["bass"] == "D"
+    assert cd["inversion"] is None
+    assert cd["missing"] == []          # the bass is never a missing tone
+    assert r["decided_at"] == "R1"
+    # Class ordering: every foreign reading ranks below every
+    # chord-tone reading.
+    flags = [c["foreign_bass"] for c in r["candidates"]]
+    assert flags == sorted(flags)
+
+
+def test_pedal_point():
+    """{D, C, G}: the literal top is Dq4 (it IS a fourths stack); the
+    power chord over the pedal (C5/D) arrives in the foreign class."""
+    r = result("pedal-d")
+    assert names("pedal-d")[0] == "Dq4"
+    c5 = cand("pedal-d", "C5/D")
+    assert c5["foreign_bass"] is True and c5["missing"] == []
+    flags = [c["foreign_bass"] for c in r["candidates"]]
+    assert flags == sorted(flags)
 
 
 # --- member-stacking bass spelling (Cdim/Gb) --------------------------------
