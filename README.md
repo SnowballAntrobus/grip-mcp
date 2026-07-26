@@ -68,8 +68,9 @@ cdp-mcp. Each project keeps its grips in `<project>/grip/library.json`
 (`journal.jsonl`), and a mutation history (`history.jsonl`) beside it.
 Renders are on request only; finger digits draw inside the dots (T =
 thumb) with octave-bearing note labels beneath. Sequences compose into
-song structures via `@section` references; grips can carry
-hammer-on/pull-off ornaments.
+song structures via `@section` references. Hammer-ons/pull-offs are
+captured as adjacent grips (both shapes get real identities; the
+transition is ordinary voice-leading — the analysis-ready form).
 
 ## Development
 

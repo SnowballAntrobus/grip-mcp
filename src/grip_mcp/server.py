@@ -49,10 +49,9 @@ def build_server(root=None) -> FastMCP:
                  fingers: list[int | None] | None = None,
                  label: str | None = None, tags: list[str] | None = None,
                  chosen: str | None = None,
-                 ornaments: list[dict] | None = None,
                  render: bool = False) -> dict:
         return svc.add_grip(id, strings, tuning, fingers, label, tags,
-                            chosen, ornaments, render)
+                            chosen, render)
 
     @tool("get_grip")
     def get_grip(id: str) -> dict:

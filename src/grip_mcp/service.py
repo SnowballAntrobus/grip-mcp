@@ -214,46 +214,6 @@ class GripService:
                 payload["render"] = rr
         return self._env(payload, warnings=warnings or None)
 
-    def _validate_ornaments(self, strings, ornaments):
-        """Hammer-on / pull-off annotations: [{string (1 = lowest), to,
-        type: hammer|pull}]. Annotation-only: ornament pitches do NOT
-        enter identification (the grip's identity is its strings array);
-        they render as a slur to a hollow target dot."""
-        if ornaments is None:
-            return
-        if not isinstance(ornaments, list):
-            raise TH.TheoryError("ornaments must be a list")
-        for o in ornaments:
-            if not isinstance(o, dict) or not {"string", "to", "type"} <= set(o):
-                raise TH.TheoryError(
-                    "each ornament needs {string, to, type} (string is "
-                    "1-based from the lowest)"
-                )
-            s, to, kind = o["string"], o["to"], o["type"]
-            if not (isinstance(s, int) and 1 <= s <= len(strings)):
-                raise TH.TheoryError(
-                    f"ornament string {s!r} out of range 1..{len(strings)}"
-                )
-            base = strings[s - 1]
-            if base is None:
-                raise TH.TheoryError(
-                    f"ornament on string {s}: the string is muted"
-                )
-            if not (isinstance(to, int) and to >= 0):
-                raise TH.TheoryError(f"ornament target fret {to!r} invalid")
-            if kind == "hammer" and not to > base:
-                raise TH.TheoryError(
-                    f"hammer-on on string {s} must land above fret {base}"
-                )
-            if kind == "pull" and not to < base:
-                raise TH.TheoryError(
-                    f"pull-off on string {s} must land below fret {base}"
-                )
-            if kind not in ("hammer", "pull"):
-                raise TH.TheoryError(
-                    f"ornament type {kind!r}; known: hammer, pull"
-                )
-
     def _validate_fingers(self, strings, fingers):
         if fingers is None:
             return
@@ -277,7 +237,6 @@ class GripService:
     def add_grip(self, id: str, strings: list, tuning: str | None = None,
                  fingers: list | None = None, label: str | None = None,
                  tags: list | None = None, chosen: str | None = None,
-                 ornaments: list | None = None,
                  render: bool = False) -> dict:
         warnings: list[dict] = []
         try:
@@ -292,7 +251,6 @@ class GripService:
                 )
             tname, res = self._resolve_tuning_arg(lib, tuning)
             self._validate_fingers(strings, fingers)
-            self._validate_ornaments(strings, ornaments)
             r = TH.identify(strings, res["pitches"])  # validates lengths
         except (ST.StoreError, TH.TheoryError) as e:
             return self._err(getattr(e, "code", "bad_input"), str(e),
@@ -304,8 +262,6 @@ class GripService:
         }
         if fingers is not None:
             grip["fingers"] = list(fingers)
-        if ornaments:
-            grip["ornaments"] = list(ornaments)
         if label is not None:
             grip["label"] = label
         if tags:
@@ -446,8 +402,6 @@ class GripService:
             res = ST.resolve_tuning(lib, merged["tuning"])
             self._validate_fingers(merged["strings"],
                                    merged.get("fingers"))
-            self._validate_ornaments(merged["strings"],
-                                     merged.get("ornaments"))
             r = TH.identify(merged["strings"], res["pitches"])
             if "chosen" in patch and patch["chosen"] is not None:
                 cr = TH.resolve_chosen(patch["chosen"], r["candidates"])
@@ -1238,8 +1192,7 @@ class GripService:
         return candidates[0] if candidates else None
 
     def _renderable(self, strings, res, candidates, fingers, labels,
-                    interval_root, chosen, name=None,
-                    ornaments=None) -> dict:
+                    interval_root, chosen, name=None) -> dict:
         disp = self._display_candidate(candidates, chosen)
         opens = [TH.parse_pitch(p) for p in res["pitches"]]
         string_labels = [None] * len(strings)
@@ -1274,11 +1227,6 @@ class GripService:
             "name": name if name is not None
             else (chosen or (disp["name"] if disp else "")),
             "capo": res["capo"],
-            "ornaments": [
-                {"string": o["string"] - 1, "to": o["to"],
-                 "type": o["type"]}
-                for o in (ornaments or [])
-            ],
         }
 
     def _do_render_grips(self, st: ST.Store, grips: list, options: dict,
@@ -1335,7 +1283,7 @@ class GripService:
                 renderables.append(self._renderable(
                     grip["strings"], res, d["candidates"],
                     grip.get("fingers"), labels, interval_root,
-                    grip.get("chosen"), ornaments=grip.get("ornaments"),
+                    grip.get("chosen"),
                 ))
             st.save(lib, derived)
             options = {"labels": labels, "orientation": orientation,

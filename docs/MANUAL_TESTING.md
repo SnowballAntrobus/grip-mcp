@@ -180,10 +180,11 @@ language throughout — the conversation is the control surface.
 - [ ] Working title: *"add this one as 'the spooky one' — not sure what
       it is yet"* → label set, chosen unset, listed as unnamed; journal
       context; later *"the spooky one is my Bsus4"* settles it.
-- [ ] Ornament: *"open E5 but I hammer the A string onto 2"* → stored
-      with the ornament; render shows the slur to a hollow dot with H;
-      identity stays the plain strings (annotation-only, by design —
-      identify the landed shape separately if you want its reading).
+- [ ] Gesture: *"open E5 but I hammer the A string onto 2"* → Claude
+      should capture BOTH shapes as grips (e5, e5-landed), sequence
+      them adjacently, and note the technique in tags/journal — each
+      shape gets its own reading, and the hammer is just voice-leading
+      between neighbors (the analysis-ready representation).
 - [ ] Thumb: capture a thumb-over shape (finger 0) → renders as T in
       the dot; ask for voicings with thumb allowed → suggestions feed
       back into add_grip unchanged.

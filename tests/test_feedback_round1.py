@@ -1,7 +1,8 @@
 """Feedback round 1 (manual shakedown, 2026-07-26): journal, mutation
-history, song structures via @sequence references, hammer-on/pull-off
-ornaments, working titles, thumb round-trip, octave-bearing labels,
-digits-in-dots rendering, ~/grip_sessions default root."""
+history, song structures via @sequence references, the gesture-pair
+idiom for hammer-ons/pull-offs, working titles, thumb round-trip,
+octave-bearing labels, digits-in-dots rendering, ~/grip_sessions
+default root."""
 
 import json
 import sys
@@ -145,54 +146,38 @@ def test_unknown_at_reference_refused(svc):
     assert r["error"]["code"] == "unknown_sequence"
 
 
-# --- ornaments: hammer-on / pull-off ----------------------------------------
+# --- gestures: hammer-on / pull-off as separate grips -----------------------
+# (Round 1 shipped an ornaments annotation; reverted by design review:
+# annotation pitches were harmonically invisible, breaking one-grip-one-
+# identity. Both shapes are grips; the transition is ordinary
+# voice-leading between adjacent sequence items - exactly what Phase 3
+# measures. Transition-type metadata will live at sequence level when
+# rhythm arrives.)
 
-def test_ornaments_stored_and_annotation_only(svc):
-    r = svc.add_grip(
-        "ham", [0, 2, 2, None, None, None],
-        ornaments=[{"string": 1, "to": 2, "type": "hammer"}],
-    )
-    assert r["stored"] is True
-    g = svc.get_grip("ham")
-    assert g["grip"]["ornaments"] == [{"string": 1, "to": 2,
-                                       "type": "hammer"}]
-    # Annotation-only: identity comes from strings alone.
-    assert g["midi"] == [40, 47, 52]   # E2 B2 E3 — no F#2 from the hammer
-
-
-def test_ornament_validation(svc):
-    bad = [
-        ([{"string": 9, "to": 2, "type": "hammer"}], "out of range"),
-        ([{"string": 4, "to": 2, "type": "hammer"}], "muted"),
-        ([{"string": 2, "to": 1, "type": "hammer"}], "must land above"),
-        ([{"string": 2, "to": 5, "type": "pull"}], "must land below"),
-        ([{"string": 2, "to": 3, "type": "slide"}], "hammer, pull"),
-    ]
-    for ornaments, msg in bad:
-        r = svc.add_grip("x", [0, 2, 2, None, None, None],
-                         ornaments=ornaments)
-        assert "error" in r and msg in r["error"]["detail"], msg
+def test_gesture_pair_idiom(svc):
+    svc.add_grip("e5", [0, 2, 2, None, None, None],
+                 tags=["hammer-from"], label="E5 open")
+    svc.add_grip("e5-landed", [2, 2, 2, None, None, None],
+                 tags=["hammer-to"], label="E5 landed")
+    svc.set_sequence("riff", ["e5", "e5-landed"])
+    a = svc.get_grip("e5")
+    b = svc.get_grip("e5-landed")
+    # Both shapes carry real identities...
+    assert a["candidates"][0]["name"] == "E5"
+    assert b["candidates"][0]["name"] == "F#q4"
+    # ...and the gesture is one voice moving two semitones - ordinary
+    # voice-leading, ready for Phase 3:
+    moved = [y - x for x, y in zip(a["midi"], b["midi"]) if y != x]
+    assert moved == [2]
 
 
-def test_ornaments_render_with_window(svc):
-    g = {"frets": [0, 2, 2, None, None, None], "name": "E5",
-         "capo": 0, "ornaments": [{"string": 0, "to": 4,
-                                   "type": "hammer"}]}
-    out = RD.render_chart([g], {"labels": "none"})
-    assert 'stroke-width="1.6"' in out["svg"]        # hollow target dot
-    # Window covers the ornament target:
-    assert RD.fret_window([0, 2, 2, None, None, None], [4]) == (1, 4)
-    assert RD.fret_window([None, None, 8, 7, 8, None], [11])[1] == 5
-
-
-def test_update_grip_validates_ornaments(svc):
-    svc.add_grip("g", [0, 2, 2, None, None, None])
-    r = svc.update_grip("g", {"ornaments": [{"string": 1, "to": 3,
-                                             "type": "hammer"}]})
-    assert r["stored"] is True
-    r = svc.update_grip("g", {"ornaments": [{"string": 4, "to": 3,
-                                             "type": "hammer"}]})
-    assert "muted" in r["error"]["detail"]
+def test_no_ornament_field_survives(svc):
+    """The reverted surface stays reverted: unknown kwargs are a
+    TypeError at the service boundary (the MCP schema no longer offers
+    ornaments)."""
+    import inspect
+    from grip_mcp.service import GripService as G
+    assert "ornaments" not in inspect.signature(G.add_grip).parameters
 
 
 # --- working titles ---------------------------------------------------------

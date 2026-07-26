@@ -50,7 +50,9 @@ def test_tool_description_keywords():
     assert "LOW to HIGH" in d["add_grip"]
     assert "chosen_miss" in d["add_grip"] and "set_reading" in d["add_grip"]
     assert "working title" in d["add_grip"]
-    assert "ornaments" in d["add_grip"]
+    # Gesture idiom: both shapes as grips, adjacency in the sequence.
+    assert "BOTH shapes" in d["add_grip"]
+    assert "voice-leading" in d["add_grip"]
     assert "most literal" in d["identify"] and "decided_at" in d["identify"]
     assert "three tiers" in d["set_reading"]
     assert "FULL" in d["set_reading"]

@@ -12,7 +12,7 @@ thing, first check whether the API can make the wrong thing impossible
 (the `create` gate on set_project is the worked example).
 """
 
-DESCRIPTIONS_VERSION = "0.4.0"
+DESCRIPTIONS_VERSION = "0.5.0"
 
 SERVER_INSTRUCTIONS = """\
 grip-mcp is a deterministic fretboard engine: identify, library, render.
@@ -103,10 +103,12 @@ TOOL_DESCRIPTIONS = {
         "enharmonic-safe); a miss stores the grip anyway with a "
         "chosen_miss warning and suggestions - repair with set_reading, "
         "never re-send. No settled name yet? Put the working title in "
-        "label and leave chosen unset. ornaments records hammer-ons/"
-        "pull-offs ({string (1=lowest), to, type}) - annotation only, "
-        "drawn as a slur, never part of the grip's identity. Renders are "
-        "opt-in (render=true); prefer one strip render per sequence. "
+        "label and leave chosen unset. Hammer-ons/pull-offs: capture "
+        "BOTH shapes as separate grips and sequence them adjacently - "
+        "each gets a real identity and the transition becomes ordinary "
+        "voice-leading, which is what analysis wants; note the "
+        "technique in tags or the journal. Renders are opt-in "
+        "(render=true); prefer one strip render per sequence. "
         "Fingerings may differ per context: the same shape refingered to "
         "ease the reach into the next chord is a separate grip or an "
         "update_grip away."
