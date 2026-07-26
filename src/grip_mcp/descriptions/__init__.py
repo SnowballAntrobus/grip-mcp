@@ -12,7 +12,7 @@ thing, first check whether the API can make the wrong thing impossible
 (the `create` gate on set_project is the worked example).
 """
 
-DESCRIPTIONS_VERSION = "0.1.0"
+DESCRIPTIONS_VERSION = "0.2.0"
 
 SERVER_INSTRUCTIONS = """\
 grip-mcp is a deterministic fretboard engine: identify, library, render.
@@ -160,7 +160,29 @@ TOOL_DESCRIPTIONS = {
         "cycle detection."
     ),
     "remove_tuning": (
-        "Delete a tuning. Refuses while any grip references it or while it "
-        "is the default_tuning."
+        "Delete a tuning. Refuses while any grip references it, while it "
+        "is the default_tuning, or while it is the declared instrument "
+        "tuning."
+    ),
+    "set_instrument_tuning": (
+        "Declare what tuning this project's instrument is in, with "
+        "history ('in dadgad since ...'). Supersedes the bare "
+        "default_tuning: capture defaults follow the declaration. The "
+        "server tracks declarations, not guitars - two projects can "
+        "disagree about one physical instrument, deliberately. When a "
+        "previous declaration exists, the response includes the retune "
+        "plan from it. render=true adds a tuning card."
+    ),
+    "retune_plan": (
+        "Per-string semitone deltas between two tunings with direction "
+        "and a suggested order (downs first to release tension, then ups "
+        "to approach pitch from below, each low to high). from_ defaults "
+        "to the declared instrument tuning. Warnings are direction + "
+        "magnitude heuristics ONLY - the server cannot know the string "
+        "set, so 'up 5 semitones is aggressive' is as far as it goes; "
+        "don't present them as string-break predictions. Capo-derived "
+        "tunings compare sounding pitches (a capo change is not a peg "
+        "turn). render=true adds from/to tuning cards via the strip "
+        "machinery."
     ),
 }

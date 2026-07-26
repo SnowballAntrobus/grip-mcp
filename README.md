@@ -35,8 +35,9 @@ V1 complete on the frozen 1.0.0 quality table (Milestone-0 gate record:
 [REVIEW.md](REVIEW.md)): the full §6 tool surface — identify, library
 with first-class `chosen` readings, sequences, chart/neck rendering,
 tuning-agnostic model with capo derivations and `default_tuning` — over
-stdio MCP. Next per the roadmap (§9): Phase 2a voicing search / 2b
-instrument-tuning workflow.
+stdio MCP. Phase 2b is in too: `set_instrument_tuning` declarations with
+history, `retune_plan` with direction+magnitude warnings, and rendered
+tuning cards. Next per the roadmap (§9): Phase 2a voicing search.
 
 ## Running the server
 

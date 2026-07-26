@@ -113,6 +113,15 @@ def build_server(root=None) -> FastMCP:
     def remove_tuning(name: str) -> dict:
         return svc.remove_tuning(name)
 
+    @tool("set_instrument_tuning")
+    def set_instrument_tuning(name: str, render: bool = False) -> dict:
+        return svc.set_instrument_tuning(name, render)
+
+    @tool("retune_plan")
+    def retune_plan(to: str, from_: str | None = None,
+                    render: bool = False) -> dict:
+        return svc.retune_plan(to, from_, render)
+
     return mcp
 
 

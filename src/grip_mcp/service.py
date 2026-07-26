@@ -117,6 +117,7 @@ class GripService:
         n = len(lib["grips"])
         base = {
             "default_tuning": lib["default_tuning"],
+            "instrument": ST.current_declaration(lib),
             "tunings": lib["tunings"],
             "flags": flags,
             "counts": {"grips": n, "sequences": len(lib["sequences"])},
@@ -764,6 +765,13 @@ class GripService:
                     f"tuning {name!r} not found; known: "
                     f"{sorted(lib['tunings'])}",
                 )
+            decl = ST.current_declaration(lib)
+            if decl and decl["tuning"] == name:
+                raise ST.StoreError(
+                    "tuning_referenced",
+                    f"tuning {name!r} is the declared instrument tuning; "
+                    "declare another via set_instrument_tuning first",
+                )
             if name == lib["default_tuning"]:
                 raise ST.StoreError(
                     "tuning_referenced",
@@ -792,6 +800,157 @@ class GripService:
         except ST.StoreError as e:
             return self._err(e.code, e.detail, mutating=True)
         return self._env({"name": name}, stored=True, warnings=[])
+
+    # ------------------------------------------------------- Phase 2b (§9)
+
+    UPTUNE_AGGRESSIVE = 3    # semitones; direction + magnitude only —
+    DOWNTUNE_SLACK = 4       # per-string-set accuracy would need gauge data
+
+    def _retune(self, lib: dict, from_name: str, to_name: str) -> dict:
+        a = ST.resolve_tuning(lib, from_name)
+        b = ST.resolve_tuning(lib, to_name)
+        if len(a["pitches"]) != len(b["pitches"]):
+            raise ST.StoreError(
+                "length_mismatch",
+                f"{from_name!r} has {len(a['pitches'])} strings, "
+                f"{to_name!r} has {len(b['pitches'])}; a retune plan needs "
+                "matching string counts",
+            )
+        strings = []
+        warnings = []
+        for i, (pa, pb) in enumerate(zip(a["pitches"], b["pitches"])):
+            delta = TH.parse_pitch(pb) - TH.parse_pitch(pa)
+            direction = "hold" if delta == 0 else ("up" if delta > 0
+                                                  else "down")
+            strings.append({
+                "string": i + 1,  # 1 = lowest
+                "from": pa, "to": pb,
+                "semitones": delta, "direction": direction,
+            })
+            if delta >= self.UPTUNE_AGGRESSIVE:
+                warnings.append({
+                    "code": "large_delta",
+                    "detail": {
+                        "string": i + 1, "direction": "up",
+                        "semitones": delta,
+                        "note": f"up {delta} semitones is aggressive "
+                                "(direction + magnitude heuristic only — "
+                                "the server cannot know the string set)",
+                    },
+                })
+            elif -delta >= self.DOWNTUNE_SLACK:
+                warnings.append({
+                    "code": "large_delta",
+                    "detail": {
+                        "string": i + 1, "direction": "down",
+                        "semitones": delta,
+                        "note": f"down {-delta} semitones will be slack; "
+                                "expect intonation drift and buzz",
+                    },
+                })
+        # Suggested order: release tension first (downs, low->high), then
+        # come up TO pitch (ups, low->high). Deterministic, documented.
+        order = (
+            [s["string"] for s in strings if s["direction"] == "down"]
+            + [s["string"] for s in strings if s["direction"] == "up"]
+        )
+        plan = {
+            "from": from_name, "to": to_name,
+            "strings": strings,
+            "suggested_order": order,
+            "order_rule": "downs first (release tension), then ups "
+                          "(approach pitch from below), each low to high",
+        }
+        if a["capo"] or b["capo"]:
+            plan["capo_note"] = (
+                f"deltas compare sounding open pitches; capo accounts for "
+                f"{from_name!r}: {a['capo']}, {to_name!r}: {b['capo']} "
+                "semitones of that — a capo change is not a peg turn"
+            )
+        return plan, warnings
+
+    def _tuning_card(self, lib: dict, name: str) -> dict:
+        res = ST.resolve_tuning(lib, name)
+        return {
+            "frets": [0] * len(res["pitches"]),
+            "fingers": None,
+            "string_labels": list(res["pitches"]),
+            "name": name,
+            "capo": res["capo"],
+        }
+
+    def set_instrument_tuning(self, name: str, render: bool = False) -> dict:
+        """Project-scoped declaration with history (question 5's lean):
+        'this project's instrument is in <name> as of now'. Supersedes the
+        bare default_tuning (capture defaults follow the declaration)."""
+        warnings: list[dict] = []
+        try:
+            st = self._store()
+            lib = st.load()
+            res = ST.resolve_tuning(lib, name)  # must exist and resolve
+            prev = ST.current_declaration(lib)
+            entry = {"tuning": name, "since": _now()}
+            lib.setdefault("instrument", {"declarations": []})
+            lib["instrument"]["declarations"].append(entry)
+            lib["default_tuning"] = name  # superseding bare default_tuning
+            st.save(lib)
+        except ST.StoreError as e:
+            return self._err(e.code, e.detail, mutating=True)
+        payload = {
+            "declared": entry,
+            "resolved_pitches": res["pitches"],
+            "capo": res["capo"],
+            "default_tuning": name,
+            "declarations": len(lib["instrument"]["declarations"]),
+        }
+        if prev and prev["tuning"] != name:
+            try:
+                plan, plan_warnings = self._retune(lib, prev["tuning"], name)
+                payload["retune"] = plan
+                warnings.extend(plan_warnings)
+            except ST.StoreError:
+                pass  # prior declaration dangling; flagged elsewhere
+        if render:
+            rr = self._do_render_grips(
+                st, [self._tuning_card(lib, name)],
+                {"labels": "notes"}, prefix=name,
+            )
+            if "error" in rr:
+                warnings.append({"code": "render_failed",
+                                 "detail": rr["error"]["detail"]})
+            else:
+                payload["render"] = rr
+        return self._env(payload, stored=True, warnings=warnings)
+
+    def retune_plan(self, to: str, from_: str | None = None,
+                    render: bool = False) -> dict:
+        """Per-string deltas from -> to. `from_` defaults to the declared
+        instrument tuning, else default_tuning."""
+        try:
+            st = self._store()
+            lib = st.load()
+            if from_ is None:
+                decl = ST.current_declaration(lib)
+                from_ = decl["tuning"] if decl else lib["default_tuning"]
+            plan, warnings = self._retune(lib, from_, to)
+        except ST.StoreError as e:
+            return self._err(e.code, e.detail)
+        payload = dict(plan)
+        if render:
+            cards = [self._tuning_card(lib, from_),
+                     self._tuning_card(lib, to)]
+            rr = self._do_render_grips(
+                st, cards,
+                {"labels": "notes", "title": f"retune: {from_} -> {to}",
+                 "columns": 2},
+                prefix="retune",
+            )
+            if "error" in rr:
+                warnings.append({"code": "render_failed",
+                                 "detail": rr["error"]["detail"]})
+            else:
+                payload["render"] = rr
+        return self._env(payload, warnings=warnings)
 
     # -------------------------------------------------------------- render
 

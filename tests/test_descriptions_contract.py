@@ -14,6 +14,7 @@ EXPECTED_TOOLS = {
     "update_grip", "rename_grip", "remove_grip", "set_reading", "transpose",
     "set_sequence", "list_sequences", "remove_sequence", "render",
     "define_tuning", "remove_tuning",
+    "set_instrument_tuning", "retune_plan",  # Phase 2b
 }
 
 
@@ -58,3 +59,8 @@ def test_tool_description_keywords():
     assert "default_tuning" in d["remove_tuning"]
     assert "stale" in d["describe_workspace"] or "stale" in d["get_grip"]
     assert "ecosystem-wide" in d["list_projects"]
+    # Phase 2b: the honestly-scoped heuristic warning (§9) must stay said.
+    assert "declarations, not guitars" in d["set_instrument_tuning"]
+    assert "heuristics ONLY" in d["retune_plan"]
+    assert "aggressive" in d["retune_plan"]
+    assert "not a peg turn" in d["retune_plan"]

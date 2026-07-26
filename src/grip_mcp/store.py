@@ -111,6 +111,19 @@ def _validate_library(lib: dict) -> None:
             raise StoreError(
                 "bad_sequence", f"sequence {name!r} is not a list of grip ids"
             )
+    inst = lib.get("instrument")
+    if inst is not None:
+        if not isinstance(inst, dict) or not isinstance(
+            inst.get("declarations"), list
+        ) or not all(
+            isinstance(d, dict) and "tuning" in d and "since" in d
+            for d in inst["declarations"]
+        ):
+            raise StoreError(
+                "bad_instrument",
+                "instrument must be {declarations: [{tuning, since}, ...]} "
+                "(Phase 2b declaration history)",
+            )
 
 
 # ---------------------------------------------------------------------------
@@ -181,7 +194,23 @@ def tuning_flags(lib: dict) -> list[dict]:
                 "detail": f"grip {gid!r} references undefined tuning "
                           f"{grip['tuning']!r}",
             })
+    decl = current_declaration(lib)
+    if decl and decl["tuning"] not in lib["tunings"]:
+        flags.append({
+            "code": "dangling_instrument_tuning",
+            "detail": f"the declared instrument tuning {decl['tuning']!r} "
+                      "is not a defined tuning; re-declare via "
+                      "set_instrument_tuning or hand-edit",
+        })
     return flags
+
+
+def current_declaration(lib: dict) -> dict | None:
+    """The project's current instrument-tuning declaration (Phase 2b):
+    the last entry of the declaration history, or None. The server tracks
+    declarations, not guitars (open question 5's deliberate wrinkle)."""
+    decls = (lib.get("instrument") or {}).get("declarations") or []
+    return decls[-1] if decls else None
 
 
 # ---------------------------------------------------------------------------
