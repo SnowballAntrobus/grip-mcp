@@ -1,0 +1,482 @@
+# ============================================================================
+# grip-mcp — the quality table (Milestone 0)
+#
+# Single source of truth, serving simultaneously as:
+#   * spec appendix              (DESIGN.md §13; grammar decisions in
+#                                 docs/appendix/APPENDIX.md)
+#   * meta-test input            (tests/test_table_meta.py)
+#   * reference-script input     (tools/reference/refengine.py)
+#   * implementation table       (the V1 engine, post-freeze)
+#
+# Row ids equal the name-grammar suffix each row produces, with one
+# exception: `maj` produces the empty suffix ("C" is C major).
+#
+# Columns per row (all mandatory — enforced by the meta-test):
+#   name      suffix production ("" for maj)
+#   tones     chord-tone set: pitch-class intervals from the root, sorted,
+#             always containing 0
+#   degrees   spelling rule: strict interval stacking from the (re)spelled
+#             root; token = optional accidental (b/bb/#/##) + degree digit.
+#             Degree 9 spells as a second (letter-wise) — the add-nine.
+#             Empty iff spell = "canonical".
+#   spell     "stack"     = member spelling by degree stacking (§5.2.2)
+#             "canonical" = canonical root table applied per PC (coll only)
+#   tier      R3 tier (see [tiers]; lower ranks earlier)
+#   order     the quality-order tie-break column: global, unique, ascending =
+#             earlier. Exercised directly by the B5 fixture (Bsus2 vs Bsus4).
+#   inversion "member-index" = candidate `inversion` is the bass member's
+#             index in `degrees` (0 = root position); "none" = null (§7.4:
+#             dyads, q4, coll)
+#   discount  R2.2 discounted set (intervals whose absence is not counted).
+#             Default policy is {7} — the perfect fifth above the root; dim
+#             and aug rows discount nothing (altered fifths are defining;
+#             DESIGN §7.2), and rows without a P5 discount nothing.
+#   family    the family column (chosen tier-3 resolution; DESIGN §5.1)
+#   gen       "table" = general generation (12 roots x row, exact PC cover)
+#             "dyad"  = special-case: one candidate rooted at the bass, only
+#                       for 2-distinct-PC inputs, token by PC distance;
+#                       distance 7 produces no dyad (the `5` row covers it)
+#             "coll"  = totality catch-all: generated iff nothing else covers;
+#                       tones are the input's PC set, root at bass
+# ============================================================================
+
+[table]
+schema_version = 1
+table_version = "0.1.0"        # -> "1.0.0" at the Milestone-0 freeze
+
+[roots]
+# Canonical context-free root table, index = pitch class (flat-side, with the
+# single sharp exception F#; DESIGN §5.2.1 / decision ledger).
+canonical = ["C", "Db", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"]
+
+[tiers]
+# R3, best-first: dyad/5 < triads < sevenths < add/sus/sixth < q4 < coll.
+1 = "dyads and the bare fifth"
+2 = "triads"
+3 = "sevenths"
+4 = "add/sus/sixth"
+5 = "quartal"
+6 = "collection catch-all"
+
+[grammar]
+# The accepted `chosen` suffix set is (quality names) UNION (family names);
+# both are case-sensitive. Full grammar: docs/appendix/APPENDIX.md.
+accidentals = ["b", "#", "bb", "##"]
+families = ["dy", "5", "maj", "m", "dim", "aug", "sus", "7", "add", "q4", "coll"]
+# Dyad token set (fixed; DESIGN §5.2.4). Encoding decision (open question 2):
+# name = "dy" + token, case-sensitive. See APPENDIX.md.
+dyad_tokens = ["m2", "M2", "m3", "M3", "P4", "A4", "m6", "M6", "m7", "M7"]
+
+# ---------------------------------------------------------------------------
+# Tier 1 — dyads (special-case generated, bass-rooted) and the bare fifth
+# ---------------------------------------------------------------------------
+
+[qualities.dym2]
+name = "dym2"
+tones = [0, 1]
+degrees = ["1", "b2"]
+spell = "stack"
+tier = 1
+order = 10
+inversion = "none"
+discount = []
+family = "dy"
+gen = "dyad"
+doc = "minor-second dyad (PC distance 1); compound spread noted in the reading"
+
+[qualities.dyM2]
+name = "dyM2"
+tones = [0, 2]
+degrees = ["1", "2"]
+spell = "stack"
+tier = 1
+order = 11
+inversion = "none"
+discount = []
+family = "dy"
+gen = "dyad"
+doc = "major-second dyad (PC distance 2)"
+
+[qualities.dym3]
+name = "dym3"
+tones = [0, 3]
+degrees = ["1", "b3"]
+spell = "stack"
+tier = 1
+order = 12
+inversion = "none"
+discount = []
+family = "dy"
+gen = "dyad"
+doc = "minor-third dyad (PC distance 3)"
+
+[qualities.dyM3]
+name = "dyM3"
+tones = [0, 4]
+degrees = ["1", "3"]
+spell = "stack"
+tier = 1
+order = 13
+inversion = "none"
+discount = []
+family = "dy"
+gen = "dyad"
+doc = "major-third dyad (PC distance 4)"
+
+[qualities.dyP4]
+name = "dyP4"
+tones = [0, 5]
+degrees = ["1", "4"]
+spell = "stack"
+tier = 1
+order = 14
+inversion = "none"
+discount = []
+family = "dy"
+gen = "dyad"
+doc = "perfect-fourth dyad (PC distance 5); the inverted fifth X5/<bass> is additionally generated by the `5` table row"
+
+[qualities.dyA4]
+name = "dyA4"
+tones = [0, 6]
+degrees = ["1", "#4"]
+spell = "stack"
+tier = 1
+order = 15
+inversion = "none"
+discount = []
+family = "dy"
+gen = "dyad"
+doc = "tritone dyad (PC distance 6 = A4, sharp-leaning; DESIGN §7.1)"
+
+[qualities.dym6]
+name = "dym6"
+tones = [0, 8]
+degrees = ["1", "b6"]
+spell = "stack"
+tier = 1
+order = 16
+inversion = "none"
+discount = []
+family = "dy"
+gen = "dyad"
+doc = "minor-sixth dyad (PC distance 8)"
+
+[qualities.dyM6]
+name = "dyM6"
+tones = [0, 9]
+degrees = ["1", "6"]
+spell = "stack"
+tier = 1
+order = 17
+inversion = "none"
+discount = []
+family = "dy"
+gen = "dyad"
+doc = "major-sixth dyad (PC distance 9)"
+
+[qualities.dym7]
+name = "dym7"
+tones = [0, 10]
+degrees = ["1", "b7"]
+spell = "stack"
+tier = 1
+order = 18
+inversion = "none"
+discount = []
+family = "dy"
+gen = "dyad"
+doc = "minor-seventh dyad (PC distance 10)"
+
+[qualities.dyM7]
+name = "dyM7"
+tones = [0, 11]
+degrees = ["1", "7"]
+spell = "stack"
+tier = 1
+order = 19
+inversion = "none"
+discount = []
+family = "dy"
+gen = "dyad"
+doc = "major-seventh dyad (PC distance 11)"
+
+[qualities.5]
+name = "5"
+tones = [0, 7]
+degrees = ["1", "5"]
+spell = "stack"
+tier = 1
+order = 20
+inversion = "member-index"
+discount = []
+family = "5"
+gen = "table"
+doc = "bare fifth (power chord); PC distance 7 generates only X5, and distance-5 inputs gain the inverted X5/<bass> via ordinary table generation of this row"
+
+# ---------------------------------------------------------------------------
+# Tier 2 — triads
+# ---------------------------------------------------------------------------
+
+[qualities.maj]
+name = ""
+tones = [0, 4, 7]
+degrees = ["1", "3", "5"]
+spell = "stack"
+tier = 2
+order = 30
+inversion = "member-index"
+discount = [7]
+family = "maj"
+gen = "table"
+doc = "major triad; empty suffix (C = C major)"
+
+[qualities.m]
+name = "m"
+tones = [0, 3, 7]
+degrees = ["1", "b3", "5"]
+spell = "stack"
+tier = 2
+order = 31
+inversion = "member-index"
+discount = [7]
+family = "m"
+gen = "table"
+doc = "minor triad"
+
+[qualities.dim]
+name = "dim"
+tones = [0, 3, 6]
+degrees = ["1", "b3", "b5"]
+spell = "stack"
+tier = 2
+order = 32
+inversion = "member-index"
+discount = []
+family = "dim"
+gen = "table"
+doc = "diminished triad; discounts nothing — the d5 is defining (Xm beats Xdim at R2.2, fixtured)"
+
+[qualities.aug]
+name = "aug"
+tones = [0, 4, 8]
+degrees = ["1", "3", "#5"]
+spell = "stack"
+tier = 2
+order = 33
+inversion = "member-index"
+discount = []
+family = "aug"
+gen = "table"
+doc = "augmented triad; discounts nothing — the A5 is defining"
+
+# ---------------------------------------------------------------------------
+# Tier 3 — sevenths
+# ---------------------------------------------------------------------------
+
+[qualities.7]
+name = "7"
+tones = [0, 4, 7, 10]
+degrees = ["1", "3", "5", "b7"]
+spell = "stack"
+tier = 3
+order = 40
+inversion = "member-index"
+discount = [7]
+family = "7"
+gen = "table"
+doc = "dominant seventh"
+
+[qualities.maj7]
+name = "maj7"
+tones = [0, 4, 7, 11]
+degrees = ["1", "3", "5", "7"]
+spell = "stack"
+tier = 3
+order = 41
+inversion = "member-index"
+discount = [7]
+family = "maj"
+gen = "table"
+doc = "major seventh"
+
+[qualities.m7]
+name = "m7"
+tones = [0, 3, 7, 10]
+degrees = ["1", "b3", "5", "b7"]
+spell = "stack"
+tier = 3
+order = 42
+inversion = "member-index"
+discount = [7]
+family = "m"
+gen = "table"
+doc = "minor seventh"
+
+[qualities.m7b5]
+name = "m7b5"
+tones = [0, 3, 6, 10]
+degrees = ["1", "b3", "b5", "b7"]
+spell = "stack"
+tier = 3
+order = 43
+inversion = "member-index"
+discount = []
+family = "dim"
+gen = "table"
+doc = "half-diminished; discounts nothing — the d5 is defining"
+
+[qualities.dim7]
+name = "dim7"
+tones = [0, 3, 6, 9]
+degrees = ["1", "b3", "b5", "bb7"]
+spell = "stack"
+tier = 3
+order = 44
+inversion = "member-index"
+discount = []
+family = "dim"
+gen = "table"
+doc = "diminished seventh (bb7 spelling; symmetric rotations kept by dedup rule)"
+
+[qualities.mMaj7]
+name = "mMaj7"
+tones = [0, 3, 7, 11]
+degrees = ["1", "b3", "5", "7"]
+spell = "stack"
+tier = 3
+order = 45
+inversion = "member-index"
+discount = [7]
+family = "m"
+gen = "table"
+doc = "minor-major seventh"
+
+# ---------------------------------------------------------------------------
+# Tier 4 — add/sus/sixth (order follows DESIGN §7.2's R3 parenthetical)
+# ---------------------------------------------------------------------------
+
+[qualities.sus2]
+name = "sus2"
+tones = [0, 2, 7]
+degrees = ["1", "2", "5"]
+spell = "stack"
+tier = 4
+order = 50
+inversion = "member-index"
+discount = [7]
+family = "sus"
+gen = "table"
+doc = "suspended second"
+
+[qualities.sus4]
+name = "sus4"
+tones = [0, 5, 7]
+degrees = ["1", "4", "5"]
+spell = "stack"
+tier = 4
+order = 51
+inversion = "member-index"
+discount = [7]
+family = "sus"
+gen = "table"
+doc = "suspended fourth"
+
+[qualities.7sus4]
+name = "7sus4"
+tones = [0, 5, 7, 10]
+degrees = ["1", "4", "5", "b7"]
+spell = "stack"
+tier = 4
+order = 52
+inversion = "member-index"
+discount = [7]
+family = "sus"
+gen = "table"
+doc = "dominant seventh suspended fourth; family `sus` (required by the Bsus-on-Q ambiguity fixture)"
+
+[qualities.add9]
+name = "add9"
+tones = [0, 2, 4, 7]
+degrees = ["1", "3", "5", "9"]
+spell = "stack"
+tier = 4
+order = 53
+inversion = "member-index"
+discount = [7]
+family = "add"
+gen = "table"
+doc = "added ninth (9 spells as a second, letter-wise)"
+
+[qualities.madd9]
+name = "madd9"
+tones = [0, 2, 3, 7]
+degrees = ["1", "b3", "5", "9"]
+spell = "stack"
+tier = 4
+order = 54
+inversion = "member-index"
+discount = [7]
+family = "m"
+gen = "table"
+doc = "minor added ninth"
+
+[qualities.6]
+name = "6"
+tones = [0, 4, 7, 9]
+degrees = ["1", "3", "5", "6"]
+spell = "stack"
+tier = 4
+order = 55
+inversion = "member-index"
+discount = [7]
+family = "maj"
+gen = "table"
+doc = "major sixth (C6/Am7 PC-set coincidence kept by dedup rule)"
+
+[qualities.m6]
+name = "m6"
+tones = [0, 3, 7, 9]
+degrees = ["1", "b3", "5", "6"]
+spell = "stack"
+tier = 4
+order = 56
+inversion = "member-index"
+discount = [7]
+family = "m"
+gen = "table"
+doc = "minor sixth (Cm6/Am7b5 PC-set coincidence kept by dedup rule)"
+
+# ---------------------------------------------------------------------------
+# Tier 5 — quartal
+# ---------------------------------------------------------------------------
+
+[qualities.q4]
+name = "q4"
+tones = [0, 5, 10]
+degrees = ["1", "4", "b7"]
+spell = "stack"
+tier = 5
+order = 60
+inversion = "none"
+discount = []
+family = "q4"
+gen = "table"
+doc = "stack of two perfect fourths (3 notes). The 3-fourths/4-note stack is deliberately NOT in the freeze floor: no Set A/B fixture requires it (membership criterion, DESIGN §13), and admitting it would insert F#q4-on-4 at context rank #2 of the Q fixture, contradicting the documented `Bsus4/F#` #2. See REVIEW.md."
+
+# ---------------------------------------------------------------------------
+# Tier 6 — totality catch-all
+# ---------------------------------------------------------------------------
+
+[qualities.coll]
+name = "coll"
+tones = [0]
+degrees = []
+spell = "canonical"
+tier = 6
+order = 70
+inversion = "none"
+discount = []
+family = "coll"
+gen = "coll"
+doc = "unclassified collection: generated iff no table quality covers the input's PC set; root at bass, tones = the input set, zero missing; members spelled per the canonical root table applied to each PC. `tones` here is a placeholder ([0]) — the real set is the input's."
