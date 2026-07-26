@@ -31,13 +31,41 @@ docs/                       design doc + Milestone-0 appendix
 
 ## Status
 
-Milestone 0 complete: the quality table is frozen at 1.0.0 (gate review
-record: [REVIEW.md](REVIEW.md)). Next: V1 per DESIGN.md §6. Roadmap: §9.
+V1 complete on the frozen 1.0.0 quality table (Milestone-0 gate record:
+[REVIEW.md](REVIEW.md)): the full §6 tool surface — identify, library
+with first-class `chosen` readings, sequences, chart/neck rendering,
+tuning-agnostic model with capo derivations and `default_tuning` — over
+stdio MCP. Next per the roadmap (§9): Phase 2a voicing search / 2b
+instrument-tuning workflow.
+
+## Running the server
+
+```
+uv run grip-mcp        # stdio MCP server
+```
+
+Claude Desktop / any MCP client config:
+
+```json
+{
+  "mcpServers": {
+    "grip": {
+      "command": "uvx",
+      "args": ["--from", "/path/to/grip-mcp", "grip-mcp"],
+      "env": { "MUSIC_PROJECT_ROOT": "~/music_projects" }
+    }
+  }
+}
+```
+
+`MUSIC_PROJECT_ROOT` defaults to `~/music_projects/`; each project keeps
+its grips in `<project>/grip/library.json` (human-editable,
+git-friendly) with renders beside it.
 
 ## Development
 
 ```
-uv sync                      # dev group (pytest); no runtime deps yet
+uv sync                      # runtime deps (mcp, resvg-py) + pytest
 uv run pytest                # unconditional suite — no optional deps required
 uv sync --extra m21          # adds the music21 oracle checks
 uv run pytest
