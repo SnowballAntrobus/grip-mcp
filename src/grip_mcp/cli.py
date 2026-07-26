@@ -1,14 +1,9 @@
-"""Entry point stub. The V1 MCP server replaces this after the table freeze."""
-
-import sys
+"""Entry point: the grip-mcp stdio server."""
 
 
 def main() -> int:
-    sys.stderr.write(
-        "grip-mcp: Milestone 0 (quality-table freeze) — the V1 MCP server is "
-        "not implemented yet. See docs/DESIGN.md §13.\n"
-    )
-    return 1
+    from .server import main as server_main
+    return server_main()
 
 
 if __name__ == "__main__":

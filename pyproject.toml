@@ -8,7 +8,7 @@ license = { text = "MIT" }
 authors = [{ name = "Dante Gil-Marin", email = "drgilmarin@icloud.com" }]
 # Milestone 0 is dependency-free (tomllib is stdlib on >=3.11).
 # The `mcp` SDK, resvg bindings, etc. arrive with V1 per docs/DESIGN.md §4.
-dependencies = ["resvg-py>=0.3"]
+dependencies = ["mcp>=1.9", "resvg-py>=0.3"]
 
 [project.optional-dependencies]
 # Test oracle and Phase-3 spikes only; promoted to core in Phase 3 (DESIGN §4).
