@@ -154,12 +154,13 @@ def build_server(root=None) -> FastMCP:
                                frets, labels, theme)
 
     @tool("set_rhythm")
-    def set_rhythm(name: str, meter: list[int], length,
-                   events: list[dict],
+    def set_rhythm(name: str, meter: list[int] | None = None,
+                   length=None, events: list[dict] | None = None,
                    swing: dict | str | None = None,
-                   grouping: list[int] | None = None) -> dict:
+                   grouping: list[int] | None = None,
+                   notation: str | None = None) -> dict:
         return svc.set_rhythm(name, meter, length, events, swing,
-                              grouping)
+                              grouping, notation)
 
     @tool("list_rhythms")
     def list_rhythms() -> dict:

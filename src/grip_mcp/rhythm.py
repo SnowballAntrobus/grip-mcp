@@ -48,18 +48,21 @@ def round_half_up(x: Fraction) -> int:
 
 
 def parse_beats(x, what: str = "value") -> Fraction:
-    """Beats as a number or a fraction string ("1/3", "3.5")."""
+    """Beats as a number or a fraction string ("1/3", "3.5", and the
+    canonical mixed form "2+1/3" — NOTATION_DESIGN §1)."""
     try:
         if isinstance(x, bool):
             raise ValueError
-        if isinstance(x, (int, float, str)):
+        if isinstance(x, (int, float)):
             return Fraction(x)
+        if isinstance(x, str):
+            return sum((Fraction(p) for p in x.split("+")), Fraction(0))
     except (ValueError, ZeroDivisionError, TypeError):
         pass
     raise RhythmError(
         "bad_beats",
         f"{what} {x!r} is not a beat count (number or fraction string "
-        "like '1/3')",
+        "like '1/3' or '2+1/3')",
     )
 
 

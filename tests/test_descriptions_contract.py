@@ -93,3 +93,19 @@ def test_tool_description_keywords():
     assert "overwritten" in d["render_audio"]     # single-file, no GC
     assert "ONLY" in d["render_audio"]            # stagger scope
     assert "velocity never weights" in d["analyze"]
+    # Notation (NOTATION_DESIGN rev 2): relay, never redraw.
+    assert "notation" in d["set_rhythm"]
+    assert "notation_conflict" in d["set_rhythm"]
+    assert "echo-verify" in d["set_rhythm"]
+    assert "never draw your own grid" in d["set_rhythm"]
+    assert "governing meter" in d["set_sequence"]  # attachment echo
+    assert "verbatim" in d["set_sequence"]
+    assert "verbatim" in d["list_rhythms"]
+
+
+def test_server_instructions_notation_keywords():
+    s = D.SERVER_INSTRUCTIONS
+    assert "VERBATIM" in s
+    assert "never draw your own grid" in s
+    assert "echo-verify" in s
+    assert "don't guess" in s  # the dotless-idiom posture

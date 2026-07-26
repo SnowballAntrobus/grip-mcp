@@ -834,11 +834,30 @@ class GripService:
                              "detail": {"name": name,
                                         "items": len(steps),
                                         "meter": fields.get("meter")}})
+            # Secondary verify at attachment (NOTATION_DESIGN §5):
+            # echo notation for the patterns assigned IN THIS CALL, in
+            # the actual governing meter — exact, not an example.
+            echo = {}
+            if "meter" in fields:
+                from . import notation as NT
+                for rname in dict.fromkeys(
+                        ([rhythm] if rhythm else []) + step_rhythms):
+                    if rname in RH.BUILTINS:
+                        pat = RH.builtin_pattern(
+                            rname, fields["meter"],
+                            fields.get("grouping")
+                            or RH.default_grouping(fields["meter"][0]))
+                    else:
+                        pat = lib["rhythms"][rname]
+                    echo[rname] = NT.render_notation(pat)
         except (ST.StoreError, RH.RhythmError) as e:
             return self._err(e.code, e.detail, mutating=True)
-        return self._env({"name": name,
-                          "sequence": lib["sequences"][name],
-                          "flattened": flat}, stored=True, warnings=[])
+        payload = {"name": name,
+                   "sequence": lib["sequences"][name],
+                   "flattened": flat}
+        if echo:
+            payload["notation"] = echo
+        return self._env(payload, stored=True, warnings=[])
 
     def list_sequences(self) -> dict:
         try:
@@ -1110,12 +1129,27 @@ class GripService:
             }
         return RH.realize(lib, sequence, grips_info)
 
-    def set_rhythm(self, name: str, meter: list, length,
-                   events: list, swing=None,
-                   grouping: list | None = None) -> dict:
+    @staticmethod
+    def _notation_agree(field: str, param, parsed) -> None:
+        if param != parsed:
+            raise ST.StoreError(
+                "notation_conflict",
+                f"{field} from the notation ({parsed!r}) disagrees with "
+                f"the {field} parameter ({param!r}); when both are "
+                "present they must agree (NOTATION_DESIGN §4)",
+            )
+
+    def set_rhythm(self, name: str, meter: list | None = None,
+                   length=None, events: list | None = None, swing=None,
+                   grouping: list | None = None,
+                   notation: str | None = None) -> dict:
         """Define/replace a rhythm pattern — authoring macros (verbs,
         accent-map velocities, let-ring durations) expand at definition;
-        storage is fully expanded, integer ticks (RHYTHM_DESIGN §5)."""
+        storage is fully expanded, integer ticks (RHYTHM_DESIGN §5).
+        `notation` XOR `events` (NOTATION_DESIGN §5); with notation,
+        meter/length/swing/grouping may also arrive as parameters under
+        the uniform agree-or-conflict rule (§4)."""
+        from . import notation as NT
         try:
             st = self._store()
             lib = st.load()
@@ -1126,18 +1160,57 @@ class GripService:
                     f"{name!r} is a built-in (meter-parametric spec "
                     "function) and is immutable",
                 )
-            m = RH.validate_meter(meter)
+            if (events is None) == (notation is None):
+                raise ST.StoreError(
+                    "exactly_one_of",
+                    "pass exactly one of events=[...] or "
+                    "notation='...' (NOTATION_DESIGN §5)",
+                )
+            swing_specified = swing is not None
+            swing_norm = (None if swing == "straight"
+                          else RH.validate_swing(swing)
+                          if swing is not None else None)
+            if notation is not None:
+                p = NT.parse_notation(notation)
+                if meter is not None:
+                    self._notation_agree(
+                        "meter", RH.validate_meter(meter), p["meter"])
+                m = p["meter"]
+                if length is not None:
+                    self._notation_agree(
+                        "length", RH.snap_ticks(length, "length"),
+                        p["length_ticks"])
+                length_ticks = p["length_ticks"]
+                if "swing" in p:
+                    if swing_specified:
+                        self._notation_agree("swing", swing_norm,
+                                             p["swing"])
+                    swing_specified, swing_norm = True, p["swing"]
+                if "grouping" in p:
+                    if grouping is not None:
+                        self._notation_agree(
+                            "grouping",
+                            RH.validate_grouping(grouping, m[0]),
+                            p["grouping"])
+                    grouping = p["grouping"]
+                events = p["events"]
+            else:
+                if meter is None or length is None:
+                    raise ST.StoreError(
+                        "bad_input",
+                        "with events, meter and length are required",
+                    )
+                m = RH.validate_meter(meter)
+                length_ticks = RH.snap_ticks(length, "length")
             g = (RH.validate_grouping(grouping, m[0])
                  if grouping is not None else RH.default_grouping(m[0]))
-            length_ticks = RH.snap_ticks(length, "length")
             if length_ticks < 1:
                 raise RH.RhythmError("bad_beats",
                                      "length must be positive")
             expanded = RH.expand_events(events, length_ticks, m, g)
             pat: dict = {"length_ticks": length_ticks, "meter": m}
-            if swing is not None:
-                pat["swing"] = (None if swing == "straight"
-                                else RH.validate_swing(swing))
+            if swing_specified:
+                pat["swing"] = swing_norm
             if grouping is not None:
                 pat["grouping"] = g
             pat["events"] = expanded
@@ -1163,28 +1236,54 @@ class GripService:
                                         "events": len(expanded)}})
         except (ST.StoreError, RH.RhythmError) as e:
             return self._err(e.code, e.detail, mutating=True)
+        # The echo-verify for rhythm (NOTATION_DESIGN §0): the response
+        # carries the notation rendered from what was STORED.
         return self._env({"name": name,
-                          "rhythm": lib["rhythms"][name]},
+                          "rhythm": lib["rhythms"][name],
+                          "notation": NT.render_notation(
+                              lib["rhythms"][name])},
                          stored=True, warnings=[])
 
+    @staticmethod
+    def _labeled_builtin(name: str, meter: list) -> str:
+        from . import notation as NT
+        pat = RH.builtin_pattern(name, meter,
+                                 RH.default_grouping(meter[0]))
+        lines = NT.render_notation(pat).split("\n")
+        label = (f"# in {meter[0]}/{meter[1]}; adapts to the governing "
+                 "meter")
+        return "\n".join([lines[0], label] + lines[1:])
+
     def list_rhythms(self) -> dict:
+        from . import notation as NT
         try:
             st = self._store()
             lib = st.load()
         except ST.StoreError as e:
             return self._err(e.code, e.detail)
+        rhythms = lib.get("rhythms") or {}
+        builtins = {
+            "note": "meter-parametric spec functions, instantiated "
+                    "against the governing meter at realization; "
+                    "immutable (RHYTHM_DESIGN §5)",
+        }
+        for b, desc in (("whole", "one strum spanning the bar"),
+                        ("quarters", "a strum on every beat"),
+                        ("bass-strum", "symbolic bass on group starts, "
+                                       "strum on other beats"),
+                        ("arp-up", "one bar-spanning arp")):
+            entry = {"desc": desc,
+                     "notation": self._labeled_builtin(b, [4, 4])}
+            if b == "bass-strum":
+                # The one built-in behavior a 4/4 example cannot
+                # exhibit: group-start logic (NOTATION_DESIGN §5).
+                entry["notation_6_8"] = self._labeled_builtin(b, [6, 8])
+            builtins[b] = entry
         return self._env({
-            "rhythms": lib.get("rhythms") or {},
-            "builtins": {
-                "note": "meter-parametric spec functions, instantiated "
-                        "against the governing meter at realization; "
-                        "immutable (RHYTHM_DESIGN §5)",
-                "whole": "one strum spanning the bar",
-                "quarters": "a strum on every beat",
-                "bass-strum": "symbolic bass on group starts, strum on "
-                              "other beats",
-                "arp-up": "one bar-spanning arp",
-            },
+            "rhythms": rhythms,
+            "notation": {n: NT.render_notation(p)
+                         for n, p in rhythms.items()},
+            "builtins": builtins,
         })
 
     def remove_rhythm(self, name: str, force: bool = False) -> dict:

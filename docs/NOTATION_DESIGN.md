@@ -1,13 +1,20 @@
-# Rhythm Notation — Design Draft (rev 2)
+# Rhythm Notation — Design (rev 2, ratified)
 
-Status: **draft, offered for ratification — not implemented.** Rev 2
-incorporates the adversarial review of rev 1 (see git history): four
-blockers — the counting-row lexical ambiguity, two missing
-representability conditions, the string-9 cap, the tool-name
-reconciliation — plus findings 5–7, resolved inline. Depends on
-[RHYTHM_DESIGN.md](RHYTHM_DESIGN.md) (ratified rev 3); nothing here
-changes that model. House rules from [DESIGN.md](DESIGN.md) apply:
-deterministic, documented, mechanical — never tuned weights.
+Status: **ratified 2026-07-26; implemented.** The final review's two
+gate conditions were discharged at the gate: (1) the mechanical check
+of ratified RHYTHM rev 3 found zero occurrences of `define_rhythm`,
+`set_rhythm`, or `set_sequence` — the binding in §5 contradicts no
+ratified clause (the rev-1 naming is the only naming that ever
+existed in text, and it did not survive into revs 2–3); (2) the `@v`
+range rule is in §2/§4. The remaining editorial pins from that review
+are folded in below. Rev 2 incorporates the adversarial review of
+rev 1 (see git history): four blockers — the counting-row lexical
+ambiguity, two missing representability conditions, the string-9 cap,
+the tool-name reconciliation — plus findings 5–7, resolved inline.
+Depends on [RHYTHM_DESIGN.md](RHYTHM_DESIGN.md) (ratified rev 3);
+nothing here changes that model. House rules from
+[DESIGN.md](DESIGN.md) apply: deterministic, documented, mechanical —
+never tuned weights.
 
 ## 0. Scope and authority
 
@@ -42,8 +49,9 @@ case.
 
 ## 1. The grid form
 
-A notation is a header line, comment lines (ignored by parse), and
-one line per bar:
+A notation is a header line, comment lines, and one line per bar.
+**Comments are legal anywhere; the first non-comment line is the
+header** (order beyond that is bars in order):
 
 ```
 4/4 swing 2:3 @ 1/2
@@ -62,7 +70,12 @@ meter is the pattern's meter (patterns bind to one meter,
 RHYTHM_DESIGN §5); swing's subdivision displays in beats (fraction
 form, `@ 1/2` = 480 ticks), matching the beats-in interface; grouping
 only when it overrides the default. `swing straight` renders an
-explicit `"swing": null`.
+explicit `"swing": null`. **Canonical fraction form** everywhere a
+fraction renders (headers, list onsets, durations): lowest terms,
+proper mixed number `b+n/d` (`7/2` beats of length is `7/2`; the
+onset one-and-a-third beats past bar start is `2+1/3`); `swing N:D`
+likewise lowest terms. Always exactly representable on the 960 grid,
+so zero-loss holds — the canonical spelling is what goldens pin.
 
 **Grid resolution** (deterministic): the coarsest step from the
 ladder — beat 960, halves 480, triplets 320, quarters 240, eighths
@@ -90,7 +103,7 @@ Per-slot, exactly one token:
 | `.` | no onset |
 | `D` | `{"strings": "all"}` (down-strum: physical 1→n) |
 | `U` | `{"strings": "all", "up": true}` |
-| `B` | `{"string": "bass"}` (symbolic — lowest pitch) |
+| `B` | `{"string": "bass"}` (symbolic — lowest pitch; a doubled-unison tie breaks to the lowest physical index, pinning the shipped realization) |
 | `3`, `12` | `{"string": n}` (physical sounding index; multi-digit legal — slots are whitespace-separated, so `12` is lexically unambiguous) |
 | `[135]` | `{"strings": [1,3,5]}` — compact form, single-digit indices only |
 | `[1,10,12]` | comma form, any indices; render emits compact when all ≤ 9, comma form otherwise |
@@ -115,7 +128,10 @@ where the map says more; anything else renders the exact escape
 **Accent micro-grammar:** exactly one of {plain, `>` prefix, `( )`
 wrap, `@v` suffix} per token — `>` and `( )` are mutually exclusive,
 `@v` excludes both (`>D@93` is an error); `^` binds inside the
-bracket before any accent (`>[1,3,5]^` is well-formed). **Redundant
+bracket before any accent (`>[1,3,5]^` is well-formed). **`@v`
+enforces 1–127 at parse** — `D@0` and `D@128` are instructive
+refusals (velocity 0 is MIDI note-off, forbidden in storage;
+RHYTHM §3). The escape reopens no door the storage invariant closed. **Redundant
 accent ink is accepted and normalized**, not refused: `>D` written at
 a bar start (where the map already says 108) parses to 108 and
 re-renders plain — the echo showing the canonical form is the echo
@@ -154,9 +170,10 @@ Any pattern renders in list form; grid-unrepresentable ones render
 token, optional `dur <beats>` when not let-ring. Fully
 round-trippable with zero loss; the grid is the readable subset, the
 list is the honest superset. Render picks: grid when representable,
-list otherwise, with the reason as a comment line. The named
-representability conditions (each with its reason string, blocking
-finding 2):
+list otherwise, with **every applicable reason emitted as its own
+comment line, in the order listed below** — the fallback explanation
+never under-reports. The named representability conditions (each with
+its reason string, blocking finding 2):
 
 * `# off-grid onsets` — onsets fitting no ladder step.
 * `# explicit durations` — durations deviating from let-ring.
@@ -178,19 +195,27 @@ finding 2):
   meter_mismatch.
 * Unknown tokens, malformed brackets or escapes, mixed accent marks:
   errors name the token and the vocabulary.
-* **Header/parameter agreement, uniformly:** meter, swing, and
-  grouping may each arrive in the header or as a tool parameter;
-  when both are present they must agree — disagreement is an error
-  naming both values (`notation_conflict`), never a preference.
+* **Header/parameter agreement, uniformly:** meter, swing, grouping,
+  and **length** may each arrive in the notation or as a tool
+  parameter (grid notation *implies* length as bar count × bar
+  ticks; list notation states it); when both are present they must
+  agree — disagreement is an error naming both values
+  (`notation_conflict`), never a preference.
+* `@v` outside 1–127 refuses instructively (§2) — the one parse rule
+  guarding a storage invariant.
 
 ## 5. Surfacing (no new tools)
 
-Tool-name note (blocking finding 4): the implemented surface —
-`set_rhythm` defines patterns; `set_sequence` attaches them —
-follows ratified RHYTHM rev 3, which names no definition tool;
-rev 1's `define_rhythm`/`set_rhythm(sequence, ...)` split did not
-survive that document's own full-text rev 2 rewrite. This doc binds
-to the shipped names; no supersession of any ratified clause occurs.
+Tool-name note (blocking finding 4, verified mechanically at the
+gate): ratified RHYTHM rev 3 contains zero occurrences of
+`define_rhythm`, `set_rhythm`, or `set_sequence` — as does rev 2;
+the rev-1 naming (`define_rhythm` defines, `set_rhythm(sequence,…)`
+attaches) is the only naming that ever existed in text, carried
+forward by revs 2–3 only as the attachment *data model* ("unchanged
+from rev 1"'s parenthetical), never as tool names. The implemented
+surface — `set_rhythm` defines patterns; `set_sequence` attaches
+them — therefore contradicts no ratified clause. This doc binds to
+the shipped names; no supersession occurs.
 
 * `set_rhythm` accepts `notation: <text>` XOR `events` (+`length`);
   meter/swing/grouping come from the header or the existing
@@ -199,9 +224,15 @@ to the shipped names; no supersession of any ratified clause occurs.
   from what was stored) — the echo-verify. `list_rhythms` carries it
   per pattern.
 * **Secondary verify at attachment** (from review): `set_sequence`'s
-  response echoes the notation of each distinct assigned pattern.
-  Built-ins render there in the sequence's **actual governing meter**
-  — known at attachment, so the preview is exact, not an example.
+  response echoes notation for **the patterns assigned in this call**
+  (the default `rhythm` and per-step rhythms named in the call, not
+  every pattern a large song touches — response-size thresholds are
+  real, DESIGN §6.2's inline cutoff being the precedent), keyed per
+  distinct **(pattern, governing meter)** pair — under mixed-meter
+  `@ref` structures the same built-in previews once per meter it
+  will realize in. Built-ins render there in the **actual governing
+  meter** — known at attachment, so the preview is exact, not an
+  example.
 * In `list_rhythms`, where no meter context exists, built-ins render
   as a fixed 4/4 example, labeled (`# in 4/4; adapts to the
   governing meter`) — and `bass-strum` alone carries a second
@@ -229,6 +260,12 @@ its message, `notation_conflict` per field; whitespace/padding/`|`
 robustness; all-`.` rest bars; odd-meter counting rows (7/8 at the
 beat grid counts `1 2 3 4 5 6 7` — the beat is the eighth) pinned
 before anyone argues about them; the `bass-strum` 6/8 preview line.
+From the final review: `[12]` compact (strings 1 and 2) versus bare
+`12` (string twelve) — the one plausible confusion the vocabulary
+permits; the mixed-meter attachment echo (one preview per (pattern,
+meter) pair); a `swing straight` header round trip; a pattern
+triggering multiple §3 reasons at once (every applicable comment, in
+order); `@0`/`@128` refusals.
 
 ## 7. Non-goals
 
@@ -249,6 +286,11 @@ counting tokens `1 e & a` / `1 t l` stand, free to be human now that
 the row is a comment; built-in previews are the fixed labeled 4/4
 example plus `bass-strum`'s 6/8 line, with exact-meter previews at
 attachment; the 120 rung stays (its cost is paid only by patterns
-that use it) and 160 stays a fallback. No open questions remain.
-This revision is offered for ratification; implementation starts
-only on acceptance.
+that use it) and 160 stays a fallback.
+
+The final review ratified conditionally; both conditions were
+discharged at the gate (see Status) and its editorial pins — the `@v`
+range rule, `length` in the uniform agreement rule, canonical
+fraction form, multi-reason fallback comments, comments-anywhere
+placement, attachment-echo scoping, the symbolic-bass tie — are
+folded into §§1–6 above. No open questions remain.

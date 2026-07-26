@@ -213,6 +213,14 @@ language throughout — the conversation is the control surface.
       G first (physical order — the jangle).
 - [ ] Mismatch: assign a 3/4 pattern to a 4/4 sequence → refused at
       assignment, not silently reinterpreted.
+- [ ] Notation (NOTATION_DESIGN): say *"the verse strum is
+      B D D . B D D ."* → the pattern stores and Claude reads back the
+      engine's grid (with the `# 1 & 2 & …` counting row) VERBATIM —
+      never its own drawing. Say *"the strum is D D U U D U"* (no
+      dots) → a refusal explaining the placement is ambiguous, asking
+      you to dot it. Ask *"what rhythms do I have?"* → grids relayed
+      from list_rhythms, built-ins as labeled 4/4 examples
+      (bass-strum also in 6/8).
 
 ---
 Found something? The fix lands in one of exactly three places: the

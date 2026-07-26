@@ -12,7 +12,7 @@ thing, first check whether the API can make the wrong thing impossible
 (the `create` gate on set_project is the worked example).
 """
 
-DESCRIPTIONS_VERSION = "0.7.0"
+DESCRIPTIONS_VERSION = "0.8.0"
 
 SERVER_INSTRUCTIONS = """\
 grip-mcp is a deterministic fretboard engine: identify, library, render.
@@ -65,6 +65,16 @@ straight under a swung parent. analyze gains a timeline and
 tick-weighted keys when meter is set; export_timeline/export_midi feed
 the bus (cdp-mcp reads the JSON); render_audio writes ONE audition wav
 per sequence, overwritten each call.
+
+Notation: the engine renders every pattern as a counting grid
+(header, '# 1 & 2 & 3 & 4 &' comment, one line per bar of tokens:
+D/U strums, B bass, digits, [135] subsets, A/V arps, '.' rests) and
+parses the same form back. Present the engine's notation VERBATIM -
+never draw your own grid; the rendered string riding set_rhythm and
+set_sequence responses is the echo-verify for a misplaced onset, so
+read it back to the user before confirming. When the user writes a
+dotless strum ('D D U U D U'), the parser refuses because placement
+is ambiguous - relay the refusal and ask, don't guess dots for them.
 
 Projects: set_project refuses to create unless create=true; before passing
 create=true, confirm with the user that a NEW project is intended (say
@@ -181,7 +191,9 @@ TOOL_DESCRIPTIONS = {
         "override. A user pattern in another meter is refused at "
         "assignment (meter_mismatch); a child sequence with its own "
         "meter must carry its own tempo. Steps with no assignment "
-        "realize as 'whole'."
+        "realize as 'whole'. The response echoes notation for the "
+        "patterns assigned in this call, rendered in the actual "
+        "governing meter - relay it verbatim as the secondary verify."
     ),
     "list_sequences": (
         "List sequences: raw items (incl. @references) plus the "
@@ -246,11 +258,21 @@ TOOL_DESCRIPTIONS = {
         "{subdivision (ticks, mandatory), ratio {num, den}} or "
         "'straight'. Patterns bind to ONE meter; assignment elsewhere "
         "is refused (meter_mismatch). Built-ins whole/quarters/"
-        "bass-strum/arp-up are immutable and meter-parametric."
+        "bass-strum/arp-up are immutable and meter-parametric. "
+        "ALTERNATIVELY pass notation='...' XOR events: a header line "
+        "('4/4 swing 2:3 @ 1/2'), '#' comment lines, and one line of "
+        "tokens per bar ('B D D . B D D .'); meter/length/swing/"
+        "grouping given both ways must agree (notation_conflict "
+        "otherwise). The response always carries the notation rendered "
+        "from what was STORED - relay it verbatim as the echo-verify; "
+        "never draw your own grid."
     ),
     "list_rhythms": (
         "List rhythm patterns: the project's stored (fully expanded) "
-        "patterns plus the four meter-parametric built-ins."
+        "patterns plus the four meter-parametric built-ins, each with "
+        "its rendered notation (built-ins as a labeled 4/4 example; "
+        "bass-strum also in 6/8, where group-start logic shows). "
+        "Present the engine's notation verbatim."
     ),
     "remove_rhythm": (
         "Delete a rhythm pattern. Refuses while any sequence assigns "
