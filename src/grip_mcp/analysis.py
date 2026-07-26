@@ -195,6 +195,25 @@ def rank_keys(steps: list[dict], names: list[str], top: int = 3) -> list:
     ]
 
 
+def rank_keys_weighted(steps: list[dict], names: list[str],
+                       spans: list[int], top: int = 3) -> list:
+    """RHYTHM_DESIGN §6: with a timeline, key scores gain ticks =
+    sum of step spans (repeat included) over R0-passing steps —
+    velocity does NOT weight; ties fall back to the Phase-3 ordinal
+    chain (passes, |signature|, major-first, tonic PC)."""
+    per_key = passing_keys(steps, names)
+    ticks = {n: sum(spans[i] for i in per_key[n]) for n in per_key}
+    scored = sorted(
+        per_key,
+        key=lambda n: (-ticks[n],) + _key_rank(n, len(per_key[n])),
+    )
+    return [
+        {"key": n, "passes": len(per_key[n]), "of": len(steps),
+         "ticks": ticks[n]}
+        for n in scored[:top]
+    ]
+
+
 def segment(steps: list[dict], names: list[str]) -> list[dict]:
     per_key = passing_keys(steps, names)
     segments = []
@@ -222,10 +241,13 @@ def segment(steps: list[dict], names: list[str]) -> list[dict]:
 # analyze (PHASE3 §2)
 # ---------------------------------------------------------------------------
 
-def analyze(steps: list[dict], keys: list[str] | None = None) -> dict:
+def analyze(steps: list[dict], keys: list[str] | None = None,
+            spans: list[int] | None = None) -> dict:
     """steps[i]: {grip, name, named, midi, root_pc, quality, bass_pc,
     pitches (spelled, low->high)} — built by the service from the
-    library + derived caches (display candidate = chosen else top)."""
+    library + derived caches (display candidate = chosen else top).
+    spans (integer ticks per step) switches key ranking to the
+    duration-weighted variant (RHYTHM_DESIGN §6)."""
     key_names = keys if keys else ALL_KEYS
     for name in key_names:
         TH.Key.parse(name)  # instructive validation up front
@@ -268,7 +290,8 @@ def analyze(steps: list[dict], keys: list[str] | None = None) -> dict:
             },
         })
 
-    ranked = rank_keys(steps, key_names)
+    ranked = (rank_keys_weighted(steps, key_names, spans)
+              if spans is not None else rank_keys(steps, key_names))
     numerals = {}
     for entry in ranked:
         key = TH.Key.parse(entry["key"])

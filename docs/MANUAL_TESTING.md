@@ -24,7 +24,7 @@ language throughout — the conversation is the control surface.
 }
 ```
 
-- [ ] Restart Claude Desktop; confirm the `grip` server shows 26 tools.
+- [ ] Restart Claude Desktop; confirm the `grip` server shows 33 tools.
       (First launch resolves `mcp` + `resvg-py`; give it a moment.)
 - [ ] Renders and libraries land under `~/grip_sessions/` (set
       MUSIC_PROJECT_ROOT to share a root with cdp-mcp) — keep a Finder
@@ -188,6 +188,31 @@ language throughout — the conversation is the control surface.
 - [ ] Thumb: capture a thumb-over shape (finger 0) → renders as T in
       the dot; ask for voicings with thumb allowed → suggestions feed
       back into add_grip unchanged.
+
+## Rhythm (RHYTHM_DESIGN, ratified rev 3)
+
+- [ ] *"give the loop a bass-strum feel in 4/4 at 96"* → sequence gains
+      meter/tempo/rhythm; `analyze` now shows the timeline with 1-based
+      bar:beat placements and tick-weighted keys.
+- [ ] *"swing it"* → Claude must ask (or state) the subdivision — there
+      is no default; a swung pattern's off-beats move in the exports'
+      realized events while `events_stored` stays straight.
+- [ ] *"let me hear it"* → `render_audio` writes ONE
+      `<seq>__audition.wav` (overwritten each call — check the renders
+      folder doesn't accumulate WAVs); velocity audibly shapes accents;
+      strums splay slightly (the 12 ms stagger lives only here).
+- [ ] *"export it for cdp"* → `exports/<seq>__<hash8>.json` carries
+      both events_stored and realized events; `<seq>__<hash8>.mid`
+      opens in a DAW at the right tempo — in compound meters the DAW
+      shows quarter-note BPM (inherent to MIDI, not a bug).
+- [ ] Meter change: a 4/4 song with a 6/8 bridge (`@bridge` carrying
+      its own meter AND tempo) exports one MIDI with both time
+      signatures; a bridge with meter but no tempo is refused.
+- [ ] Uke check (reentrant): on a high-G uke tuning, `bass-strum`'s
+      bass lands on the C string (lowest pitch), while a strum crosses
+      G first (physical order — the jangle).
+- [ ] Mismatch: assign a 3/4 pattern to a 4/4 sequence → refused at
+      assignment, not silently reinterpreted.
 
 ---
 Found something? The fix lands in one of exactly three places: the

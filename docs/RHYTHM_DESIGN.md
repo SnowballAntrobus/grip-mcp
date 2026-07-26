@@ -1,13 +1,15 @@
 # Rhythm — Design Draft (rev 3)
 
-Status: **draft, offered for ratification — not implemented.** Rev 3
-incorporates the second (adversarial) review of rev 2 (see git
-history): four blockers — SMF PPQ under meter change, string indexing
-on reentrant tunings, swing endpoint warp, the audio substrate — plus
-findings 5–8 and the minors, resolved inline at their homes. Rev 1's
-resolutions were verified closed by that review; nothing reopened.
-House rules from [DESIGN.md](DESIGN.md) apply: deterministic,
-documented, mechanical — never tuned weights.
+Status: **ratified 2026-07-26; implemented** (first build per §7:
+patterns + attachment + timeline + both exports + audition; melody
+parts follow in their own reviewed increment). Rev 3 incorporates the
+second (adversarial) review of rev 2 (see git history): four blockers
+— SMF PPQ under meter change, string indexing on reentrant tunings,
+swing endpoint warp, the audio substrate — plus findings 5–8 and the
+minors, resolved inline at their homes. Rev 1's resolutions were
+verified closed by that review; nothing reopened. House rules from
+[DESIGN.md](DESIGN.md) apply: deterministic, documented, mechanical —
+never tuned weights.
 
 ## 0. Supersessions (explicit, clause by clause)
 

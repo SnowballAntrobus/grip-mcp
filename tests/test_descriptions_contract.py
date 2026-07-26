@@ -18,6 +18,8 @@ EXPECTED_TOOLS = {
     "find_voicings", "render_neck",          # Phase 2a
     "journal", "list_journal", "history",    # feedback round 1
     "analyze",                               # Phase 3
+    "set_rhythm", "list_rhythms", "remove_rhythm",     # rhythm (rev 3)
+    "export_timeline", "export_midi", "render_audio",  # rhythm (rev 3)
 }
 
 
@@ -74,3 +76,20 @@ def test_tool_description_keywords():
     assert "never tuned weights" in d["find_voicings"]
     assert "capo-relative" in d["find_voicings"]
     assert "suggestions" in d["find_voicings"]
+    # Rhythm (RHYTHM_DESIGN rev 3): the load-bearing clauses stay said.
+    assert "PHYSICAL" in d["set_rhythm"]          # indices are physical
+    assert "'bass'" in d["set_rhythm"]            # the bass is symbolic
+    assert "AT DEFINITION" in d["set_rhythm"]     # stored-expanded
+    assert "mandatory" in d["set_rhythm"]         # swing subdivision
+    assert "meter_mismatch" in d["set_rhythm"]
+    assert "meter_mismatch" in d["set_sequence"]
+    assert "its own tempo" in d["set_sequence"]   # child-meter rule
+    assert "'whole'" in d["set_sequence"]         # unassigned default
+    assert "realized form" in d["export_timeline"]  # hash target
+    assert "events_stored" in d["export_timeline"]
+    assert "3840" in d["export_midi"]             # fixed PPQ
+    assert "truncate at retrigger" in d["export_midi"]
+    assert "quarter-note BPM" in d["export_midi"]  # the DAW caveat
+    assert "overwritten" in d["render_audio"]     # single-file, no GC
+    assert "ONLY" in d["render_audio"]            # stagger scope
+    assert "velocity never weights" in d["analyze"]

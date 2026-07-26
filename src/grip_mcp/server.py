@@ -85,8 +85,14 @@ def build_server(root=None) -> FastMCP:
         return svc.transpose(semitones, id, strings, tuning, save_as, render)
 
     @tool("set_sequence")
-    def set_sequence(name: str, grips: list[str]) -> dict:
-        return svc.set_sequence(name, grips)
+    def set_sequence(name: str, grips: list,
+                     meter: list[int] | None = None,
+                     tempo: int | None = None,
+                     swing: dict | str | None = None,
+                     rhythm: str | None = None,
+                     grouping: list[int] | None = None) -> dict:
+        return svc.set_sequence(name, grips, meter, tempo, swing,
+                                rhythm, grouping)
 
     @tool("list_sequences")
     def list_sequences() -> dict:
@@ -146,6 +152,34 @@ def build_server(root=None) -> FastMCP:
                     labels: str = "notes", theme: str = "light") -> dict:
         return svc.render_neck(overlay_key, overlay_pitches, tuning,
                                frets, labels, theme)
+
+    @tool("set_rhythm")
+    def set_rhythm(name: str, meter: list[int], length,
+                   events: list[dict],
+                   swing: dict | str | None = None,
+                   grouping: list[int] | None = None) -> dict:
+        return svc.set_rhythm(name, meter, length, events, swing,
+                              grouping)
+
+    @tool("list_rhythms")
+    def list_rhythms() -> dict:
+        return svc.list_rhythms()
+
+    @tool("remove_rhythm")
+    def remove_rhythm(name: str, force: bool = False) -> dict:
+        return svc.remove_rhythm(name, force)
+
+    @tool("export_timeline")
+    def export_timeline(sequence: str) -> dict:
+        return svc.export_timeline(sequence)
+
+    @tool("export_midi")
+    def export_midi(sequence: str) -> dict:
+        return svc.export_midi(sequence)
+
+    @tool("render_audio")
+    def render_audio(sequence: str) -> dict:
+        return svc.render_audio(sequence)
 
     @tool("set_instrument_tuning")
     def set_instrument_tuning(name: str, render: bool = False) -> dict:

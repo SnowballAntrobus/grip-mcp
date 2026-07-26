@@ -12,7 +12,7 @@ thing, first check whether the API can make the wrong thing impossible
 (the `create` gate on set_project is the worked example).
 """
 
-DESCRIPTIONS_VERSION = "0.6.0"
+DESCRIPTIONS_VERSION = "0.7.0"
 
 SERVER_INSTRUCTIONS = """\
 grip-mcp is a deterministic fretboard engine: identify, library, render.
@@ -51,6 +51,20 @@ Name->shape: find_voicings computes shapes exactly - never propose a shape
 from your own knowledge when it can search (the old name->shape bridge is
 retired). identify remains the verifier for shapes the USER plays; VERIFY
 any fretting you did not get from find_voicings before presenting it.
+
+Rhythm: time is integer ticks, 960 per meter beat; string indices are
+physical (1 = lowest physical sounding string), the bass is symbolic
+('bass' = lowest-pitched - they differ on reentrant tunings like the
+high-G uke). Define patterns with set_rhythm (verbs strum/bass/arp-up
+expand at definition with accent-map velocities and let-ring
+durations); attach with set_sequence (meter [num, denom], tempo = BPM
+of the meter beat, default rhythm, per-step {rhythm, repeat}).
+Built-ins whole/quarters/bass-strum/arp-up adapt to any meter. Swing
+needs an explicit subdivision (never guess one); "straight" forces
+straight under a swung parent. analyze gains a timeline and
+tick-weighted keys when meter is set; export_timeline/export_midi feed
+the bus (cdp-mcp reads the JSON); render_audio writes ONE audition wav
+per sequence, overwritten each call.
 
 Projects: set_project refuses to create unless create=true; before passing
 create=true, confirm with the user that a NEW project is intended (say
@@ -155,12 +169,19 @@ TOOL_DESCRIPTIONS = {
         "records provenance."
     ),
     "set_sequence": (
-        "Create or replace a named sequence. Items are grip ids or "
-        "'@other-sequence' references, so song structures compose "
-        "without duplication: verse and chorus stay single sources of "
-        "truth and song = ['@verse', '@chorus', '@verse'] follows their "
-        "edits. Repeats allowed; cycles refused; mixed tunings render "
-        "per-grip."
+        "Create or replace a named sequence. Items are grip ids, "
+        "'@other-sequence' references, or steps {item, rhythm, repeat}, "
+        "so song structures compose without duplication: verse and "
+        "chorus stay single sources of truth and song = ['@verse', "
+        "'@chorus', '@verse'] follows their edits. Cycles refused; "
+        "mixed tunings render per-grip. Rhythm context: meter [num, "
+        "denom] (required by any rhythm field), tempo = BPM of the "
+        "meter beat, default rhythm, swing ({subdivision, ratio} or "
+        "'straight' to force straight under a swung parent), grouping "
+        "override. A user pattern in another meter is refused at "
+        "assignment (meter_mismatch); a child sequence with its own "
+        "meter must carry its own tempo. Steps with no assignment "
+        "realize as 'whole'."
     ),
     "list_sequences": (
         "List sequences: raw items (incl. @references) plus the "
@@ -190,7 +211,11 @@ TOOL_DESCRIPTIONS = {
         "Numerals are null where a step is chromatic to that key - "
         "stated, not judged; segmentation is membership, not cadence "
         "inference. YOU narrate what the segments and motions suggest; "
-        "the server never asserts a hearing. Read-only."
+        "the server never asserts a hearing. Read-only. With a rhythm "
+        "context (meter on the sequence) the result adds a timeline "
+        "(sections, 1-based bar:beat step placements) and key scores "
+        "gain ticks weighting - velocity never weights; without meter, "
+        "behavior is unchanged."
     ),
     "journal": (
         "Record an observation or context note on the project - the "
@@ -204,6 +229,61 @@ TOOL_DESCRIPTIONS = {
         "The project's mutation log, newest first: every stored change "
         "(tool + detail + timestamp) - the progress record without "
         "leaving the conversation."
+    ),
+    "set_rhythm": (
+        "Define or replace a rhythm pattern (RHYTHM_DESIGN). Time is "
+        "integer ticks, 960 per meter beat; the interface accepts beats "
+        "as numbers or fraction strings ('1/3') and snaps (round half "
+        "up). Events carry {at, dur?, velocity?, note|verb}: verbs "
+        "(strum, bass, arp-up, arp-down) are authoring macros expanded "
+        "AT DEFINITION with accent-map velocities (bar 108 / group 100 "
+        "/ beat 88 / off-beat 76) and let-ring durations - storage is "
+        "fully expanded, nothing hidden behind a verb. Note forms: "
+        "{string: N} is a PHYSICAL sounding index (1 = lowest physical "
+        "sounding string), {string: 'bass'} is symbolic (lowest-PITCHED "
+        "- differs on reentrant tunings), {strings: [..]|'all'} with "
+        "up: true reversing traversal, {arp: 'up'|'down'}. Swing: "
+        "{subdivision (ticks, mandatory), ratio {num, den}} or "
+        "'straight'. Patterns bind to ONE meter; assignment elsewhere "
+        "is refused (meter_mismatch). Built-ins whole/quarters/"
+        "bass-strum/arp-up are immutable and meter-parametric."
+    ),
+    "list_rhythms": (
+        "List rhythm patterns: the project's stored (fully expanded) "
+        "patterns plus the four meter-parametric built-ins."
+    ),
+    "remove_rhythm": (
+        "Delete a rhythm pattern. Refuses while any sequence assigns "
+        "it (default or per-step) unless force=true, which also drops "
+        "the assignments. Built-ins cannot be removed."
+    ),
+    "export_timeline": (
+        "Write the sequence's realized timeline to the exports/ bus as "
+        "JSON - the primary artifact for cdp-mcp: sections (meter/"
+        "tempo/swing), steps with 1-based bar:beat placements, and "
+        "BOTH events_stored (straight grid + swing parameter) and "
+        "events (realized ticks, swing applied; per-note midi + "
+        "spelled pitch). The content hash is computed over the "
+        "realized form. Requires meter; read-only."
+    ),
+    "export_midi": (
+        "Export the sequence as format-1 SMF at fixed PPQ 3840 (one "
+        "division for the whole file - meter changes convert per "
+        "section by integer math). Tempo + time-signature metas per "
+        "section, channel 1, velocities 1-127, same-pitch overlaps "
+        "truncate at retrigger, no strum stagger. Requires meter and "
+        "tempo. Note: DAWs display quarter-note BPM, which for "
+        "compound meters matches neither tempo (denom-note BPM) nor "
+        "the felt dotted beat - inherent to MIDI, not a bug."
+    ),
+    "render_audio": (
+        "Audition a sequence: deterministic Karplus-Strong synthesis "
+        "to ONE wav per sequence (<name>__audition.wav, overwritten "
+        "each call - a deliberate exception to the render-hash "
+        "convention). 44.1 kHz mono 16-bit; velocity maps to "
+        "amplitude; swing applied; the 12 ms strum stagger exists ONLY "
+        "here (absent from analyze and both exports). Pure-Python: "
+        "expect seconds of latency. Requires meter and tempo."
     ),
     "define_tuning": (
         "Define a tuning by explicit pitches (low to high) or as "

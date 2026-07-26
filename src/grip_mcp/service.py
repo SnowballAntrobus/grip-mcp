@@ -15,6 +15,7 @@ import datetime as _dt
 from pathlib import Path
 
 from . import render as RD
+from . import rhythm as RH
 from . import store as ST
 from . import theory as TH
 
@@ -114,14 +115,15 @@ class GripService:
             lib = st.load()
         except ST.StoreError as e:
             return self._err(e.code, e.detail)
-        flags = ST.tuning_flags(lib)
+        flags = ST.tuning_flags(lib) + ST.rhythm_flags(lib)
         n = len(lib["grips"])
         base = {
             "default_tuning": lib["default_tuning"],
             "instrument": ST.current_declaration(lib),
             "tunings": lib["tunings"],
             "flags": flags,
-            "counts": {"grips": n, "sequences": len(lib["sequences"])},
+            "counts": {"grips": n, "sequences": len(lib["sequences"]),
+                       "rhythms": len(lib.get("rhythms") or {})},
             # Recent observations resume with the workspace (feedback:
             # a journal like cdp-mcp's).
             "journal_recent": st.read_jsonl(st.journal_path, limit=3),
@@ -454,10 +456,19 @@ class GripService:
             }
             rewritten = 0
             for name, seq in lib["sequences"].items():
-                lib["sequences"][name] = [
-                    new_id if g == id else g for g in seq
-                ]
-                rewritten += seq.count(id)
+                new_steps = []
+                for s in RH.seq_steps(seq):
+                    if RH.step_item(s) == id:
+                        rewritten += 1
+                        new_steps.append(
+                            new_id if isinstance(s, str)
+                            else {**s, "item": new_id})
+                    else:
+                        new_steps.append(s)
+                if isinstance(seq, dict):
+                    seq["steps"] = new_steps
+                else:
+                    lib["sequences"][name] = new_steps
             derived = st.load_derived()
             if id in derived["grips"]:
                 derived["grips"][new_id] = derived["grips"].pop(id)
@@ -476,10 +487,12 @@ class GripService:
             lib = st.load()
             if id not in lib["grips"]:
                 return self._err_unknown_grip(id, lib, mutating=True)
-            refs = {
-                name: seq.count(id)
-                for name, seq in lib["sequences"].items() if id in seq
-            }
+            refs = {}
+            for name, seq in lib["sequences"].items():
+                c = sum(1 for s in RH.seq_steps(seq)
+                        if RH.step_item(s) == id)
+                if c:
+                    refs[name] = c
             if refs and not force:
                 return self._err(
                     "grip_referenced",
@@ -489,9 +502,13 @@ class GripService:
                     mutating=True,
                 )
             for name in refs:
-                lib["sequences"][name] = [
-                    g for g in lib["sequences"][name] if g != id
-                ]
+                seq = lib["sequences"][name]
+                kept = [s for s in RH.seq_steps(seq)
+                        if RH.step_item(s) != id]
+                if isinstance(seq, dict):
+                    seq["steps"] = kept
+                else:
+                    lib["sequences"][name] = kept
             del lib["grips"][id]
             derived = st.load_derived()
             derived["grips"].pop(id, None)
@@ -682,10 +699,40 @@ class GripService:
 
     # ------------------------------------------------------------ sequences
 
-    def set_sequence(self, name: str, grips: list) -> dict:
-        """Items are grip ids or "@other-sequence" references — song
-        structures compose without duplication (song = ["@verse",
-        "@chorus", "@verse"]); edit the section once."""
+    def _check_rhythm_assignments(self, lib: dict, names: list,
+                                  meter: list) -> None:
+        """Assignment-time refusal (§5): assigned user patterns must
+        exist and match the governing meter — no silent
+        reinterpretation."""
+        rhythms = lib.get("rhythms") or {}
+        for rname in names:
+            if rname in RH.BUILTINS:
+                continue
+            pat = rhythms.get(rname)
+            if pat is None:
+                raise ST.StoreError(
+                    "unknown_rhythm",
+                    f"rhythm {rname!r} is not defined; known: "
+                    f"{sorted(rhythms)} + built-ins {list(RH.BUILTINS)}",
+                )
+            if pat.get("meter") != list(meter):
+                raise ST.StoreError(
+                    "meter_mismatch",
+                    f"rhythm {rname!r} is in meter {pat.get('meter')} "
+                    f"but this sequence is in {list(meter)}; refused at "
+                    "assignment (RHYTHM_DESIGN §5)",
+                )
+
+    def set_sequence(self, name: str, grips: list, meter: list | None = None,
+                     tempo: int | None = None, swing=None,
+                     rhythm: str | None = None,
+                     grouping: list | None = None) -> dict:
+        """Items are grip ids, "@other-sequence" references, or step
+        objects {item, rhythm, repeat}. Rhythm context (RHYTHM_DESIGN
+        §5): meter [num, denom], tempo (BPM of the meter beat), swing
+        ({subdivision, ratio} | "straight" to force straight under a
+        swung parent), default rhythm, grouping override. Any rhythm
+        field requires meter."""
         try:
             st = self._store()
             lib = st.load()
@@ -693,9 +740,45 @@ class GripService:
             if not grips:
                 raise ST.StoreError("empty_sequence",
                                     "a sequence needs at least one item")
+            steps: list = []
+            step_rhythms: list[str] = []
+            for i, g in enumerate(grips):
+                if isinstance(g, str):
+                    steps.append(g)
+                    continue
+                if not isinstance(g, dict) or not isinstance(
+                        g.get("item"), str):
+                    raise ST.StoreError(
+                        "bad_step",
+                        f"step {i} must be a grip id, an '@sequence' "
+                        "reference, or {item, rhythm?, repeat?}",
+                    )
+                s = {"item": g["item"]}
+                if g.get("rhythm") is not None:
+                    s["rhythm"] = g["rhythm"]
+                    step_rhythms.append(g["rhythm"])
+                if g.get("repeat") is not None:
+                    r = g["repeat"]
+                    if (not isinstance(r, int) or isinstance(r, bool)
+                            or not 1 <= r <= RH.MAX_REPEAT):
+                        raise ST.StoreError(
+                            "bad_repeat",
+                            f"step {i} repeat {r!r} must be "
+                            f"1-{RH.MAX_REPEAT}",
+                        )
+                    s["repeat"] = r
+                if s["item"].startswith("@") and len(s) > 1:
+                    raise ST.StoreError(
+                        "bad_step",
+                        f"step {i}: '@' references take no per-step "
+                        "rhythm/repeat — set them on the referenced "
+                        "sequence",
+                    )
+                steps.append(s["item"] if len(s) == 1 else s)
             missing = [
-                g for g in grips
-                if not g.startswith("@") and g not in lib["grips"]
+                RH.step_item(s) for s in steps
+                if not RH.step_item(s).startswith("@")
+                and RH.step_item(s) not in lib["grips"]
             ]
             if missing:
                 raise ST.StoreError(
@@ -704,9 +787,10 @@ class GripService:
                     f"known: {sorted(lib['grips'])}",
                 )
             missing_seqs = [
-                g[1:] for g in grips
-                if g.startswith("@")
-                and g[1:] not in lib["sequences"] and g[1:] != name
+                RH.step_item(s)[1:] for s in steps
+                if RH.step_item(s).startswith("@")
+                and RH.step_item(s)[1:] not in lib["sequences"]
+                and RH.step_item(s)[1:] != name
             ]
             if missing_seqs:
                 raise ST.StoreError(
@@ -714,14 +798,46 @@ class GripService:
                     f"sequence references unknown sequences "
                     f"{missing_seqs}; known: {sorted(lib['sequences'])}",
                 )
-            lib["sequences"][name] = list(grips)
+            fields: dict = {}
+            rhythm_fields = [v for v in (tempo, swing, rhythm, grouping)
+                             if v is not None] or step_rhythms
+            if meter is None and rhythm_fields:
+                raise ST.StoreError(
+                    "rhythm_requires_meter",
+                    "any rhythm context (tempo/swing/rhythm/grouping or "
+                    "per-step rhythm) requires meter on this sequence "
+                    "(RHYTHM_DESIGN §5)",
+                )
+            if meter is not None:
+                fields["meter"] = RH.validate_meter(meter)
+                if tempo is not None:
+                    fields["tempo"] = RH.validate_tempo(tempo)
+                if grouping is not None:
+                    fields["grouping"] = RH.validate_grouping(
+                        grouping, fields["meter"][0])
+                if swing is not None:
+                    fields["swing"] = (None if swing == "straight"
+                                       else RH.validate_swing(swing))
+                if rhythm is not None:
+                    fields["rhythm"] = rhythm
+                self._check_rhythm_assignments(
+                    lib, ([rhythm] if rhythm else []) + step_rhythms,
+                    fields["meter"])
+            if fields or any(isinstance(s, dict) for s in steps):
+                lib["sequences"][name] = RH.canonical_sequence(
+                    {**fields, "steps": steps})
+            else:
+                lib["sequences"][name] = list(steps)
             flat = ST.flatten_sequence(lib, name)  # cycle check
+            RH.walk_sequence(lib, name)  # child-meter-requires-tempo
             st.save(lib, op={"tool": "set_sequence",
                              "detail": {"name": name,
-                                        "items": len(grips)}})
-        except ST.StoreError as e:
+                                        "items": len(steps),
+                                        "meter": fields.get("meter")}})
+        except (ST.StoreError, RH.RhythmError) as e:
             return self._err(e.code, e.detail, mutating=True)
-        return self._env({"name": name, "grips": list(grips),
+        return self._env({"name": name,
+                          "sequence": lib["sequences"][name],
                           "flattened": flat}, stored=True, warnings=[])
 
     def list_sequences(self) -> dict:
@@ -759,9 +875,13 @@ class GripService:
                     "references",
                 )
             for r in refs:
-                lib["sequences"][r] = [
-                    x for x in lib["sequences"][r] if x != "@" + name
-                ]
+                seq = lib["sequences"][r]
+                kept = [s for s in RH.seq_steps(seq)
+                        if RH.step_item(s) != "@" + name]
+                if isinstance(seq, dict):
+                    seq["steps"] = kept
+                else:
+                    lib["sequences"][r] = kept
             del lib["sequences"][name]
             st.save(lib, op={"tool": "remove_sequence",
                              "detail": {"name": name}})
@@ -872,8 +992,11 @@ class GripService:
     def analyze(self, sequence: str, keys: list | None = None) -> dict:
         """Analysis over a sequence (docs/PHASE3_DESIGN.md): the user's
         vocabulary first (display candidate = chosen else top),
-        read-only, recomputed per call."""
+        read-only, recomputed per call. With a rhythm context (meter),
+        the timeline appears and key scores gain tick weighting
+        (RHYTHM_DESIGN §6); without one, Phase-3 behavior unchanged."""
         from . import analysis as AN
+        warnings: list[dict] = []
         try:
             st = self._store()
             lib = st.load()
@@ -906,10 +1029,312 @@ class GripService:
                     "bass_pc": TH._pc_of_name(disp["bass"]),
                 })
             st.save(lib, derived)  # cache refresh only; no history op
-            result = AN.analyze(steps, keys)
-        except (ST.StoreError, TH.TheoryError) as e:
+            # Rhythm context: a missing meter degrades to Phase-3
+            # behavior; a broken context (dangling rhythm, mismatch,
+            # child-meter-without-tempo) errors instructively.
+            ctxs = RH.walk_sequence(lib, sequence)
+            timeline = None
+            spans = None
+            if ctxs and all(c["meter"] is not None for c in ctxs):
+                rz = self._realize(st, lib, derived, sequence)
+                spans = [s["span"] for s in rz["steps"]]
+                warnings.extend(rz["warnings"])
+                timeline = {
+                    "ticks_per_beat": RH.TICKS_PER_BEAT,
+                    "total_ticks": rz["total_ticks"],
+                    "sections": self._clean_sections(rz["sections"]),
+                    "steps": rz["steps"],
+                }
+            result = AN.analyze(steps, keys, spans=spans)
+        except (ST.StoreError, TH.TheoryError, RH.RhythmError) as e:
             return self._err(getattr(e, "code", "bad_input"), str(e))
-        return self._env({"sequence": sequence, **result})
+        payload = {"sequence": sequence, **result}
+        if timeline is not None:
+            payload["timeline"] = timeline
+        return self._env(payload, warnings=warnings or None)
+
+    # ---------------------------------------------------- rhythm (rev 3)
+
+    @staticmethod
+    def _clean_sections(sections: list[dict]) -> list[dict]:
+        return [
+            {k: s[k] for k in ("at", "meter", "tempo", "swing",
+                               "grouping")}
+            for s in sections
+        ]
+
+    def _realize(self, st: ST.Store, lib: dict, derived: dict,
+                 sequence: str) -> dict:
+        """Build grips_info (physical sounding order — 1 = lowest
+        physical sounding string; §3) and realize the sequence."""
+        gids = ST.flatten_sequence(lib, sequence)
+        canon = TH.load_table()["_canonical_lof"]
+        grips_info = {}
+        for gid in gids:
+            if gid in grips_info:
+                continue
+            if gid not in lib["grips"]:
+                raise ST.StoreError(
+                    "unknown_grip",
+                    f"sequence {sequence!r} references unknown grip "
+                    f"{gid!r}",
+                )
+            grip = lib["grips"][gid]
+            res = ST.resolve_tuning(lib, grip["tuning"])
+            d = st.derive_grip(lib, derived, gid)
+            disp = self._display_candidate(d["candidates"],
+                                           grip.get("chosen"))
+            spelled = {}
+            if disp is not None:
+                spelled = dict(zip(sorted(d["midi"]), disp["pitches"]))
+            else:
+                pr = d.get("pitch_report") or {}
+                spelled = dict(zip(sorted(d["midi"]),
+                                   pr.get("pitches", [])))
+            opens = [TH.parse_pitch(p) for p in res["pitches"]]
+            sounding = []
+            for o, f in zip(opens, grip["strings"]):
+                if f is None:
+                    continue
+                m = o + f
+                sounding.append({
+                    "string": len(sounding) + 1,
+                    "midi": m,
+                    "pitch": spelled.get(m,
+                                         TH.pitch_str(canon[m % 12], m)),
+                })
+            grips_info[gid] = {
+                "sounding": sounding,
+                "name": grip.get("chosen")
+                or (disp["name"] if disp else None),
+            }
+        return RH.realize(lib, sequence, grips_info)
+
+    def set_rhythm(self, name: str, meter: list, length,
+                   events: list, swing=None,
+                   grouping: list | None = None) -> dict:
+        """Define/replace a rhythm pattern — authoring macros (verbs,
+        accent-map velocities, let-ring durations) expand at definition;
+        storage is fully expanded, integer ticks (RHYTHM_DESIGN §5)."""
+        try:
+            st = self._store()
+            lib = st.load()
+            ST.validate_slug(name, "rhythm name")
+            if name in RH.BUILTINS:
+                raise ST.StoreError(
+                    "builtin_rhythm",
+                    f"{name!r} is a built-in (meter-parametric spec "
+                    "function) and is immutable",
+                )
+            m = RH.validate_meter(meter)
+            g = (RH.validate_grouping(grouping, m[0])
+                 if grouping is not None else RH.default_grouping(m[0]))
+            length_ticks = RH.snap_ticks(length, "length")
+            if length_ticks < 1:
+                raise RH.RhythmError("bad_beats",
+                                     "length must be positive")
+            expanded = RH.expand_events(events, length_ticks, m, g)
+            pat: dict = {"length_ticks": length_ticks, "meter": m}
+            if swing is not None:
+                pat["swing"] = (None if swing == "straight"
+                                else RH.validate_swing(swing))
+            if grouping is not None:
+                pat["grouping"] = g
+            pat["events"] = expanded
+            # Redefinition guard: every sequence assigning this name
+            # must still meter-match (no silent reinterpretation).
+            conflicts = [
+                sname for sname, seq in lib["sequences"].items()
+                if isinstance(seq, dict)
+                and name in RH.assigned_rhythms(seq)
+                and seq.get("meter") is not None
+                and list(seq["meter"]) != m
+            ]
+            if conflicts:
+                raise ST.StoreError(
+                    "meter_mismatch",
+                    f"redefining {name!r} in meter {m} would mismatch "
+                    f"sequences {conflicts}; change those assignments "
+                    "first",
+                )
+            lib.setdefault("rhythms", {})[name] = RH.canonical_pattern(pat)
+            st.save(lib, op={"tool": "set_rhythm",
+                             "detail": {"name": name, "meter": m,
+                                        "events": len(expanded)}})
+        except (ST.StoreError, RH.RhythmError) as e:
+            return self._err(e.code, e.detail, mutating=True)
+        return self._env({"name": name,
+                          "rhythm": lib["rhythms"][name]},
+                         stored=True, warnings=[])
+
+    def list_rhythms(self) -> dict:
+        try:
+            st = self._store()
+            lib = st.load()
+        except ST.StoreError as e:
+            return self._err(e.code, e.detail)
+        return self._env({
+            "rhythms": lib.get("rhythms") or {},
+            "builtins": {
+                "note": "meter-parametric spec functions, instantiated "
+                        "against the governing meter at realization; "
+                        "immutable (RHYTHM_DESIGN §5)",
+                "whole": "one strum spanning the bar",
+                "quarters": "a strum on every beat",
+                "bass-strum": "symbolic bass on group starts, strum on "
+                              "other beats",
+                "arp-up": "one bar-spanning arp",
+            },
+        })
+
+    def remove_rhythm(self, name: str, force: bool = False) -> dict:
+        try:
+            st = self._store()
+            lib = st.load()
+            if name in RH.BUILTINS:
+                raise ST.StoreError(
+                    "builtin_rhythm",
+                    f"{name!r} is a built-in and cannot be removed",
+                )
+            rhythms = lib.get("rhythms") or {}
+            if name not in rhythms:
+                raise ST.StoreError(
+                    "unknown_rhythm",
+                    f"rhythm {name!r} not found; known: "
+                    f"{sorted(rhythms)}",
+                )
+            refs = {
+                sname: RH.assigned_rhythms(seq).count(name)
+                for sname, seq in lib["sequences"].items()
+                if name in RH.assigned_rhythms(seq)
+            }
+            if refs and not force:
+                raise ST.StoreError(
+                    "rhythm_assigned",
+                    f"rhythm {name!r} is assigned by sequences {refs}; "
+                    "pass force=true to remove it and drop the "
+                    "assignments",
+                )
+            for sname in refs:
+                seq = lib["sequences"][sname]
+                if seq.get("rhythm") == name:
+                    del seq["rhythm"]
+                seq["steps"] = [
+                    (s["item"] if isinstance(s, dict)
+                     and s.get("rhythm") == name and len(s) == 2 else
+                     ({k: v for k, v in s.items() if not (
+                         k == "rhythm" and v == name)}
+                      if isinstance(s, dict) else s))
+                    for s in seq["steps"]
+                ]
+            del lib["rhythms"][name]
+            st.save(lib, op={"tool": "remove_rhythm",
+                             "detail": {"name": name}})
+        except ST.StoreError as e:
+            return self._err(e.code, e.detail, mutating=True)
+        return self._env({"name": name, "dereferenced": refs},
+                         stored=True, warnings=[])
+
+    def export_timeline(self, sequence: str) -> dict:
+        """The bus (RHYTHM_DESIGN §6): JSON carrying BOTH events_stored
+        (straight grid + swing parameter) and events (realized, swing
+        applied); content hash over the realized form. The primary
+        artifact for cdp-mcp."""
+        import json as _json
+        try:
+            st = self._store()
+            lib = st.load()
+            derived = st.load_derived()
+            rz = self._realize(st, lib, derived, sequence)
+            st.save(lib, derived)  # cache refresh only
+            h = RH.content_hash(rz["events"])
+            doc = {
+                "schema_version": 1,
+                "kind": "grip_timeline",
+                "sequence": sequence,
+                "engine_version": TH.ENGINE_VERSION,
+                "table_version": TH.table_version(),
+                "content_hash": h,
+                "ticks_per_beat": RH.TICKS_PER_BEAT,
+                "total_ticks": rz["total_ticks"],
+                "sections": self._clean_sections(rz["sections"]),
+                "steps": rz["steps"],
+                "events_stored": RH.export_events(rz["events_stored"]),
+                "events": RH.export_events(rz["events"]),
+            }
+            st.exports_dir.mkdir(parents=True, exist_ok=True)
+            path = st.exports_dir / f"{sequence}__{h[:8]}.json"
+            path.write_text(
+                _json.dumps(doc, indent=2, ensure_ascii=False) + "\n",
+                encoding="utf-8")
+        except (ST.StoreError, TH.TheoryError, RH.RhythmError) as e:
+            return self._err(getattr(e, "code", "bad_input"), str(e))
+        return self._env({
+            "sequence": sequence,
+            "file": str(path),
+            "content_hash": h,
+            "total_ticks": rz["total_ticks"],
+            "events": len(rz["events"]),
+            "sections": self._clean_sections(rz["sections"]),
+        }, warnings=rz["warnings"])
+
+    def export_midi(self, sequence: str) -> dict:
+        """Format-1 SMF at fixed PPQ 3840 (RHYTHM_DESIGN §6). Note:
+        DAWs display quarter-note BPM, which for compound meters matches
+        neither `tempo` (denom-note BPM) nor the felt dotted beat —
+        inherent to MIDI, not an export bug."""
+        from . import midi as MI
+        try:
+            st = self._store()
+            lib = st.load()
+            derived = st.load_derived()
+            rz = self._realize(st, lib, derived, sequence)
+            st.save(lib, derived)
+            RH.require_tempo(rz, "export_midi")
+            smf = MI.write_smf(rz["sections"], rz["events"],
+                               rz["total_ticks"])
+            h = RH.content_hash(rz["events"])
+            st.exports_dir.mkdir(parents=True, exist_ok=True)
+            path = st.exports_dir / f"{sequence}__{h[:8]}.mid"
+            path.write_bytes(smf)
+        except (ST.StoreError, TH.TheoryError, RH.RhythmError) as e:
+            return self._err(getattr(e, "code", "bad_input"), str(e))
+        return self._env({
+            "sequence": sequence,
+            "file": str(path),
+            "content_hash": h,
+            "ppq": RH.SMF_PPQ,
+            "bytes": len(smf),
+        }, warnings=rz["warnings"])
+
+    def render_audio(self, sequence: str) -> dict:
+        """Deterministic Karplus-Strong audition (RHYTHM_DESIGN §6):
+        one file per sequence, overwritten — a deliberate exception to
+        the renders hash convention (overwrite semantics are the no-GC
+        answer). Pure-Python synthesis: seconds of latency accepted."""
+        from . import audio as AU
+        try:
+            st = self._store()
+            lib = st.load()
+            derived = st.load_derived()
+            rz = self._realize(st, lib, derived, sequence)
+            st.save(lib, derived)
+            RH.require_tempo(rz, "render_audio")
+            wav = AU.synthesize(rz["sections"], rz["events"],
+                                rz["total_ticks"])
+            st.renders_dir.mkdir(parents=True, exist_ok=True)
+            path = st.renders_dir / f"{sequence}__audition.wav"
+            path.write_bytes(wav)
+            secs = AU.duration_seconds(rz["sections"], rz["total_ticks"])
+        except (ST.StoreError, TH.TheoryError, RH.RhythmError) as e:
+            return self._err(getattr(e, "code", "bad_input"), str(e))
+        return self._env({
+            "sequence": sequence,
+            "file": str(path),
+            "seconds": round(float(secs), 3),
+            "sample_rate": AU.SAMPLE_RATE,
+            "voices": len(rz["events"]),
+        }, warnings=rz["warnings"])
 
     # -------------------------------------------- journal + history (log)
 

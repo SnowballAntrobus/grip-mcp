@@ -75,6 +75,7 @@ def empty_library() -> dict:
         "tunings": {"standard": list(STANDARD_TUNING)},
         "grips": {},
         "sequences": {},
+        "rhythms": {},
     }
 
 
@@ -108,12 +109,26 @@ def _validate_library(lib: dict) -> None:
                 "bad_grip", f"grip {gid!r} missing strings/tuning"
             )
     for name, seq in lib["sequences"].items():
-        if not isinstance(seq, list) or not all(
-            isinstance(x, str) for x in seq
-        ):
-            raise StoreError(
-                "bad_sequence", f"sequence {name!r} is not a list of grip ids"
+        if isinstance(seq, list):
+            ok = all(isinstance(x, str) for x in seq)
+        elif isinstance(seq, dict):
+            steps = seq.get("steps")
+            ok = isinstance(steps, list) and all(
+                isinstance(x, str)
+                or (isinstance(x, dict) and isinstance(x.get("item"), str))
+                for x in steps
             )
+        else:
+            ok = False
+        if not ok:
+            raise StoreError(
+                "bad_sequence",
+                f"sequence {name!r} is neither a list of grip ids nor an "
+                "object with steps (RHYTHM_DESIGN §5)",
+            )
+    rhythms = lib.get("rhythms")
+    if rhythms is not None and not isinstance(rhythms, dict):
+        raise StoreError("bad_library", "rhythms must be an object")
     inst = lib.get("instrument")
     if inst is not None:
         if not isinstance(inst, dict) or not isinstance(
@@ -233,6 +248,7 @@ class Store:
         self.library_path = self.grip_dir / "library.json"
         self.derived_path = self.grip_dir / "derived.json"
         self.renders_dir = self.grip_dir / "renders"
+        self.exports_dir = self.dir / "exports"  # the cross-tool bus (§3)
         self.journal_path = self.grip_dir / "journal.jsonl"
         self.history_path = self.grip_dir / "history.jsonl"
         self._lib_hash: str | None = None  # hash at last load; None = absent
@@ -449,8 +465,10 @@ def flatten_sequence(lib: dict, name: str, _stack: tuple = ()) -> list[str]:
             f"sequence {name!r} not found; known: "
             f"{sorted(lib['sequences'])}",
         )
+    from . import rhythm as RH
     out: list[str] = []
-    for item in lib["sequences"][name]:
+    for step in RH.seq_steps(lib["sequences"][name]):
+        item = RH.step_item(step)
         if item.startswith("@"):
             out.extend(flatten_sequence(lib, item[1:], _stack + (name,)))
         else:
@@ -460,5 +478,49 @@ def flatten_sequence(lib: dict, name: str, _stack: tuple = ()) -> list[str]:
 
 def sequence_references(lib: dict, name: str) -> list[str]:
     """Sequences whose items reference @name directly."""
+    from . import rhythm as RH
     ref = "@" + name
-    return [s for s, items in lib["sequences"].items() if ref in items]
+    return [
+        s for s, seq in lib["sequences"].items()
+        if any(RH.step_item(x) == ref for x in RH.seq_steps(seq))
+    ]
+
+
+def rhythm_flags(lib: dict) -> list[dict]:
+    """Dangling-rhythm / meter-mismatch flags for describe_workspace —
+    hand edits get the dangling treatment: load flagged, touching tools
+    error instructively (RHYTHM_DESIGN §5)."""
+    from . import rhythm as RH
+    flags = []
+    rhythms = lib.get("rhythms") or {}
+    for name, pat in rhythms.items():
+        try:
+            RH.validate_pattern(pat)
+        except RH.RhythmError as e:
+            flags.append({"code": "bad_rhythm",
+                          "detail": f"rhythm {name!r}: {e.detail}"})
+    for sname, seq in lib["sequences"].items():
+        if not isinstance(seq, dict):
+            continue
+        meter = seq.get("meter")
+        for rname in RH.assigned_rhythms(seq):
+            if rname in RH.BUILTINS:
+                continue
+            pat = rhythms.get(rname)
+            if pat is None:
+                flags.append({
+                    "code": "dangling_rhythm",
+                    "detail": f"sequence {sname!r} assigns rhythm "
+                              f"{rname!r} which is not defined; define it "
+                              "via set_rhythm or fix the hand edit",
+                })
+            elif (meter is not None
+                    and isinstance(pat, dict)
+                    and pat.get("meter") != list(meter)):
+                flags.append({
+                    "code": "meter_mismatch",
+                    "detail": f"sequence {sname!r} ({meter}) assigns "
+                              f"rhythm {rname!r} ({pat.get('meter')}); "
+                              "no silent reinterpretation",
+                })
+    return flags

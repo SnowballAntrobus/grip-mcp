@@ -360,7 +360,7 @@ def test_describe_workspace_resume_completeness(svc):
     assert r["sequences"] == {"intro": ["gm-1", "q"]}
     assert "dadgad" in r["tunings"] and r["default_tuning"] == "standard"
     assert r["flags"] == []
-    assert r["counts"] == {"grips": 2, "sequences": 1}
+    assert r["counts"] == {"grips": 2, "sequences": 1, "rhythms": 0}
 
 
 def test_describe_workspace_flags_dangling(svc, tmp_path):

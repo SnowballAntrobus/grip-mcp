@@ -49,7 +49,7 @@ def test_01_create_gate_then_confirmed_create(flow):
 
 def test_02_empty_read(flow):
     r = flow["svc"].describe_workspace()
-    assert r["counts"] == {"grips": 0, "sequences": 0}
+    assert r["counts"] == {"grips": 0, "sequences": 0, "rhythms": 0}
     assert r["default_tuning"] == "standard"
     assert "standard" in r["tunings"]
     assert not (flow["root"] / "gm-em-song").exists()  # reads litter nothing
