@@ -1,0 +1,166 @@
+"""Versioned presentation contract (DESIGN §6.3).
+
+MCP tool descriptions and the server-level `instructions` field are
+first-class, reviewed design artifacts: all of §7's rigor produces output
+the musician never sees — the client LLM mediates — so what these strings
+instruct is part of the product. The contract test
+(tests/test_descriptions_contract.py) is honestly scoped: a keyword check
+that catches deleted text, not ignored text.
+
+Closing doctrine: wherever a description asks the LLM to do the right
+thing, first check whether the API can make the wrong thing impossible
+(the `create` gate on set_project is the worked example).
+"""
+
+DESCRIPTIONS_VERSION = "0.1.0"
+
+SERVER_INSTRUCTIONS = """\
+grip-mcp is a deterministic fretboard engine: identify, library, render.
+The musician's own vocabulary comes first.
+
+Presenting identifications:
+- The top candidate is the most literal complete reading, not "the answer."
+  Present it alongside other high-ranked and contextual readings, and above
+  all the user's stored `chosen` names. When a grip matches the library,
+  LEAD with the user's name for it; the theory comes second.
+- Calibrate on `decided_at`: "tiebreak" means maximally ambiguous (present
+  alternatives as peers); "unique" means no contest; R1/R2/R3 sit between.
+  The server reports where the ordering was decided, never confidence.
+- Promotion is your job: the server ranks by published rules; you decide
+  what to foreground (e.g. a dominant-function hearing the ranking places
+  below a literal reading) and record the user's choice with set_reading.
+
+Capture:
+- One call in the common case: add_grip with the user's name in `chosen`.
+  A chosen miss or render failure is PARTIAL success - the grip stored;
+  repair with a follow-up set_reading, never a re-send.
+- Echo-verify: the response's resolved pitches (low->high) and the diagram
+  are the self-check for reversed string arrays and octave/tuning errors.
+  Read them back before confirming to the user.
+- Bulk capture: pass render=false per grip and finish with ONE strip
+  render of the sequence.
+
+Name->shape bridge: the server cannot compute "show me a standard Gm
+barre" yet (Phase 2a). Propose shapes from your own knowledge, then VERIFY
+them through identify before presenting - never assert an unverified shape.
+
+Projects: set_project refuses to create unless create=true; before passing
+create=true, confirm with the user that a NEW project is intended (say
+whether you created or opened it in your reply). Every response envelope
+carries the project name - surface it if it isn't what the user expects.
+"""
+
+TOOL_DESCRIPTIONS = {
+    "list_projects": (
+        "List every project under MUSIC_PROJECT_ROOT, ecosystem-wide (the "
+        "user's mental model is 'my projects', not 'my grip projects'). "
+        "Projects without a grip/ namespace report grips: 0; malformed "
+        "entries are skipped with a warning, never a crash."
+    ),
+    "set_project": (
+        "Switch the active project. With create=false (the default) this "
+        "REFUSES to create a missing project and lists close-match existing "
+        "names in the refusal - a typo must never fork a library. Pass "
+        "create=true only after the user confirms a new project is "
+        "intended, and tell them whether you created or opened it. Nothing "
+        "touches disk until the first write."
+    ),
+    "update_project_defaults": (
+        "Set the project's default_tuning (single field in V1). Validates "
+        "the tuning exists; refusals are instructive. The default resolves "
+        "at call time - grips always store a concrete tuning name."
+    ),
+    "describe_workspace": (
+        "Resume a session in one call: inlines the grip list (ids, labels, "
+        "chosen names with stale flags, tags), sequences, and the tunings "
+        "table including default_tuning and any dangling-reference flags, "
+        "up to a size threshold; above it, counts plus a prompt to "
+        "list_grips. Speak the user's chosen vocabulary from your first "
+        "reply."
+    ),
+    "identify": (
+        "Preview a fretting without storing it: ranked candidate readings "
+        "over the resolved tuning (default_tuning when omitted), optionally "
+        "under a context_key. The top candidate is the most literal "
+        "complete reading, not 'the answer' - present alternatives and "
+        "calibrate on decided_at. interval_root='auto' follows THIS call's "
+        "ranking. Also the verification half of the name->shape bridge: "
+        "check shapes you proposed before showing them."
+    ),
+    "add_grip": (
+        "Capture a grip - one call in the common case. strings is LOW to "
+        "HIGH (a reversed array is the one error validation can't catch: "
+        "verify via the echoed pitches and the default-on diagram). chosen "
+        "resolves the user's own name against the full candidate set "
+        "(three tiers, enharmonic-safe); a miss stores the grip anyway "
+        "with a chosen_miss warning and suggestions - repair with "
+        "set_reading, never re-send. Render failure is likewise partial "
+        "success. Bulk capture: render=false per grip, one strip render at "
+        "the end."
+    ),
+    "get_grip": (
+        "Fetch one grip: definition, resolved pitches, cached candidate "
+        "readings, chosen (with stale flag if the engine no longer "
+        "produces it)."
+    ),
+    "list_grips": (
+        "List grips (ids, labels, chosen names, tags). Use the user's "
+        "chosen names when talking about them."
+    ),
+    "update_grip": (
+        "Patch a grip (shallow merge; explicit null deletes an optional "
+        "field; id and created are immutable). The merged result is "
+        "re-validated whole, caches re-derive, and a newly-staled chosen "
+        "is surfaced immediately with the new top candidate."
+    ),
+    "rename_grip": (
+        "Rename a grip id, rewriting every sequence occurrence atomically."
+    ),
+    "remove_grip": (
+        "Delete a grip. Refuses while any sequence references it (every "
+        "occurrence counts) unless force=true."
+    ),
+    "set_reading": (
+        "Record the user's name for a grip ('that's my Gm'). Resolves "
+        "against the FULL cached candidate set in three tiers (exact "
+        "canonical; root + quality; root + family) with enharmonic and "
+        "Unicode-accidental normalization; ambiguity errors list the "
+        "matches - ask the user, don't guess. This is the repair path "
+        "after a chosen_miss."
+    ),
+    "transpose": (
+        "Transpose a stored grip (id=...) XOR a raw shape (strings=..., "
+        "tuning resolving via default_tuning when omitted) by semitones. "
+        "Fingers carry verbatim for closed shapes; previously-open "
+        "now-fretted strings get null fingers and an opens_fretted warning "
+        "whose detail carries the count - the pitches are right but the "
+        "hand shape changed, so don't present it as 'the same grip moved "
+        "up'. Below-fret-0 errors speak capo-relative. With save_as, "
+        "chosen transposes covariantly by re-derivation and derived_from "
+        "records provenance."
+    ),
+    "set_sequence": (
+        "Create or replace a named sequence of grip ids (repeats allowed; "
+        "mixed tunings render per-grip)."
+    ),
+    "list_sequences": "List sequences and their grip ids.",
+    "remove_sequence": "Delete a sequence.",
+    "render": (
+        "Render grips (ids=[...]) XOR a sequence (sequence=...) to chart "
+        "or neck diagrams (PNG inline <= 1200px, full resolution plus SVG "
+        "on disk). labels: notes/intervals/fingers/none; interval_root "
+        "'auto' follows chosen's root, else the top candidate's. Identical "
+        "requests overwrite idempotently."
+    ),
+    "define_tuning": (
+        "Define a tuning by explicit pitches (low to high) or as "
+        "from+capo (capo-relative frets; absolute pitch = open + capo + "
+        "fret). Refuses to redefine 'standard' or any name referenced by "
+        "grips or default_tuning; from-chains resolve recursively with "
+        "cycle detection."
+    ),
+    "remove_tuning": (
+        "Delete a tuning. Refuses while any grip references it or while it "
+        "is the default_tuning."
+    ),
+}
