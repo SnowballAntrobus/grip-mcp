@@ -1,7 +1,8 @@
 # Milestone-0 Freeze-Gate Review
 
-Status: **awaiting human review** — the table is at `table_version 0.1.0`
-and freezes to `1.0.0` when this review closes. Per DESIGN §13, the gate
+Status: **closed — ratified as-is, 2026-07-26; table frozen at
+`table_version 1.0.0`.** Kept in-tree as the record of what the freeze
+ratified. Per DESIGN §13, the gate
 sequence was: table format + meta-test + reference script → floor
 population → gate + oracle content check → **human review of non-tertian
 rows** (this document) → freeze.

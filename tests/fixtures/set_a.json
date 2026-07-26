@@ -2,7 +2,7 @@
   "gm-o": {
     "result": {
       "engine_version": "0.1.0",
-      "table_version": "0.1.0",
+      "table_version": "1.0.0",
       "input": {
         "strings": [
           3,
@@ -556,7 +556,7 @@
   "pass": {
     "result": {
       "engine_version": "0.1.0",
-      "table_version": "0.1.0",
+      "table_version": "1.0.0",
       "input": {
         "strings": [
           5,
@@ -674,7 +674,7 @@
   "gm-1": {
     "result": {
       "engine_version": "0.1.0",
-      "table_version": "0.1.0",
+      "table_version": "1.0.0",
       "input": {
         "strings": [
           null,
@@ -890,7 +890,7 @@
   "b5": {
     "result": {
       "engine_version": "0.1.0",
-      "table_version": "0.1.0",
+      "table_version": "1.0.0",
       "input": {
         "strings": [
           null,
@@ -1484,7 +1484,7 @@
   "g-dy": {
     "result": {
       "engine_version": "0.1.0",
-      "table_version": "0.1.0",
+      "table_version": "1.0.0",
       "input": {
         "strings": [
           3,
@@ -1905,7 +1905,7 @@
   "b5-over-fs": {
     "result": {
       "engine_version": "0.1.0",
-      "table_version": "0.1.0",
+      "table_version": "1.0.0",
       "input": {
         "strings": [
           2,
@@ -2518,7 +2518,7 @@
   "q": {
     "result": {
       "engine_version": "0.1.0",
-      "table_version": "0.1.0",
+      "table_version": "1.0.0",
       "input": {
         "strings": [
           2,
@@ -2707,7 +2707,7 @@
   "q-e-minor": {
     "result": {
       "engine_version": "0.1.0",
-      "table_version": "0.1.0",
+      "table_version": "1.0.0",
       "input": {
         "strings": [
           2,
@@ -2903,7 +2903,7 @@
   "thumb-b5": {
     "result": {
       "engine_version": "0.1.0",
-      "table_version": "0.1.0",
+      "table_version": "1.0.0",
       "input": {
         "strings": [
           7,
@@ -3524,7 +3524,7 @@
   "b-ds": {
     "result": {
       "engine_version": "0.1.0",
-      "table_version": "0.1.0",
+      "table_version": "1.0.0",
       "input": {
         "strings": [
           null,
@@ -3945,7 +3945,7 @@
   "b-ds-e-minor": {
     "result": {
       "engine_version": "0.1.0",
-      "table_version": "0.1.0",
+      "table_version": "1.0.0",
       "input": {
         "strings": [
           null,

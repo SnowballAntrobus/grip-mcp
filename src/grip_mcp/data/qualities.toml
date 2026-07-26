@@ -42,7 +42,7 @@
 
 [table]
 schema_version = 1
-table_version = "0.1.0"        # -> "1.0.0" at the Milestone-0 freeze
+table_version = "1.0.0"        # frozen 2026-07-26 (Milestone-0 gate review)
 
 [roots]
 # Canonical context-free root table, index = pitch class (flat-side, with the

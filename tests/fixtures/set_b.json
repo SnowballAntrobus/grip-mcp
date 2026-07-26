@@ -2,7 +2,7 @@
   "folk-c": {
     "result": {
       "engine_version": "0.1.0",
-      "table_version": "0.1.0",
+      "table_version": "1.0.0",
       "input": {
         "strings": [
           null,
@@ -186,7 +186,7 @@
   "folk-g": {
     "result": {
       "engine_version": "0.1.0",
-      "table_version": "0.1.0",
+      "table_version": "1.0.0",
       "input": {
         "strings": [
           3,
@@ -377,7 +377,7 @@
   "folk-d": {
     "result": {
       "engine_version": "0.1.0",
-      "table_version": "0.1.0",
+      "table_version": "1.0.0",
       "input": {
         "strings": [
           null,
@@ -554,7 +554,7 @@
   "folk-em": {
     "result": {
       "engine_version": "0.1.0",
-      "table_version": "0.1.0",
+      "table_version": "1.0.0",
       "input": {
         "strings": [
           0,
@@ -797,7 +797,7 @@
   "folk-am": {
     "result": {
       "engine_version": "0.1.0",
-      "table_version": "0.1.0",
+      "table_version": "1.0.0",
       "input": {
         "strings": [
           null,
@@ -1031,7 +1031,7 @@
   "freddie-g7": {
     "result": {
       "engine_version": "0.1.0",
-      "table_version": "0.1.0",
+      "table_version": "1.0.0",
       "input": {
         "strings": [
           3,
@@ -1088,7 +1088,7 @@
   "drop2-cmaj7": {
     "result": {
       "engine_version": "0.1.0",
-      "table_version": "0.1.0",
+      "table_version": "1.0.0",
       "input": {
         "strings": [
           null,
@@ -1146,7 +1146,7 @@
   "drop2-dm7": {
     "result": {
       "engine_version": "0.1.0",
-      "table_version": "0.1.0",
+      "table_version": "1.0.0",
       "input": {
         "strings": [
           null,
@@ -1227,7 +1227,7 @@
   "dadgad-open": {
     "result": {
       "engine_version": "0.1.0",
-      "table_version": "0.1.0",
+      "table_version": "1.0.0",
       "input": {
         "strings": [
           0,
@@ -1440,7 +1440,7 @@
   "am-vs-adim": {
     "result": {
       "engine_version": "0.1.0",
-      "table_version": "0.1.0",
+      "table_version": "1.0.0",
       "input": {
         "strings": [
           null,
@@ -1994,7 +1994,7 @@
   "b5-tiebreak": {
     "result": {
       "engine_version": "0.1.0",
-      "table_version": "0.1.0",
+      "table_version": "1.0.0",
       "input": {
         "strings": [
           null,
@@ -2588,7 +2588,7 @@
   "dy-M2": {
     "result": {
       "engine_version": "0.1.0",
-      "table_version": "0.1.0",
+      "table_version": "1.0.0",
       "input": {
         "strings": [
           null,
@@ -2923,7 +2923,7 @@
   "dy-A4": {
     "result": {
       "engine_version": "0.1.0",
-      "table_version": "0.1.0",
+      "table_version": "1.0.0",
       "input": {
         "strings": [
           null,
@@ -3237,7 +3237,7 @@
   "dy-m6": {
     "result": {
       "engine_version": "0.1.0",
-      "table_version": "0.1.0",
+      "table_version": "1.0.0",
       "input": {
         "strings": [
           null,
@@ -3658,7 +3658,7 @@
   "dy-M6": {
     "result": {
       "engine_version": "0.1.0",
-      "table_version": "0.1.0",
+      "table_version": "1.0.0",
       "input": {
         "strings": [
           null,
@@ -4212,7 +4212,7 @@
   "dy-m7": {
     "result": {
       "engine_version": "0.1.0",
-      "table_version": "0.1.0",
+      "table_version": "1.0.0",
       "input": {
         "strings": [
           null,
@@ -4547,7 +4547,7 @@
   "dy-M7": {
     "result": {
       "engine_version": "0.1.0",
-      "table_version": "0.1.0",
+      "table_version": "1.0.0",
       "input": {
         "strings": [
           null,
@@ -4665,7 +4665,7 @@
   "coll-cluster": {
     "result": {
       "engine_version": "0.1.0",
-      "table_version": "0.1.0",
+      "table_version": "1.0.0",
       "input": {
         "strings": [
           8,
@@ -4720,7 +4720,7 @@
   "cdim-gb": {
     "result": {
       "engine_version": "0.1.0",
-      "table_version": "0.1.0",
+      "table_version": "1.0.0",
       "input": {
         "strings": [
           2,
@@ -4936,7 +4936,7 @@
   "ddim-ab": {
     "result": {
       "engine_version": "0.1.0",
-      "table_version": "0.1.0",
+      "table_version": "1.0.0",
       "input": {
         "strings": [
           4,
@@ -5152,7 +5152,7 @@
   "unison-e": {
     "result": {
       "engine_version": "0.1.0",
-      "table_version": "0.1.0",
+      "table_version": "1.0.0",
       "input": {
         "strings": [
           0,

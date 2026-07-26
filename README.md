@@ -31,8 +31,8 @@ docs/                       design doc + Milestone-0 appendix
 
 ## Status
 
-Milestone 0 (table tooling → floor population → gate → freeze) in progress.
-See DESIGN.md §13 for the milestone definition and §9 for the roadmap.
+Milestone 0 complete: the quality table is frozen at 1.0.0 (gate review
+record: [REVIEW.md](REVIEW.md)). Next: V1 per DESIGN.md §6. Roadmap: §9.
 
 ## Development
 

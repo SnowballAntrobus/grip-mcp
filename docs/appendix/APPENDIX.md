@@ -1,6 +1,6 @@
 # grip-mcp — Milestone-0 Appendix
 
-Status: draft pending freeze-gate review · companion to
+Status: frozen with table 1.0.0 (gate review closed 2026-07-26) · companion to
 [DESIGN.md](../DESIGN.md) §13 and to the quality table
 (`src/grip_mcp/data/qualities.toml`, the single source of truth for rows,
 tiers, tie-break order, discounts, and families).
